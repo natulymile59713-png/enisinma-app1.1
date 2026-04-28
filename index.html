@@ -34,7 +34,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   }
 }
 
-.orient-wrap{background:var(--color-background-primary);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.orient-wrap{background:var(--color-background-primary);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:10}
 .orient-topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);flex-shrink:0}
 .logo{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:700;color:#C9A96E;letter-spacing:.08em}
 .tagline{font-size:9px;color:var(--color-text-tertiary);letter-spacing:.12em;margin-top:2px}
@@ -85,7 +85,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .btn-skip{font-size:10px;color:var(--color-text-tertiary);background:transparent;border:none;cursor:pointer;text-decoration:underline;padding:0 2px;white-space:nowrap}
 .btn-next{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;color:#fff;background:#C9A96E;cursor:pointer;font-family:'Noto Serif JP',serif;font-weight:500}
 .btn-next:hover{opacity:.88}
-.app-wrap{display:none}
+.app-wrap{display:none;position:relative;z-index:1;visibility:hidden}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
 .tlogo{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;color:#C9A96E;letter-spacing:.08em}
 .tsub{font-size:9px;color:var(--color-text-tertiary);letter-spacing:.12em;margin-top:2px}
@@ -292,13 +292,59 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .img-note{font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem}
 .bnav{display:none}
 .no-result{text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:12px;line-height:1.8}
+
+/* ===== ログイン画面 ===== */
+.login-wrap{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--color-background-primary);padding:2rem 1.5rem;position:relative;z-index:10;padding-bottom:3rem}
+.login-logo{font-family:'Noto Serif JP',serif;font-size:24px;font-weight:700;color:#C9A96E;letter-spacing:.1em;text-align:center;margin-bottom:.4rem}
+.login-tagline{font-size:11px;color:var(--color-text-tertiary);letter-spacing:.18em;text-align:center;margin-bottom:2.5rem}
+.login-card{width:100%;max-width:340px;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:16px;padding:1.75rem 1.5rem}
+.login-title{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:500;color:var(--color-text-primary);text-align:center;margin-bottom:1.5rem}
+.login-field{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem}
+.login-field label{font-size:12px;color:var(--color-text-secondary);font-weight:500}
+.login-field input{font-size:14px;padding:10px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-primary);width:100%}
+.login-field input:focus{outline:none;border-color:#C9A96E}
+.btn-login{display:block;width:100%;padding:13px;background:#C9A96E;color:#fff;border:none;border-radius:8px;font-family:'Noto Serif JP',serif;font-size:14px;font-weight:500;letter-spacing:.08em;cursor:pointer;margin-top:1.25rem;margin-bottom:.75rem}
+.btn-login:hover{opacity:.88}
+.login-divider{text-align:center;font-size:11px;color:var(--color-text-tertiary);margin:.75rem 0;position:relative}
+.login-divider::before,.login-divider::after{content:'';position:absolute;top:50%;width:40%;height:0.5px;background:var(--color-border-tertiary)}
+.login-divider::before{left:0}
+.login-divider::after{right:0}
+.btn-register{display:block;width:100%;padding:12px;background:transparent;color:#C9A96E;border:0.5px solid #C9A96E;border-radius:8px;font-size:13px;cursor:pointer;text-align:center}
+.btn-register:hover{background:rgba(201,169,110,.06)}
+.login-error{font-size:11px;color:#C05050;text-align:center;margin-top:.5rem;min-height:16px}
+
+/* ===== デモバッジ ===== */
+.demo-badge{display:inline-block;font-size:8px;padding:2px 7px;border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);margin-left:5px;vertical-align:middle}
+.demo-guide{background:rgba(201,169,110,.06);border:0.5px solid rgba(201,169,110,.25);border-radius:10px;padding:.75rem 1rem;margin:.75rem 1rem .5rem;font-size:11px;color:var(--color-text-secondary);line-height:1.8;text-align:center}
+.demo-guide-close{display:inline-block;margin-top:.5rem;font-size:10px;color:#C9A96E;cursor:pointer;border:0.5px solid #C9A96E;border-radius:6px;padding:3px 12px}
 </style>
 </head>
 <body>
 <div class="shell" id="shell">
 
+<!-- ===== ログイン画面 ===== -->
+<div id="login-wrap" class="login-wrap">
+  <div class="login-logo">縁の間 ― えにしのま ―</div>
+  <div class="login-tagline">必然的良縁を、あなたに</div>
+  <div class="login-card">
+    <div class="login-title">ログイン</div>
+    <div class="login-field">
+      <label>メールアドレス</label>
+      <input type="email" id="login-email" placeholder="example@mail.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label>パスワード</label>
+      <input type="password" id="login-password" placeholder="パスワードを入力" autocomplete="current-password">
+    </div>
+    <div class="login-error" id="login-error"></div>
+    <button class="btn-login" onclick="doLogin()">ログイン</button>
+    <div class="login-divider">または</div>
+    <button class="btn-register" onclick="goToRegister()">新規登録はこちら →</button>
+  </div>
+</div>
+
 <!-- ===== オリエンテーション ===== -->
-<div id="orient-wrap" class="orient-wrap">
+<div id="orient-wrap" class="orient-wrap" style="display:none">
   <div class="orient-topbar">
     <div><div class="logo">縁の間 ― えにしのま ―</div><div class="tagline">必然的良縁を、あなたに</div></div>
     <div class="orient-progress" id="orient-progress">1 / 7</div>
@@ -321,7 +367,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 
 <!-- ===== 登録画面 ===== -->
-<div id="reg-wrap" style="display:none">
+<div id="reg-wrap" style="display:none;position:relative;z-index:10;background:var(--color-background-secondary);min-height:100vh;min-height:100dvh;padding-bottom:3rem">
   <div class="topbar" style="justify-content:center;flex-direction:column;text-align:center"><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
   <div style="padding:1rem">
     <div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:1rem">はじめに登録してください（登録後は変更できません）</div>
@@ -357,7 +403,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 
 <!-- ===== メインアプリ ===== -->
-<div class="app-wrap" id="app-wrap">
+<div class="app-wrap" id="app-wrap" style="display:none">
   <div class="topbar">
     <div><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
     <div class="topbar-icons">
@@ -392,7 +438,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       </div>
     </div>
   </div>
-  <div id="s0" class="screen on">
+  <div id="s0" class="screen">
     <div class="filter-panel">
       <div class="filter-toggle" onclick="toggleFilter()"><span class="filter-lbl">絞り込み条件</span><span class="filter-icon" id="filter-icon">▼</span></div>
       <div class="filter-body" id="filter-body">
@@ -512,16 +558,18 @@ function showMsgList(){document.getElementById('msg-list-view').style.display='b
 function toggleSubMenu(e){if(e)e.stopPropagation();document.getElementById('sub-menu').classList.toggle('show');}
 function closeSubMenu(){document.getElementById('sub-menu').classList.remove('show');}
 function openSubPage(page){['plan','omoi','voice','contact'].forEach(function(p){document.getElementById('sub-'+p).style.display='none';});document.getElementById('sub-'+page).style.display='block';document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===3);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});document.querySelectorAll('.bni').forEach(function(b,i){b.classList.toggle('on',i===3);});}
-function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;var filtered=ALL_SORTED.filter(function(item){if(ngList.indexOf(item.i)>=0)return false;if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
-function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags);});container.innerHTML=html;enList.forEach(function(en){var btn=document.getElementById('hanashi-btn-'+en.idx);if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}});}
-function buildDetail(idx,myP,partner,score,tagsHtml){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+KAN[myP[pi].k]+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+SHI[myP[pi].s]+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+KAN[partner.pillars[pi].k]+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+SHI[partner.pillars[pi].s]+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button></div></div>';}
-var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19)},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50)},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77)},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69)},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50)}];
-function renderMatchList(myP){var cache={};for(var i=0;i<PARTNERS.length;i++)cache[i]=checkRelations(myP,PARTNERS[i].pillars);REL_CACHE=cache;PARTNERS_DATA=[];ALL_SORTED=PARTNERS.map(function(p,i){var sc=calcScore(cache[i]),rel=cache[i],th='';if(rel.kango.length>0)th+='<span class="tag g">干合：'+rel.kango.length+'</span>';if(rel.sango.length>0)th+='<span class="tag g">三合：'+rel.sango.length+'</span>';if(rel.shigo.length>0)th+='<span class="tag g">支合：'+rel.shigo.length+'</span>';if(rel.chu.length>0)th+='<span class="tag r">冲：'+rel.chu.length+'</span>';if(rel.kei.length>0)th+='<span class="tag r">刑：'+rel.kei.length+'</span>';PARTNERS_DATA[i]={name:p.name,meta:p.meta,score:sc,tags:th};return{p:p,i:i,score:sc,tags:th};});ALL_SORTED.sort(function(a,b){return b.score-a.score;});applyFilter();}
+function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;if(minScore<50)minScore=50;var filtered=ALL_SORTED.filter(function(item){if(ngList.indexOf(item.i)>=0)return false;if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
+function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;enList.forEach(function(en){var btn=document.getElementById('hanashi-btn-'+en.idx);if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}});}
+function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
+function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+KAN[myP[pi].k]+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+SHI[myP[pi].s]+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+KAN[partner.pillars[pi].k]+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+SHI[partner.pillars[pi].s]+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button></div></div>';}
+var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true}];
+var demoGuideDismissed=false;
+function renderMatchList(myP){var cache={};for(var i=0;i<PARTNERS.length;i++)cache[i]=checkRelations(myP,PARTNERS[i].pillars);REL_CACHE=cache;PARTNERS_DATA=[];ALL_SORTED=PARTNERS.map(function(p,i){var sc=calcScore(cache[i]),rel=cache[i],th='';if(rel.kango.length>0)th+='<span class="tag g">干合：'+rel.kango.length+'</span>';if(rel.sango.length>0)th+='<span class="tag g">三合：'+rel.sango.length+'</span>';if(rel.shigo.length>0)th+='<span class="tag g">支合：'+rel.shigo.length+'</span>';if(rel.chu.length>0)th+='<span class="tag r">冲：'+rel.chu.length+'</span>';if(rel.kei.length>0)th+='<span class="tag r">刑：'+rel.kei.length+'</span>';PARTNERS_DATA[i]={name:p.name,meta:p.meta,score:sc,tags:th,isDemo:p.isDemo||false};return{p:p,i:i,score:sc,tags:th,isDemo:p.isDemo||false};});ALL_SORTED.sort(function(a,b){return b.score-a.score;});applyFilter();}
 function previewImg(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){savedImgSrc=ev.target.result;document.getElementById('preview-img').src=savedImgSrc;document.getElementById('preview-img').style.display='block';document.getElementById('img-ph').style.display='none';};reader.readAsDataURL(file);}
 function toggleKodomo(){document.getElementById('kodomo-row').style.display=document.getElementById('r-kodomo').value==='yes'?'block':'none';}
 function setSex(el){document.querySelectorAll('#r-sex-row .sxbtn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
 function calcMeishiki(){var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1,hr=parseInt(document.getElementById('hr').value)||0,mn=parseInt(document.getElementById('mn').value)||0;var lon=parseFloat(document.getElementById('city').value)||135.0,cName=document.getElementById('city').options[document.getElementById('city').selectedIndex].text;var ld=(lon-135.0)*4,j=jd(yr,mo,dy,hr+mn/60),eq=eqT(j),tt=((hr*60+mn+ld+eq)%1440+1440)%1440,tH=Math.floor(tt/60),tM=Math.round(tt%60);var sk=getSekki(yr,mo),bef=(dy*1440+hr*60+mn)<(sk.d*1440+sk.h*60+sk.m);var nY=yr;if(mo===1){nY=yr-1;}else if(mo===2&&bef){nY=yr-1;}var nKi=((nY-4)%10+10)%10,nSi=((nY-4)%12+12)%12;var mY=yr,mM=mo;if(bef){mM--;if(mM<=0){mM=12;mY--;}}var gY=mY;if(mM===1)gY=mY-1;var gKi=((gY-4)%10+10)%10;var moKi=(GOKOTSU[gKi]+(mM-2+12)%12)%10,moSi=MO_SHI[mM];var dJ=Math.floor(jd(yr,mo,dy,12)),dSt=((dJ+49)%10+10)%10,dSi=((dJ+49)%12+12)%12;var sH=Math.floor(((tH+1)%24)/2),hKi=([0,2,4,6,8][dSt%5]+sH)%10;savedPillars=[{k:nKi,s:nSi},{k:moKi,s:moSi},{k:dSt,s:dSi},{k:hKi,s:sH}];var h='';savedPillars.forEach(function(p,i){h+='<div class="pc'+(i===2?' day':'')+'"><div class="pc-lbl">'+PL[i]+'</div><div class="pc-kan">'+KAN[p.k]+'</div><div class="pc-shi">'+SHI[p.s]+'</div></div>';});document.getElementById('pillars').innerHTML=h;var dbgEl=document.getElementById('dbg');dbgEl.style.display='block';dbgEl.className='dbg';dbgEl.innerHTML='<div class="dr"><span>出生地</span><span class="dv">'+cName+'</span></div><div class="dr"><span>真太陽時</span><span class="dv">'+String(tH).padStart(2,'0')+'時'+String(tM).padStart(2,'0')+'分</span></div><div class="dr"><span>判定</span><span class="dv">'+(bef?'節入り前':'節入り後')+'</span></div>';}
-function completeReg(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=document.getElementById('r-kodomo').value==='yes'?document.getElementById('r-kodomo-cnt').value:'なし';var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('app-wrap').style.display='block';renderMatchList(MY_PILLARS);}
+function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=document.getElementById('r-kodomo').value==='yes'?document.getElementById('r-kodomo-cnt').value:'なし';var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('app-wrap').style.display='block';document.getElementById('app-wrap').style.visibility='visible';document.getElementById('s0').classList.add('on');renderMatchList(MY_PILLARS);}
 function goTab(i){document.querySelectorAll('.ntab').forEach(function(t,idx){t.classList.toggle('on',idx===i);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.toggle('on',i===3);});document.querySelectorAll('.screen').forEach(function(s,idx){s.classList.toggle('on',idx===i);});document.querySelectorAll('.bni').forEach(function(b,idx){b.classList.toggle('on',idx===i);});}
 function toggleModal(){document.getElementById('profile-modal').classList.toggle('show');}
 function toggleFilter(){var b=document.getElementById('filter-body'),ic=document.getElementById('filter-icon');var o=b.classList.contains('open');b.classList.toggle('open',!o);ic.classList.toggle('open',!o);}
@@ -542,14 +590,17 @@ initPrefs();updateAgeSummary();
 // ===== Supabase 初期化 =====
 const SUPABASE_URL = 'https://ogshjcqkvuidlaenawth.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2hqY3FrdnVpZGxhZW5hd3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzIyMDUsImV4cCI6MjA5Mjg0ODIwNX0.xCw4h4vBDf4mlilgHYUQbG0pPYfySMInrZPXwB-NsVI';
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 var currentUser = null;
 
 // ===== 起動時：ログイン状態チェック =====
 async function checkSession() {
   try {
     const { data: { session } } = await supa.auth.getSession();
-    if (!session) return;
+    if (!session) {
+      document.getElementById('login-wrap').style.display = 'flex';
+      return;
+    }
     currentUser = session.user;
     const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
     if (profile) {
@@ -568,6 +619,7 @@ async function checkSession() {
         {k: profile.pillar_day_k||0, s: profile.pillar_day_s||0},
         {k: profile.pillar_hour_k||0, s: profile.pillar_hour_s||0}
       ];
+      document.getElementById('s0').classList.add('on');
       renderMatchList(MY_PILLARS);
       loadRealUsers();
     } else {
@@ -595,11 +647,13 @@ async function completeReg() {
   }
 
   // Supabaseに新規登録
-  const { data, error } = await supa.auth.signUp({ email, password });
-  if (error) {
-    alert('登録エラー：' + error.message);
-    return;
-  }
+  try {
+    const { data, error } = await supa.auth.signUp({ email, password });
+    if (error) {
+      alert('登録エラー：' + error.message);
+      console.log('登録エラー詳細:', error);
+      return;
+    }
 
   currentUser = data.user;
   if (!currentUser) {
@@ -690,8 +744,11 @@ async function completeReg() {
   MY_PILLARS = savedPillars;
   document.getElementById('reg-wrap').style.display = 'none';
   document.getElementById('app-wrap').style.display = 'block';
+  document.getElementById('app-wrap').style.visibility = 'visible';
+  document.getElementById('s0').classList.add('on');
   renderMatchList(MY_PILLARS);
   loadRealUsers();
+  } catch(e) { alert('登録中にエラーが発生しました：' + e.message); console.log('登録例外:', e); }
 }
 
 // ===== 他のリアルユーザーを読み込んで推しページに表示 =====
@@ -699,9 +756,10 @@ async function loadRealUsers() {
   if (!currentUser) return;
   try {
     const { data: users, error } = await supa.from('profiles').select('*').neq('id', currentUser.id);
-    if (error || !users || users.length === 0) return;
+    if (error) { console.log('ユーザー取得エラー:', error); }
+    var validUsers = (users && !error) ? users : [];
 
-    const realPartners = users.map(u => ({
+    const realPartners = validUsers.map(u => ({
       name: u.nickname + 'さん',
       meta: (u.birth_year ? (new Date().getFullYear() - u.birth_year) + '歳' : '') + (u.prefecture ? '・' + u.prefecture : ''),
       pillars: [
@@ -710,15 +768,93 @@ async function loadRealUsers() {
         {k: u.pillar_day_k||0, s: u.pillar_day_s||0},
         {k: u.pillar_hour_k||0, s: u.pillar_hour_s||0}
       ],
-      userId: u.id
+      userId: u.id,
+      isDemo: false
     }));
 
+    PARTNERS.splice(0, PARTNERS.length);
     if (realPartners.length > 0) {
-      PARTNERS.splice(0, PARTNERS.length, ...realPartners);
-      renderMatchList(MY_PILLARS);
+      // リアルユーザーが1人でもいればデモは表示しない
+      realPartners.forEach(function(p){ PARTNERS.push(p); });
+    } else {
+      // リアルユーザーがいない場合のみデモを表示
+      var demoData = [
+        {name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true},
+        {name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true},
+        {name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true},
+        {name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true},
+        {name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true}
+      ];
+      demoData.forEach(function(p){ PARTNERS.push(p); });
     }
+    renderMatchList(MY_PILLARS);
   } catch(e) { console.log('ユーザー読み込みエラー', e); }
 }
+
+// ===== ログイン処理 =====
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  errEl.textContent = '';
+
+  if (!email || !password) {
+    errEl.textContent = 'メールアドレスとパスワードを入力してください';
+    return;
+  }
+
+  try {
+    const { data, error } = await supa.auth.signInWithPassword({ email, password });
+    if (error) {
+      errEl.textContent = 'メールアドレスまたはパスワードが違います';
+      console.log('ログインエラー:', error.message);
+      return;
+    }
+
+  currentUser = data.user;
+  document.getElementById('login-wrap').style.display = 'none';
+
+  // プロフィール確認
+  const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (profile) {
+    memberID = profile.member_id;
+    document.getElementById('app-wrap').style.display = 'block';
+    document.getElementById('app-wrap').style.visibility = 'visible';
+    document.getElementById('s0').classList.add('on');
+    document.getElementById('topbar-initial').textContent = profile.nickname.charAt(0);
+    document.getElementById('modal-ava-ph').textContent = profile.nickname.charAt(0);
+    document.getElementById('modal-member-id').textContent = profile.member_id;
+    document.getElementById('contact-id').value = profile.member_id;
+    document.getElementById('contact-nick').value = profile.nickname;
+    MY_PILLARS = [
+      {k: profile.pillar_year_k||0, s: profile.pillar_year_s||0},
+      {k: profile.pillar_month_k||0, s: profile.pillar_month_s||0},
+      {k: profile.pillar_day_k||0, s: profile.pillar_day_s||0},
+      {k: profile.pillar_hour_k||0, s: profile.pillar_hour_s||0}
+    ];
+    renderMatchList(MY_PILLARS);
+    loadRealUsers();
+  } else {
+    // プロフィール未登録ならオリエンテーションへ
+    document.getElementById('orient-wrap').style.display = 'flex';
+  }
+  } catch(e) { console.log('ログイン例外:', e); errEl.textContent = 'エラーが発生しました'; }
+}
+
+// ===== 新規登録ボタン =====
+function goToRegister() {
+  document.getElementById('login-wrap').style.display = 'none';
+  document.getElementById('orient-wrap').style.display = 'flex';
+  document.getElementById('app-wrap').style.display = 'none';
+}
+
+// Enterキーでログイン
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && document.getElementById('login-wrap').style.display !== 'none') {
+    doLogin();
+  }
+});
+
 </script>
 </body>
 </html>
