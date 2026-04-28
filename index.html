@@ -34,7 +34,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   }
 }
 
-.orient-wrap{background:var(--color-background-primary);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:10}
+.orient-wrap{background:var(--color-background-primary);min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;position:relative;z-index:10;padding-bottom:3rem}
 .orient-topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);flex-shrink:0}
 .logo{font-family:'Noto Serif JP',serif;font-size:16px;font-weight:700;color:#C9A96E;letter-spacing:.08em}
 .tagline{font-size:9px;color:var(--color-text-tertiary);letter-spacing:.12em;margin-top:2px}
@@ -85,7 +85,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .btn-skip{font-size:10px;color:var(--color-text-tertiary);background:transparent;border:none;cursor:pointer;text-decoration:underline;padding:0 2px;white-space:nowrap}
 .btn-next{flex:1;padding:9px 0;border:none;border-radius:8px;font-size:13px;color:#fff;background:#C9A96E;cursor:pointer;font-family:'Noto Serif JP',serif;font-weight:500}
 .btn-next:hover{opacity:.88}
-.app-wrap{display:none;position:relative;z-index:1;visibility:hidden}
+.app-wrap{position:relative;z-index:1}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
 .tlogo{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:700;color:#C9A96E;letter-spacing:.08em}
 .tsub{font-size:9px;color:var(--color-text-tertiary);letter-spacing:.12em;margin-top:2px}
@@ -367,7 +367,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 
 <!-- ===== 登録画面 ===== -->
-<div id="reg-wrap" style="display:none;position:relative;z-index:10;background:var(--color-background-secondary);min-height:100vh;min-height:100dvh;padding-bottom:3rem">
+<div id="reg-wrap" style="display:none;visibility:hidden;position:relative;z-index:10;background:var(--color-background-secondary);min-height:100vh;min-height:100dvh;padding-bottom:3rem">
   <div class="topbar" style="justify-content:center;flex-direction:column;text-align:center"><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
   <div style="padding:1rem">
     <div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:1rem">はじめに登録してください（登録後は変更できません）</div>
@@ -403,7 +403,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 
 <!-- ===== メインアプリ ===== -->
-<div class="app-wrap" id="app-wrap" style="display:none">
+<template id="app-template"><div class="app-wrap" id="app-wrap" style="display:block">
   <div class="topbar">
     <div><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
     <div class="topbar-icons">
@@ -508,6 +508,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   </div>
 </div>
 </div>
+</template>
 <script>
 var KAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
 var SHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
@@ -526,11 +527,11 @@ function updateSlide(){document.getElementById('slides').style.transform='transl
 function nextSlide(){if(currentSlide<totalSlides-1){currentSlide++;updateSlide();}else{startReg();}}
 function prevSlide(){if(currentSlide>0){currentSlide--;updateSlide();}}
 function skipOrient(){startReg();}
-function startReg(){document.getElementById('orient-wrap').style.display='none';document.getElementById('reg-wrap').style.display='block';}
+function startReg(){document.getElementById('orient-wrap').style.display='none';document.getElementById('reg-wrap').style.display='block';document.getElementById('reg-wrap').style.visibility='visible';}
 initDots();updateSlide();
 function unlockSotsugyou(){var card=document.getElementById('sotsugyou-card'),badge=document.getElementById('sotsugyou-badge'),btn=document.getElementById('sotsugyou-btn');card.classList.remove('locked');card.style.borderColor='#C9A96E';card.style.opacity='1';card.style.filter='none';card.querySelector('.other-plan-nm').style.color='#C9A96E';card.querySelector('.other-plan-price').style.color='';card.querySelector('.other-plan-items').style.color='';var ln=card.querySelector('.lock-notice');if(ln)ln.style.display='none';badge.className='plan-status-badge unlocked';badge.textContent='申込可';btn.textContent='卒業申請フォームを開く →';btn.classList.remove('locked');btn.classList.add('available');btn.disabled=false;btn.onclick=function(){btn.textContent='卒業申請済み ✓';btn.classList.remove('available');btn.classList.add('done');btn.disabled=true;addNotif('【運営】卒業申請を受け付けました','内容確認後、改めてご連絡いたします。');};addNotif('【運営】卒業申請が可能になりました','おめでとうございます！卒業鑑定プランの申し込みが解放されました。');addOfficialMessage('おめでとうございます！🎊 卒業鑑定プランのご申し込みが可能になりました。「その他」→「プラン」からご申請いただけます。');}
-function toggleNotif(){var p=document.getElementById('notif-panel');p.classList.toggle('show');if(p.classList.contains('show')){document.getElementById('notif-dot').style.display='none';document.querySelectorAll('.notif-item.unread').forEach(function(el){el.classList.remove('unread');});}}
-function addNotif(title,body){var list=document.getElementById('notif-list');var item=document.createElement('div');item.className='notif-item unread';item.innerHTML='<div class="notif-item-title">'+title+'</div><div class="notif-item-body">'+body+'</div><div class="notif-item-time">just now</div>';list.insertBefore(item,list.firstChild);document.getElementById('notif-dot').style.display='block';}
+function toggleNotif(){var p=document.getElementById('notif-panel');if(!p)return;p.classList.toggle('show');if(p.classList.contains('show')){document.getElementById('notif-dot').style.display='none';document.querySelectorAll('.notif-item.unread').forEach(function(el){el.classList.remove('unread');});}}
+function addNotif(title,body){var list=document.getElementById('notif-list');if(!list)return;var item=document.createElement('div');item.className='notif-item unread';item.innerHTML='<div class="notif-item-title">'+title+'</div><div class="notif-item-body">'+body+'</div><div class="notif-item-time">just now</div>';list.insertBefore(item,list.firstChild);document.getElementById('notif-dot').style.display='block';}
 function addOfficialMessage(text){officialMessages.push({from:'official',text:text});document.getElementById('official-preview').textContent=text.substring(0,25)+'…';}
 function openOfficialChat(){document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';document.getElementById('chat-name').textContent='縁の間 運営';document.getElementById('chat-ava').textContent='縁';document.getElementById('chat-ava').className='msg-list-ava official';document.getElementById('chat-official-badge').style.display='inline-block';var body=document.getElementById('chat-body');var html='<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem;line-height:1.6">縁の間 運営との公式チャットです。<br>問い合わせへの返答もこちらから届きます。</div>';officialMessages.forEach(function(msg){if(msg.from==='official'){html+='<div class="msg-wrap"><div class="bubble">'+msg.text+'</div><div class="mtime">縁の間 運営</div></div>';}else{html+='<div class="msg-wrap me"><div class="bubble me">'+msg.text+'</div><div class="mtime">あなた</div></div>';}});html+='<div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" id="official-input" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button onclick="sendToOfficial()" style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div>';body.innerHTML=html;goTab(2);}
 function sendToOfficial(){var input=document.getElementById('official-input');if(!input||!input.value.trim())return;var text=input.value.trim();officialMessages.push({from:'user',text:text});input.value='';setTimeout(function(){addOfficialMessage('メッセージありがとうございます。内容を確認次第、担当よりご連絡いたします。');addNotif('【運営】メッセージを受け取りました','確認次第、ご返答いたします。');},1000);openOfficialChat();}
@@ -555,26 +556,27 @@ function hanashi(idx){var exists=enList.some(function(e){return e.idx===idx;});i
 function renderMsgList(){var matched=enList.filter(function(e){return e.status==='matched';});var container=document.getElementById('msg-list-items');if(matched.length===0){container.innerHTML='';return;}var html='';matched.forEach(function(item,i){var unread=(i===0);html+='<div class="msg-list-item" onclick="openChat(\''+item.name+'\')"><div class="msg-list-ava">'+item.name.charAt(0)+(unread?'<div class="msg-unread-dot"></div>':'')+'</div><div class="msg-list-info"><div class="msg-list-name">'+item.name+'</div><div class="msg-list-preview">ほんとですね。どちらにお住まいですか？</div></div><div class="msg-list-time">11:20</div></div>';});container.innerHTML=html;}
 function openChat(name){document.getElementById('chat-name').textContent=name;document.getElementById('chat-ava').textContent=name.charAt(0);document.getElementById('chat-ava').className='msg-list-ava';document.getElementById('chat-official-badge').style.display='none';document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';var body=document.getElementById('chat-body');body.innerHTML='<div class="mcnt">残り 28 / 30 回</div><div class="msg-wrap"><div class="bubble">はじめまして！よろしくお願いします。</div><div class="mtime">'+name+'｜11:02</div></div><div class="msg-wrap me"><div class="bubble me">こちらこそ！よろしくお願いします！</div><div class="mtime">11:15</div></div><div class="msg-wrap"><div class="bubble">どちらにお住まいですか？</div><div class="mtime">'+name+'｜11:20</div></div><div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:.6rem;line-height:1.7">※ メッセージは30回まで。他のSNSのIDやリンクを交換するのは規約違反となります。</div>';goTab(2);}
 function showMsgList(){document.getElementById('msg-list-view').style.display='block';document.getElementById('msg-chat-view').style.display='none';}
-function toggleSubMenu(e){if(e)e.stopPropagation();document.getElementById('sub-menu').classList.toggle('show');}
-function closeSubMenu(){document.getElementById('sub-menu').classList.remove('show');}
+function toggleSubMenu(e){if(e)e.stopPropagation();var el=document.getElementById('sub-menu');if(el)el.classList.toggle('show');}
+function closeSubMenu(){var el=document.getElementById('sub-menu');if(el)el.classList.remove('show');}
 function openSubPage(page){['plan','omoi','voice','contact'].forEach(function(p){document.getElementById('sub-'+p).style.display='none';});document.getElementById('sub-'+page).style.display='block';document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===3);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});document.querySelectorAll('.bni').forEach(function(b,i){b.classList.toggle('on',i===3);});}
 function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;if(minScore<50)minScore=50;var filtered=ALL_SORTED.filter(function(item){if(ngList.indexOf(item.i)>=0)return false;if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
 function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;enList.forEach(function(en){var btn=document.getElementById('hanashi-btn-'+en.idx);if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}});}
 function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
 function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+KAN[myP[pi].k]+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+SHI[myP[pi].s]+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+KAN[partner.pillars[pi].k]+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+SHI[partner.pillars[pi].s]+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button></div></div>';}
-var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true}];
+var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}];
+var DEMO_MALE=[{name:'ゆうきさん',meta:'28歳・東京都・初婚・子なし',pillars:calcPillars(1997,8,15,10,30,139.75),isDemo:true,sex:'男性'},{name:'れんさん',meta:'31歳・大阪府・初婚・子なし',pillars:calcPillars(1994,4,22,7,0,135.50),isDemo:true,sex:'男性'},{name:'はるとさん',meta:'33歳・神奈川県・初婚・子なし',pillars:calcPillars(1992,12,3,21,45,139.64),isDemo:true,sex:'男性'},{name:'そうたさん',meta:'29歳・京都府・初婚・子なし',pillars:calcPillars(1996,6,18,15,20,135.77),isDemo:true,sex:'男性'},{name:'かいとさん',meta:'35歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,2,8,5,10,135.19),isDemo:true,sex:'男性'}];
 var demoGuideDismissed=false;
 function renderMatchList(myP){var cache={};for(var i=0;i<PARTNERS.length;i++)cache[i]=checkRelations(myP,PARTNERS[i].pillars);REL_CACHE=cache;PARTNERS_DATA=[];ALL_SORTED=PARTNERS.map(function(p,i){var sc=calcScore(cache[i]),rel=cache[i],th='';if(rel.kango.length>0)th+='<span class="tag g">干合：'+rel.kango.length+'</span>';if(rel.sango.length>0)th+='<span class="tag g">三合：'+rel.sango.length+'</span>';if(rel.shigo.length>0)th+='<span class="tag g">支合：'+rel.shigo.length+'</span>';if(rel.chu.length>0)th+='<span class="tag r">冲：'+rel.chu.length+'</span>';if(rel.kei.length>0)th+='<span class="tag r">刑：'+rel.kei.length+'</span>';PARTNERS_DATA[i]={name:p.name,meta:p.meta,score:sc,tags:th,isDemo:p.isDemo||false};return{p:p,i:i,score:sc,tags:th,isDemo:p.isDemo||false};});ALL_SORTED.sort(function(a,b){return b.score-a.score;});applyFilter();}
 function previewImg(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){savedImgSrc=ev.target.result;document.getElementById('preview-img').src=savedImgSrc;document.getElementById('preview-img').style.display='block';document.getElementById('img-ph').style.display='none';};reader.readAsDataURL(file);}
 function toggleKodomo(){document.getElementById('kodomo-row').style.display=document.getElementById('r-kodomo').value==='yes'?'block':'none';}
 function setSex(el){document.querySelectorAll('#r-sex-row .sxbtn').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
 function calcMeishiki(){var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1,hr=parseInt(document.getElementById('hr').value)||0,mn=parseInt(document.getElementById('mn').value)||0;var lon=parseFloat(document.getElementById('city').value)||135.0,cName=document.getElementById('city').options[document.getElementById('city').selectedIndex].text;var ld=(lon-135.0)*4,j=jd(yr,mo,dy,hr+mn/60),eq=eqT(j),tt=((hr*60+mn+ld+eq)%1440+1440)%1440,tH=Math.floor(tt/60),tM=Math.round(tt%60);var sk=getSekki(yr,mo),bef=(dy*1440+hr*60+mn)<(sk.d*1440+sk.h*60+sk.m);var nY=yr;if(mo===1){nY=yr-1;}else if(mo===2&&bef){nY=yr-1;}var nKi=((nY-4)%10+10)%10,nSi=((nY-4)%12+12)%12;var mY=yr,mM=mo;if(bef){mM--;if(mM<=0){mM=12;mY--;}}var gY=mY;if(mM===1)gY=mY-1;var gKi=((gY-4)%10+10)%10;var moKi=(GOKOTSU[gKi]+(mM-2+12)%12)%10,moSi=MO_SHI[mM];var dJ=Math.floor(jd(yr,mo,dy,12)),dSt=((dJ+49)%10+10)%10,dSi=((dJ+49)%12+12)%12;var sH=Math.floor(((tH+1)%24)/2),hKi=([0,2,4,6,8][dSt%5]+sH)%10;savedPillars=[{k:nKi,s:nSi},{k:moKi,s:moSi},{k:dSt,s:dSi},{k:hKi,s:sH}];var h='';savedPillars.forEach(function(p,i){h+='<div class="pc'+(i===2?' day':'')+'"><div class="pc-lbl">'+PL[i]+'</div><div class="pc-kan">'+KAN[p.k]+'</div><div class="pc-shi">'+SHI[p.s]+'</div></div>';});document.getElementById('pillars').innerHTML=h;var dbgEl=document.getElementById('dbg');dbgEl.style.display='block';dbgEl.className='dbg';dbgEl.innerHTML='<div class="dr"><span>出生地</span><span class="dv">'+cName+'</span></div><div class="dr"><span>真太陽時</span><span class="dv">'+String(tH).padStart(2,'0')+'時'+String(tM).padStart(2,'0')+'分</span></div><div class="dr"><span>判定</span><span class="dv">'+(bef?'節入り前':'節入り後')+'</span></div>';}
-function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=document.getElementById('r-kodomo').value==='yes'?document.getElementById('r-kodomo-cnt').value:'なし';var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('app-wrap').style.display='block';document.getElementById('app-wrap').style.visibility='visible';document.getElementById('s0').classList.add('on');renderMatchList(MY_PILLARS);}
-function goTab(i){document.querySelectorAll('.ntab').forEach(function(t,idx){t.classList.toggle('on',idx===i);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.toggle('on',i===3);});document.querySelectorAll('.screen').forEach(function(s,idx){s.classList.toggle('on',idx===i);});document.querySelectorAll('.bni').forEach(function(b,idx){b.classList.toggle('on',idx===i);});}
+function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=document.getElementById('r-kodomo').value==='yes'?document.getElementById('r-kodomo-cnt').value:'なし';var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('orient-wrap').style.display='none';document.getElementById('login-wrap').style.display='none';showAppWrap();renderMatchList(MY_PILLARS);}
+function goTab(i){if(!document.getElementById('s0'))return;document.querySelectorAll('.ntab').forEach(function(t,idx){t.classList.toggle('on',idx===i);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.toggle('on',i===3);});document.querySelectorAll('.screen').forEach(function(s,idx){s.classList.toggle('on',idx===i);});document.querySelectorAll('.bni').forEach(function(b,idx){b.classList.toggle('on',idx===i);});}
 function toggleModal(){document.getElementById('profile-modal').classList.toggle('show');}
 function toggleFilter(){var b=document.getElementById('filter-body'),ic=document.getElementById('filter-icon');var o=b.classList.contains('open');b.classList.toggle('open',!o);ic.classList.toggle('open',!o);}
 function toggleAge(type){ageState[type]=!ageState[type];document.getElementById('age-'+type).classList.toggle('on',ageState[type]);document.getElementById('row-upper').style.display=ageState.older?'flex':'none';document.getElementById('row-lower').style.display=ageState.younger?'flex':'none';updateAgeSummary();applyFilter();}
-function updateAgeSummary(){var u=parseInt(document.getElementById('age-upper').value),l=parseInt(document.getElementById('age-lower').value),p=[];p.push(ageState.older?(u===0?'年上：指定しない':'最大'+u+'歳上まで'):'年上：なし');p.push(ageState.younger?(l===0?'年下：指定しない':'最大'+l+'歳下まで'):'年下：なし');document.getElementById('age-sum').textContent=p.join('・');}
+function updateAgeSummary(){if(!document.getElementById('age-upper'))return;var u=parseInt(document.getElementById('age-upper').value),l=parseInt(document.getElementById('age-lower').value),p=[];p.push(ageState.older?(u===0?'年上：指定しない':'最大'+u+'歳上まで'):'年上：なし');p.push(ageState.younger?(l===0?'年下：指定しない':'最大'+l+'歳下まで'):'年下：なし');document.getElementById('age-sum').textContent=p.join('・');}
 function toggleDetail(idx){var d=document.getElementById('detail'+idx),c=document.getElementById('card'+idx);var isOpen=d.classList.contains('open');document.querySelectorAll('.detail-panel').forEach(function(p){p.classList.remove('open');});document.querySelectorAll('.match-card').forEach(function(c2){c2.classList.remove('open');});clearAllSvg();if(!isOpen){d.classList.add('open');c.classList.add('open');}}
 function clearAllSvg(){document.querySelectorAll('.svg-ov').forEach(function(s){s.innerHTML='';}); }
 function clearSvg(idx){var s=document.getElementById('svg'+idx);if(s)s.innerHTML='';}
@@ -582,7 +584,7 @@ function getCenter(el,svgEl){var sr=svgEl.getBoundingClientRect(),r=el.getBoundi
 function drawCircle(svg,cx,cy,rw,rh,color){var el=document.createElementNS('http://www.w3.org/2000/svg','ellipse');el.setAttribute('cx',cx);el.setAttribute('cy',cy);el.setAttribute('rx',rw/2+5);el.setAttribute('ry',rh/2+5);el.setAttribute('fill','none');el.setAttribute('stroke',color);el.setAttribute('stroke-width','2');el.setAttribute('stroke-dasharray','5 3');svg.appendChild(el);}
 function drawLine(svg,x1,y1,x2,y2,color){var line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);line.setAttribute('stroke',color);line.setAttribute('stroke-width','1.5');line.setAttribute('stroke-dasharray','5 3');line.setAttribute('opacity','0.85');svg.appendChild(line);}
 function highlightPair(idx,type,ii){clearSvg(idx);var svg=document.getElementById('svg'+idx);if(!svg)return;var rel=REL_CACHE[idx];var color='#C9A96E';if(type==='冲'||type==='刑')color='#C05050';var items={干合:rel.kango,三合:rel.sango,支合:rel.shigo,冲:rel.chu,刑:rel.kei};var item=(items[type]||[])[ii];if(!item)return;if(item.type==='both')color='#9966CC';var et=(type==='干合')?'kan':'shi';var myEl=document.getElementById('my'+et+'_'+idx+'_'+item.mi),thEl=document.getElementById('th'+et+'_'+idx+'_'+item.ti);if(!myEl||!thEl)return;var c1=getCenter(myEl,svg),c2=getCenter(thEl,svg);drawCircle(svg,c1.x,c1.y,c1.w,c1.h,color);drawCircle(svg,c2.x,c2.y,c2.w,c2.h,color);drawLine(svg,c1.x,c1.y,c2.x,c2.y,color);}
-document.addEventListener('click',function(e){if(!e.target.closest('#other-tab-btn')&&!e.target.closest('#bni-other')&&!e.target.closest('#sub-menu'))closeSubMenu();if(!e.target.closest('.notif-icon')&&!e.target.closest('#notif-panel'))document.getElementById('notif-panel').classList.remove('show');var pair=e.target.closest('.rel-pair');if(!pair){document.querySelectorAll('.rel-pair.active').forEach(function(p){p.classList.remove('active');});clearAllSvg();return;}var idx=pair.dataset.ridx,type=pair.dataset.type,ii=parseInt(pair.dataset.ii);if(pair.classList.contains('active')){pair.classList.remove('active');clearSvg(idx);}else{document.querySelectorAll('.rel-pair.active').forEach(function(p){p.classList.remove('active');});clearAllSvg();pair.classList.add('active');highlightPair(idx,type,ii);}});
+document.addEventListener('click',function(e){if(!e.target.closest('#other-tab-btn')&&!e.target.closest('#bni-other')&&!e.target.closest('#sub-menu'))closeSubMenu();if(!e.target.closest('.notif-icon')&&!e.target.closest('#notif-panel')){var np=document.getElementById('notif-panel');if(np)np.classList.remove('show');}var pair=e.target.closest('.rel-pair');if(!pair){document.querySelectorAll('.rel-pair.active').forEach(function(p){p.classList.remove('active');});clearAllSvg();return;}var idx=pair.dataset.ridx,type=pair.dataset.type,ii=parseInt(pair.dataset.ii);if(pair.classList.contains('active')){pair.classList.remove('active');clearSvg(idx);}else{document.querySelectorAll('.rel-pair.active').forEach(function(p){p.classList.remove('active');});clearAllSvg();pair.classList.add('active');highlightPair(idx,type,ii);}});
 function initPrefs(){var rp=document.getElementById('r-res');PREF_NAMES.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;rp.appendChild(o);});var s=document.getElementById('pref');for(var i=0;i<PREFS.length;i++){var o=document.createElement('option');o.value=i;o.textContent=PREFS[i].name;if(PREFS[i].name==='神奈川県')o.selected=true;s.appendChild(o);}updCity();}
 function updCity(){var pi=parseInt(document.getElementById('pref').value),cs=document.getElementById('city');cs.innerHTML='';PREFS[pi].cities.forEach(function(c){var o=document.createElement('option');o.value=c.l;o.textContent=c.n;if(c.n==='平塚市')o.selected=true;cs.appendChild(o);});}
 initPrefs();updateAgeSummary();
@@ -592,6 +594,25 @@ const SUPABASE_URL = 'https://ogshjcqkvuidlaenawth.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2hqY3FrdnVpZGxhZW5hd3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzIyMDUsImV4cCI6MjA5Mjg0ODIwNX0.xCw4h4vBDf4mlilgHYUQbG0pPYfySMInrZPXwB-NsVI';
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 var currentUser = null;
+var mySex = "";
+
+
+// ===== app-wrapを表示する関数 =====
+function showAppWrap() {
+  if (document.getElementById('app-wrap')) {
+    document.getElementById('app-wrap').style.display = 'block';
+    document.getElementById('app-wrap').style.visibility = 'visible';
+    document.getElementById('s0').classList.add('on');
+    return;
+  }
+  var template = document.getElementById('app-template');
+  var shell = document.getElementById('shell');
+  var clone = template.content.cloneNode(true);
+  shell.appendChild(clone);
+  document.getElementById('app-wrap').style.display = 'block';
+  document.getElementById('app-wrap').style.visibility = 'visible';
+  document.getElementById('s0').classList.add('on');
+}
 
 // ===== 起動時：ログイン状態チェック =====
 async function checkSession() {
@@ -605,6 +626,7 @@ async function checkSession() {
     const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
     if (profile) {
       memberID = profile.member_id;
+      mySex = profile.sex || '';
       document.getElementById('orient-wrap').style.display = 'none';
       document.getElementById('reg-wrap').style.display = 'none';
       document.getElementById('app-wrap').style.display = 'block';
@@ -662,6 +684,7 @@ async function completeReg() {
   }
 
   memberID = generateMemberID();
+  mySex = document.querySelector('#r-sex-row .sxbtn.on') ? document.querySelector('#r-sex-row .sxbtn.on').textContent : '';
 
   const nick = document.getElementById('r-nick').value || '名無し';
   const sexEl = document.querySelector('#r-sex-row .sxbtn.on');
@@ -711,7 +734,13 @@ async function completeReg() {
     return;
   }
 
-  // 画面遷移（元のUIロジック）
+  // 画面遷移：まずshowAppWrapでDOMを展開してから要素にアクセス
+  MY_PILLARS = savedPillars;
+  document.getElementById('reg-wrap').style.display = 'none';
+  document.getElementById('orient-wrap').style.display = 'none';
+  document.getElementById('login-wrap').style.display = 'none';
+  showAppWrap();
+
   document.getElementById('topbar-initial').textContent = nick.charAt(0);
   document.getElementById('modal-ava-ph').textContent = nick.charAt(0);
   document.getElementById('modal-member-id').textContent = memberID;
@@ -740,12 +769,6 @@ async function completeReg() {
     h += '<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';
   });
   document.getElementById('modal-pillars').innerHTML = h;
-
-  MY_PILLARS = savedPillars;
-  document.getElementById('reg-wrap').style.display = 'none';
-  document.getElementById('app-wrap').style.display = 'block';
-  document.getElementById('app-wrap').style.visibility = 'visible';
-  document.getElementById('s0').classList.add('on');
   renderMatchList(MY_PILLARS);
   loadRealUsers();
   } catch(e) { alert('登録中にエラーが発生しました：' + e.message); console.log('登録例外:', e); }
@@ -758,6 +781,15 @@ async function loadRealUsers() {
     const { data: users, error } = await supa.from('profiles').select('*').neq('id', currentUser.id);
     if (error) { console.log('ユーザー取得エラー:', error); }
     var validUsers = (users && !error) ? users : [];
+    // 異性のみフィルター
+    if (mySex) {
+      var targetSex = '';
+      if (mySex === '男性') targetSex = '女性';
+      else if (mySex === '女性') targetSex = '男性';
+      if (targetSex) {
+        validUsers = validUsers.filter(function(u){ return u.sex === targetSex; });
+      }
+    }
 
     const realPartners = validUsers.map(u => ({
       name: u.nickname + 'さん',
@@ -777,14 +809,14 @@ async function loadRealUsers() {
       // リアルユーザーが1人でもいればデモは表示しない
       realPartners.forEach(function(p){ PARTNERS.push(p); });
     } else {
-      // リアルユーザーがいない場合のみデモを表示
-      var demoData = [
-        {name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true},
-        {name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true},
-        {name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true},
-        {name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true},
-        {name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true}
-      ];
+      // リアルユーザーがいない場合のみデモを表示（異性のデモを選択）
+      var demoData = (mySex === '女性') ? DEMO_MALE : PARTNERS.length === 0 ? [
+        {name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},
+        {name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},
+        {name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},
+        {name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},
+        {name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}
+      ] : [];
       demoData.forEach(function(p){ PARTNERS.push(p); });
     }
     renderMatchList(MY_PILLARS);
@@ -818,9 +850,9 @@ async function doLogin() {
   const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
   if (profile) {
     memberID = profile.member_id;
-    document.getElementById('app-wrap').style.display = 'block';
-    document.getElementById('app-wrap').style.visibility = 'visible';
-    document.getElementById('s0').classList.add('on');
+    mySex = profile.sex || '';
+    document.getElementById('login-wrap').style.display = 'none';
+    showAppWrap();
     document.getElementById('topbar-initial').textContent = profile.nickname.charAt(0);
     document.getElementById('modal-ava-ph').textContent = profile.nickname.charAt(0);
     document.getElementById('modal-member-id').textContent = profile.member_id;
@@ -836,6 +868,7 @@ async function doLogin() {
     loadRealUsers();
   } else {
     // プロフィール未登録ならオリエンテーションへ
+    document.getElementById('login-wrap').style.display = 'none';
     document.getElementById('orient-wrap').style.display = 'flex';
   }
   } catch(e) { console.log('ログイン例外:', e); errEl.textContent = 'エラーが発生しました'; }
@@ -845,7 +878,6 @@ async function doLogin() {
 function goToRegister() {
   document.getElementById('login-wrap').style.display = 'none';
   document.getElementById('orient-wrap').style.display = 'flex';
-  document.getElementById('app-wrap').style.display = 'none';
 }
 
 // Enterキーでログイン
