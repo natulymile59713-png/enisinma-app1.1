@@ -127,7 +127,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .sub-item:last-child{border-bottom:none}
 .sub-item:hover{background:var(--color-background-secondary);color:#C9A96E}
 .screen{display:none}
-.screen.on{display:block}
+.screen.on{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
 .sec{font-family:'Noto Serif JP',serif;font-size:12px;color:var(--color-text-secondary);letter-spacing:.08em;margin:0 1rem .6rem}
 .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1rem;margin:0 1rem .75rem}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -317,9 +317,49 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .demo-badge{display:inline-block;font-size:8px;padding:2px 7px;border-radius:8px;background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);margin-left:5px;vertical-align:middle}
 .demo-guide{background:rgba(201,169,110,.06);border:0.5px solid rgba(201,169,110,.25);border-radius:10px;padding:.75rem 1rem;margin:.75rem 1rem .5rem;font-size:11px;color:var(--color-text-secondary);line-height:1.8;text-align:center}
 .demo-guide-close{display:inline-block;margin-top:.5rem;font-size:10px;color:#C9A96E;cursor:pointer;border:0.5px solid #C9A96E;border-radius:6px;padding:3px 12px}
+
+/* ===== やりとり中・デート・レビュー =====  */
+.en-badge.chatting{background:rgba(100,180,100,.15);color:#3a9a3a;border:0.5px solid #3a9a3a}
+.en-badge.date-set{background:rgba(255,180,50,.15);color:#d4940a;border:0.5px solid #d4940a}
+.en-badge.dated{background:rgba(180,100,255,.15);color:#8a4fc7;border:0.5px solid #8a4fc7}
+.en-badge.coupled{background:rgba(255,100,100,.15);color:#c05050;border:0.5px solid #c05050}
+.en-card-compact{padding:.5rem 1rem}
+.en-phase-btns{display:flex;gap:6px;margin-top:.4rem}
+.en-phase-btn{flex:1;padding:7px 0;border-radius:7px;font-size:11px;text-align:center;cursor:pointer;border:none}
+.en-phase-btn.primary{background:#C9A96E;color:#fff}
+.en-phase-btn.secondary{background:var(--color-background-secondary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.review-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center}
+.review-overlay.show{display:flex}
+.review-card{background:var(--color-background-primary);border-radius:14px;padding:1.5rem;width:calc(100% - 2rem);max-width:340px;max-height:85vh;overflow-y:auto}
+.review-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:500;text-align:center;margin-bottom:1rem}
+.star-row{display:flex;justify-content:center;gap:6px;margin-bottom:1rem}
+.star{font-size:28px;cursor:pointer;color:var(--color-border-tertiary);transition:color .15s}
+.star.on{color:#C9A96E}
+.review-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500}
+.review-textarea{width:100%;font-size:12px;padding:8px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;min-height:80px;resize:vertical;background:var(--color-background-secondary);color:var(--color-text-primary);margin-bottom:1rem}
 </style>
 </head>
 <body>
+
+<!-- レビューモーダル -->
+<div class="review-overlay" id="review-overlay">
+  <div class="review-card">
+    <div class="review-title">お相手のレビュー</div>
+    <input type="hidden" id="review-match-id" value="">
+    <div class="review-label">デート中の振る舞いや態度</div>
+    <div class="star-row" id="star-row">
+      <span class="star" onclick="setStar(1)">★</span>
+      <span class="star" onclick="setStar(2)">★</span>
+      <span class="star" onclick="setStar(3)">★</span>
+      <span class="star" onclick="setStar(4)">★</span>
+      <span class="star" onclick="setStar(5)">★</span>
+    </div>
+    <div class="review-label">感想・コメント（必須）</div>
+    <textarea class="review-textarea" id="review-comment" placeholder="お相手との時間はいかがでしたか？"></textarea>
+    <div id="review-error" style="font-size:11px;color:#C05050;text-align:center;margin-bottom:.5rem;min-height:14px"></div>
+    <button class="btn-gold" onclick="submitReview()" style="margin-bottom:0">レビューを送信</button>
+  </div>
+</div>
 <div class="shell" id="shell">
 
 <!-- ===== ログイン画面 ===== -->
@@ -549,10 +589,155 @@ function checkRelations(myP,thP){var res={kango:[],sango:[],shigo:[],chu:[],kei:
 function calcScore(rel){return Math.min(99,Math.max(15,50+rel.kango.length*4+rel.sango.length*10+rel.shigo.length*7-rel.chu.length*7-rel.kei.length*10));}
 function generateComment(rel){var kg=rel.kango.length,sg=rel.sango.length,sh=rel.shigo.length,ch=rel.chu.length,ke=rel.kei.length,good=kg+sg+sh,bad=ch+ke;if(kg>=3&&bad===0)return '一目会った瞬間から惹かれ合い、安定した関係を築きやすい、理想的な縁です。';if(kg>=2&&sh>=1&&bad===0)return '会った時から自然に引き合い、穏やかな関係が築けそうです。';if(kg>=1&&sg>=1&&bad===0)return 'どこか懐かしさを感じ、価値観も合う良い縁です。';if(good>=2&&bad===0)return 'バランスの取れた良縁です。自然な形で関係が深まっていきやすい組み合わせです。';if(bad>=3&&good<=1)return '縁自体はあるものの、衝突やトラブルが多くなりやすい組み合わせです。';return '個性ある縁の組み合わせです。お互いの違いを尊重することで良い関係が育まれそうです。';}
 function updateEnBadge(){var p=enList.filter(function(e){return e.status==='pending';}).length;['en-badge','bni-badge'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=p>0?'block':'none';});}
-function renderEnList(){var el=document.getElementById('en-list'),empty=document.getElementById('en-empty');if(enList.length===0){el.innerHTML='';empty.style.display='block';return;}empty.style.display='none';var sorted=enList.filter(function(e){return e.status==='matched';}).concat(enList.filter(function(e){return e.status==='pending';}));var html='';sorted.forEach(function(item){var isMatched=item.status==='matched';html+='<div class="en-card '+(isMatched?'matched':'')+'"><div class="en-top"><div class="ava">'+item.name.charAt(0)+'</div><div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+(isMatched?'matched':'pending')+'">'+(isMatched?'マッチング成立':'申請待ち')+'</span></div><div class="mmeta">'+item.meta+'</div><div style="font-size:10px;color:var(--color-text-tertiary);margin:.3rem 0">良縁率：'+item.score+'%</div><div class="tags">'+item.tags+'</div></div></div>';html+=!isMatched?'<div class="en-actions"><button class="btn-ok" onclick="enOK('+item.idx+')">お話しOK</button><button class="btn-ng" onclick="enNG('+item.idx+')">ごめんなさい</button></div>':'<div class="en-actions"><button class="btn-msg-small" onclick="openChat(\''+item.name+'\')">メッセージ →</button></div>';html+='</div>';});el.innerHTML=html;}
-function enOK(idx){var item=enList.find(function(e){return e.idx===idx;});if(item){item.status='matched';renderEnList();updateEnBadge();renderMsgList();}}
-function enNG(idx){enList=enList.filter(function(e){return e.idx!==idx;});ngList.push(idx);var btn=document.getElementById('hanashi-btn-'+idx);if(btn){btn.textContent='話してみたい';btn.classList.remove('sent');btn.disabled=false;}renderEnList();updateEnBadge();applyFilter();}
-function hanashi(idx){var exists=enList.some(function(e){return e.idx===idx;});if(exists)return;var item=PARTNERS_DATA[idx];if(!item)return;enList.unshift({idx:idx,name:item.name,meta:item.meta,score:item.score,tags:item.tags,status:'pending'});var btn=document.getElementById('hanashi-btn-'+idx);if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}renderEnList();updateEnBadge();}
+function renderEnList(){
+  var el=document.getElementById('en-list'),empty=document.getElementById('en-empty');
+  if(!el)return;
+  if(enList.length===0){el.innerHTML='';if(empty)empty.style.display='block';return;}
+  if(empty)empty.style.display='none';
+  // ソート：新しいマッチを上に
+  var statusOrder={approved:0,approved_by_me:1,chatting:2,date_set:3,dated:4,coupled:5,pending:6,sent:7,rejected_notify:8,matched:9};
+  var sorted=enList.slice().sort(function(a,b){return (statusOrder[a.status]||99)-(statusOrder[b.status]||99);});
+  var html='';
+  sorted.forEach(function(item){
+    var s=item.status;
+    var badgeLabel={'matched':'やりとり中','approved':'承認されました！','approved_by_me':'承認しました','sent':'申請中','pending':'承認待ち','rejected_notify':'キャンセル','chatting':'やりとり中','date_set':'デート決定！','dated':'デート完了','coupled':'カップル成立！'}[s]||s;
+    var badgeClass='pending';
+    if(s==='matched'||s==='approved'||s==='approved_by_me'||s==='chatting')badgeClass='chatting';
+    if(s==='date_set')badgeClass='date-set';
+    if(s==='dated')badgeClass='dated';
+    if(s==='coupled')badgeClass='coupled';
+    if(s==='approved'||s==='approved_by_me')badgeClass='matched';
+    var isCompact=(s==='matched'||s==='chatting'||s==='date_set'||s==='dated'||s==='coupled');
+    html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
+    html+='<div class="en-top"><div class="ava">'+item.name.charAt(0)+'</div><div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div></div>';
+    if(s==='pending'){
+      html+='<div class="en-actions"><button class="btn-ok" onclick="enOK(\''+item.matchId+'\')">お話しOK</button><button class="btn-ng" onclick="enNG(\''+item.matchId+'\')">ごめんなさい</button></div>';
+    }else if(s==='approved_by_me'){
+      html+='<div style="font-size:12px;color:#C9A96E;text-align:center;margin-bottom:.4rem">'+item.name+'の申請を承認しました</div>';
+      html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+    }else if(s==='approved'){
+      html+='<div style="font-size:12px;color:#C9A96E;text-align:center;margin-bottom:.4rem">'+item.name+'が申請を承認しました！</div>';
+      html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+    }else if(s==='matched'||s==='chatting'){
+      html+='<div class="en-phase-btns"><button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\')">メッセージ</button><button class="en-phase-btn primary" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button><button class="en-phase-btn secondary" onclick="endWithThanks(\''+item.matchId+'\')">感謝して完了</button></div>';
+    }else if(s==='date_set'){
+      html+='<div class="en-phase-btns"><button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\')">メッセージ</button><button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button><button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">お相手をレビュー</button></div>';
+    }else if(s==='dated'){
+      html+='<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.3rem 0">レビュー済み・完了</div>';
+    }else if(s==='coupled'){
+      html+='<div style="font-size:12px;color:#C9A96E;text-align:center;padding:.3rem 0">🎊 おめでとうございます！卒業鑑定プランが解放されました</div>';
+    }else if(s==='rejected_notify'){
+      html+='<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.5rem 0">'+item.name+'が申請をキャンセルしました</div>';
+      html+='<div style="text-align:center;margin-top:.25rem"><button style="font-size:10px;color:var(--color-text-tertiary);background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:4px 12px;cursor:pointer" onclick="dismissRejected(\''+item.matchId+'\')">閉じる</button></div>';
+    }
+    html+='</div>';
+  });
+  el.innerHTML=html;
+}
+
+// ===== フェーズ遷移関数 =====
+async function startChatting(matchId){
+  try{await supa.from('matches').update({status:'chatting'}).eq('id',matchId);}catch(e){}
+  var item=enList.find(function(e){return e.matchId===matchId;});
+  if(item)item.status='chatting';
+  renderEnList();renderMsgList();
+}
+function dismissApproved(matchId){
+  startChatting(matchId);
+}
+async function setDateDecided(matchId){
+  try{await supa.from('matches').update({status:'date_set'}).eq('id',matchId);}catch(e){}
+  var item=enList.find(function(e){return e.matchId===matchId;});
+  if(item)item.status='date_set';
+  renderEnList();
+}
+async function endWithThanks(matchId){
+  try{await supa.from('matches').update({status:'dismissed'}).eq('id',matchId);}catch(e){}
+  enList=enList.filter(function(e){return e.matchId!==matchId;});
+  renderEnList();updateEnBadge();loadRealUsers();
+}
+async function setCoupled(matchId){
+  try{await supa.from('matches').update({status:'coupled'}).eq('id',matchId);}catch(e){}
+  var item=enList.find(function(e){return e.matchId===matchId;});
+  if(item)item.status='coupled';
+  renderEnList();
+  // 卒業鑑定プラン解放
+  unlockSotsugyou();
+}
+function openReview(matchId){
+  document.getElementById('review-match-id').value=matchId;
+  document.getElementById('review-overlay').classList.add('show');
+  document.getElementById('review-error').textContent='';
+  document.getElementById('review-comment').value='';
+  document.querySelectorAll('.star').forEach(function(s){s.classList.remove('on');});
+  currentReviewStar=0;
+}
+var currentReviewStar=0;
+function setStar(n){
+  currentReviewStar=n;
+  document.querySelectorAll('.star').forEach(function(s,i){s.classList.toggle('on',i<n);});
+}
+async function submitReview(){
+  var matchId=document.getElementById('review-match-id').value;
+  var comment=document.getElementById('review-comment').value.trim();
+  var errEl=document.getElementById('review-error');
+  if(currentReviewStar===0){errEl.textContent='★評価を選択してください';return;}
+  if(!comment){errEl.textContent='コメントを入力してください';return;}
+  try{
+    await supa.from('matches').update({status:'reviewed'}).eq('id',matchId);
+    // レビューデータをmessagesテーブルに保存（運営向け）
+    await supa.from('messages').insert({sender_id:currentUser.id,receiver_id:currentUser.id,content:'【レビュー】★'+currentReviewStar+' '+comment,is_official:true});
+  }catch(e){console.log('レビュー送信エラー:',e);}
+  document.getElementById('review-overlay').classList.remove('show');
+  var item=enList.find(function(e){return e.matchId===matchId;});
+  if(item)item.status='dated';
+  renderEnList();
+}
+async function dismissRejected(matchId){
+  try{
+    await supa.from('matches').update({status:'dismissed'}).eq('id',matchId);
+  }catch(e){console.log('dismissed更新エラー:',e);}
+  enList=enList.filter(function(e){return e.matchId!==matchId;});
+  renderEnList();
+  updateEnBadge();
+  loadRealUsers();
+}
+async function enOK(matchId){
+  try{
+    var{error}=await supa.from('matches').update({status:'matched'}).eq('id',matchId);
+    if(error){alert('承認エラー：'+error.message);return;}
+    loadEnList();
+  }catch(e){console.log('enOKエラー:',e);}
+}
+async function enNG(matchId){
+  try{
+    var{error}=await supa.from('matches').update({status:'rejected'}).eq('id',matchId);
+    if(error){alert('拒否エラー：'+error.message);return;}
+    loadEnList();
+    loadRealUsers();
+  }catch(e){console.log('enNGエラー:',e);}
+}
+async function hanashi(idx){
+  var partner=PARTNERS[idx];
+  if(!partner||!partner.userId||partner.isDemo){
+    // デモユーザーの場合はボタン変更のみ
+    var btn=document.getElementById('hanashi-btn-'+idx);
+    if(btn){btn.textContent='デモのため送信不可';btn.classList.add('sent');btn.disabled=true;}
+    return;
+  }
+  var btn=document.getElementById('hanashi-btn-'+idx);
+  if(btn){btn.textContent='送信中...';btn.disabled=true;}
+  try{
+    // 既に申請済みか確認
+    var{data:existing}=await supa.from('matches').select('*').eq('from_user_id',currentUser.id).eq('to_user_id',partner.userId);
+    if(existing&&existing.length>0){if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}return;}
+    // matchesテーブルに保存
+    var{error}=await supa.from('matches').insert({from_user_id:currentUser.id,to_user_id:partner.userId,status:'pending'});
+    if(error){alert('申請エラー：'+error.message);if(btn){btn.textContent='話してみたい';btn.disabled=false;}return;}
+    if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}
+    loadEnList();
+  }catch(e){console.log('hanashiエラー:',e);if(btn){btn.textContent='話してみたい';btn.disabled=false;}}
+}
 function renderMsgList(){var matched=enList.filter(function(e){return e.status==='matched';});var container=document.getElementById('msg-list-items');if(matched.length===0){container.innerHTML='';return;}var html='';matched.forEach(function(item,i){var unread=(i===0);html+='<div class="msg-list-item" onclick="openChat(\''+item.name+'\')"><div class="msg-list-ava">'+item.name.charAt(0)+(unread?'<div class="msg-unread-dot"></div>':'')+'</div><div class="msg-list-info"><div class="msg-list-name">'+item.name+'</div><div class="msg-list-preview">ほんとですね。どちらにお住まいですか？</div></div><div class="msg-list-time">11:20</div></div>';});container.innerHTML=html;}
 function openChat(name){document.getElementById('chat-name').textContent=name;document.getElementById('chat-ava').textContent=name.charAt(0);document.getElementById('chat-ava').className='msg-list-ava';document.getElementById('chat-official-badge').style.display='none';document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';var body=document.getElementById('chat-body');body.innerHTML='<div class="mcnt">残り 28 / 30 回</div><div class="msg-wrap"><div class="bubble">はじめまして！よろしくお願いします。</div><div class="mtime">'+name+'｜11:02</div></div><div class="msg-wrap me"><div class="bubble me">こちらこそ！よろしくお願いします！</div><div class="mtime">11:15</div></div><div class="msg-wrap"><div class="bubble">どちらにお住まいですか？</div><div class="mtime">'+name+'｜11:20</div></div><div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:.6rem;line-height:1.7">※ メッセージは30回まで。他のSNSのIDやリンクを交換するのは規約違反となります。</div>';goTab(2);}
 function showMsgList(){document.getElementById('msg-list-view').style.display='block';document.getElementById('msg-chat-view').style.display='none';}
@@ -560,7 +745,21 @@ function toggleSubMenu(e){if(e)e.stopPropagation();var el=document.getElementByI
 function closeSubMenu(){var el=document.getElementById('sub-menu');if(el)el.classList.remove('show');}
 function openSubPage(page){['plan','omoi','voice','contact'].forEach(function(p){document.getElementById('sub-'+p).style.display='none';});document.getElementById('sub-'+page).style.display='block';document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===3);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});document.querySelectorAll('.bni').forEach(function(b,i){b.classList.toggle('on',i===3);});}
 function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;if(minScore<50)minScore=50;var filtered=ALL_SORTED.filter(function(item){if(ngList.indexOf(item.i)>=0)return false;if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
-function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;enList.forEach(function(en){var btn=document.getElementById('hanashi-btn-'+en.idx);if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}});}
+function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;
+    // 申請済みのボタンを更新
+    if(currentUser){
+      supa.from('matches').select('to_user_id').eq('from_user_id',currentUser.id).then(function(res){
+        if(res.data){
+          var sentIds=res.data.map(function(m){return m.to_user_id;});
+          PARTNERS.forEach(function(p,i){
+            if(p.userId&&sentIds.indexOf(p.userId)>=0){
+              var btn=document.getElementById('hanashi-btn-'+i);
+              if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}
+            }
+          });
+        }
+      });
+    }}
 function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
 function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+KAN[myP[pi].k]+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+SHI[myP[pi].s]+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+KAN[partner.pillars[pi].k]+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+SHI[partner.pillars[pi].s]+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button></div></div>';}
 var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}];
@@ -603,6 +802,7 @@ function showAppWrap() {
     document.getElementById('app-wrap').style.display = 'block';
     document.getElementById('app-wrap').style.visibility = 'visible';
     document.getElementById('s0').classList.add('on');
+    startPolling();
     return;
   }
   var template = document.getElementById('app-template');
@@ -612,6 +812,23 @@ function showAppWrap() {
   document.getElementById('app-wrap').style.display = 'block';
   document.getElementById('app-wrap').style.visibility = 'visible';
   document.getElementById('s0').classList.add('on');
+  startPolling();
+}
+
+// ===== 10秒ごとにDBの最新状態を確認 =====
+var pollingTimer = null;
+function startPolling() {
+  if (pollingTimer) return;
+  pollingTimer = setInterval(function() {
+    if (currentUser) {
+      loadEnList();
+      // 推しの詳細が開いていない時だけ推しページを更新
+      var openDetail = document.querySelector('.detail-panel.open');
+      if (!openDetail) {
+        loadRealUsers();
+      }
+    }
+  }, 10000);
 }
 
 // ===== 起動時：ログイン状態チェック =====
@@ -642,8 +859,8 @@ async function checkSession() {
         {k: profile.pillar_hour_k||0, s: profile.pillar_hour_s||0}
       ];
       document.getElementById('s0').classList.add('on');
-      renderMatchList(MY_PILLARS);
       loadRealUsers();
+      loadEnList();
     } else {
       document.getElementById('orient-wrap').style.display = 'none';
       document.getElementById('reg-wrap').style.display = 'block';
@@ -769,9 +986,94 @@ async function completeReg() {
     h += '<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';
   });
   document.getElementById('modal-pillars').innerHTML = h;
-  renderMatchList(MY_PILLARS);
   loadRealUsers();
+  loadEnList();
   } catch(e) { alert('登録中にエラーが発生しました：' + e.message); console.log('登録例外:', e); }
+}
+
+
+// ===== 縁リストをDBから読み込む =====
+async function loadEnList(){
+  if(!currentUser)return;
+  try{
+    enList=[];
+    // 自分が送った申請（pending状態 → 申請中）
+    var{data:sentPending}=await supa.from('matches').select('*').eq('from_user_id',currentUser.id).eq('status','pending');
+    if(sentPending){
+      for(var i=0;i<sentPending.length;i++){
+        var m=sentPending[i];
+        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture').eq('id',m.to_user_id).single();
+        if(prof){
+          var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),score:'--',status:'sent'});
+        }
+      }
+    }
+    // 自分が送った申請の各ステータス取得
+    var sentStatuses=['matched','chatting','date_set','coupled','reviewed'];
+    for(var si=0;si<sentStatuses.length;si++){
+      var ss=sentStatuses[si];
+      var{data:sentS}=await supa.from('matches').select('*').eq('from_user_id',currentUser.id).eq('status',ss);
+      if(sentS){
+        for(var i=0;i<sentS.length;i++){
+          var m=sentS[i];
+          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture').eq('id',m.to_user_id).single();
+          if(prof){
+            var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
+            var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
+            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),score:'--',status:displayStatus});
+          }
+        }
+      }
+    }
+    // 自分が送った申請がrejected → キャンセル通知
+    var{data:sentRejected}=await supa.from('matches').select('*').eq('from_user_id',currentUser.id).eq('status','rejected');
+    if(sentRejected){
+      for(var i=0;i<sentRejected.length;i++){
+        var m=sentRejected[i];
+        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture').eq('id',m.to_user_id).single();
+        if(prof){
+          var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),score:'--',status:'rejected_notify'});
+        }
+      }
+    }
+    // 自分が受けた申請（pending → 承認待ち）
+    var{data:received}=await supa.from('matches').select('*').eq('to_user_id',currentUser.id).eq('status','pending');
+    if(received){
+      for(var i=0;i<received.length;i++){
+        var m=received[i];
+        var{data:prof}=await supa.from('profiles').select('*').eq('id',m.from_user_id).single();
+        if(prof){
+          var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
+          var theirPillars=[{k:prof.pillar_year_k||0,s:prof.pillar_year_s||0},{k:prof.pillar_month_k||0,s:prof.pillar_month_s||0},{k:prof.pillar_day_k||0,s:prof.pillar_day_s||0},{k:prof.pillar_hour_k||0,s:prof.pillar_hour_s||0}];
+          var rel=checkRelations(MY_PILLARS,theirPillars);
+          var sc=calcScore(rel);
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),score:sc,status:'pending'});
+        }
+      }
+    }
+    // 自分が受けた申請の各ステータス取得
+    var recStatuses=['matched','chatting','date_set','coupled','reviewed'];
+    for(var ri=0;ri<recStatuses.length;ri++){
+      var rs=recStatuses[ri];
+      var{data:recS}=await supa.from('matches').select('*').eq('to_user_id',currentUser.id).eq('status',rs);
+      if(recS){
+        for(var i=0;i<recS.length;i++){
+          var m=recS[i];
+          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture').eq('id',m.from_user_id).single();
+          if(prof){
+            var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
+            var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
+            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),score:'--',status:displayStatus});
+          }
+        }
+      }
+    }
+    renderEnList();
+    updateEnBadge();
+    renderMsgList();
+  }catch(e){console.log('loadEnListエラー:',e);}
 }
 
 // ===== 他のリアルユーザーを読み込んで推しページに表示 =====
@@ -781,6 +1083,20 @@ async function loadRealUsers() {
     const { data: users, error } = await supa.from('profiles').select('*').neq('id', currentUser.id);
     if (error) { console.log('ユーザー取得エラー:', error); }
     var validUsers = (users && !error) ? users : [];
+    // matchesに記録がある相手を推しページから除外（status問わず）
+    try{
+      var{data:allMatches}=await supa.from('matches').select('from_user_id,to_user_id').or('from_user_id.eq.'+currentUser.id+',to_user_id.eq.'+currentUser.id);
+      var blockedIds=[];
+      if(allMatches){
+        allMatches.forEach(function(r){
+          if(r.from_user_id===currentUser.id)blockedIds.push(r.to_user_id);
+          if(r.to_user_id===currentUser.id)blockedIds.push(r.from_user_id);
+        });
+      }
+      if(blockedIds.length>0){
+        validUsers=validUsers.filter(function(u){return blockedIds.indexOf(u.id)<0;});
+      }
+    }catch(e){console.log('除外エラー:',e);}
     // 異性のみフィルター
     if (mySex) {
       var targetSex = '';
@@ -810,17 +1126,32 @@ async function loadRealUsers() {
       realPartners.forEach(function(p){ PARTNERS.push(p); });
     } else {
       // リアルユーザーがいない場合のみデモを表示（異性のデモを選択）
-      var demoData = (mySex === '女性') ? DEMO_MALE : PARTNERS.length === 0 ? [
+      var demoFemale = [
         {name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},
         {name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},
         {name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},
         {name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},
         {name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}
-      ] : [];
+      ];
+      var demoData = (mySex === '女性') ? DEMO_MALE : demoFemale;
       demoData.forEach(function(p){ PARTNERS.push(p); });
     }
     renderMatchList(MY_PILLARS);
-  } catch(e) { console.log('ユーザー読み込みエラー', e); }
+  } catch(e) {
+    console.log('ユーザー読み込みエラー', e);
+    // エラー時もデモデータを表示
+    PARTNERS.splice(0, PARTNERS.length);
+    var demoFemale2 = [
+      {name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},
+      {name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},
+      {name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},
+      {name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},
+      {name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}
+    ];
+    var demoErr = (mySex === '女性') ? DEMO_MALE : demoFemale2;
+    demoErr.forEach(function(p){ PARTNERS.push(p); });
+    renderMatchList(MY_PILLARS);
+  }
 }
 
 // ===== ログイン処理 =====
@@ -864,8 +1195,8 @@ async function doLogin() {
       {k: profile.pillar_day_k||0, s: profile.pillar_day_s||0},
       {k: profile.pillar_hour_k||0, s: profile.pillar_hour_s||0}
     ];
-    renderMatchList(MY_PILLARS);
     loadRealUsers();
+    loadEnList();
   } else {
     // プロフィール未登録ならオリエンテーションへ
     document.getElementById('login-wrap').style.display = 'none';
