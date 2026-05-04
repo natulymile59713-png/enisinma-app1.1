@@ -339,6 +339,42 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .star.on{color:#C9A96E}
 .review-label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;font-weight:500}
 .review-textarea{width:100%;font-size:12px;padding:8px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;min-height:80px;resize:vertical;background:var(--color-background-secondary);color:var(--color-text-primary);margin-bottom:1rem}
+
+/* ===== 運勢カレンダー ===== */
+.cal-nav-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding:0 .25rem}
+.cal-nav-btn{background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:6px 14px;font-size:14px;color:var(--color-text-primary);cursor:pointer;font-family:'Noto Sans JP',sans-serif}
+.cal-nav-btn:hover{background:var(--color-background-secondary)}
+.cal-title{font-family:'Noto Serif JP',serif;font-size:15px;font-weight:500;color:var(--color-text-primary);letter-spacing:.05em}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--color-border-tertiary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;overflow:hidden}
+.cal-head{background:var(--color-background-primary);font-size:10px;color:var(--color-text-tertiary);text-align:center;padding:6px 0;font-weight:500}
+.cal-head.sun{color:#C05050}
+.cal-head.sat{color:#5070C0}
+.cal-cell{background:var(--color-background-primary);padding:4px 2px;min-height:48px;cursor:pointer;display:flex;flex-direction:column;align-items:center;font-size:11px;transition:background .15s}
+.cal-cell.empty{background:var(--color-background-secondary);cursor:default}
+.cal-cell:not(.empty):hover{background:var(--color-background-secondary)}
+.cal-cell.today{background:rgba(201,169,110,.12)}
+.cal-cell.today .cal-day{color:#C9A96E;font-weight:700}
+.cal-day{font-family:'Noto Serif JP',serif;font-size:12px;color:var(--color-text-primary);margin-bottom:1px;line-height:1.2}
+.cal-cell.sun .cal-day{color:#C05050}
+.cal-cell.sat .cal-day{color:#5070C0}
+.cal-shi{font-size:8px;color:var(--color-text-tertiary);margin-bottom:1px;line-height:1}
+.cal-marks{display:flex;flex-wrap:wrap;justify-content:center;gap:0;font-size:10px;line-height:1;min-height:11px}
+.cal-mk{font-size:10px;font-weight:bold;line-height:1;padding:0 1px}
+.cal-mk.sango{color:#D4AF37}
+.cal-mk.shigo{color:#C9A96E}
+.cal-mk.chu{color:#E08040}
+.cal-mk.kei{color:#C05050}
+.cal-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:.75rem;padding:.5rem .75rem;background:var(--color-background-secondary);border-radius:6px;font-size:10px;color:var(--color-text-secondary);line-height:1.6}
+.cal-legend>span{display:inline-flex;align-items:center;gap:3px}
+.cal-section{padding:.75rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.cal-section:last-child{border-bottom:none}
+.cal-section-hd{font-family:'Noto Serif JP',serif;font-size:12px;color:var(--color-text-secondary);margin-bottom:.4rem;line-height:1.5}
+.cal-section-marks{display:flex;gap:6px;margin-bottom:.5rem;font-size:14px}
+.cal-section-text{font-size:12px;line-height:1.7;color:var(--color-text-primary);margin-bottom:.5rem}
+.cal-section-text:last-child{margin-bottom:0}
+.cal-section-text strong{font-weight:500;color:#C9A96E}
+.cal-section-text strong.bad{color:#C05050}
+.cal-no-rel{font-size:11px;color:var(--color-text-tertiary)}
 </style>
 </head>
 <body>
@@ -476,6 +512,9 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <button class="other-tab-btn" id="other-tab-btn" onclick="toggleSubMenu(event)">その他</button>
       <div class="sub-menu" id="sub-menu">
         <div class="sub-item" onclick="openSubPage('plan');closeSubMenu()">プラン</div>
+        <div class="sub-item" onclick="openSubPage('calendar');closeSubMenu()">運勢カレンダー</div>
+        <div class="sub-item" onclick="openSubPage('shindan');closeSubMenu()">相性診断</div>
+        <div class="sub-item" onclick="openSubPage('memo');closeSubMenu()">相性結果メモ</div>
         <div class="sub-item" onclick="openSubPage('omoi');closeSubMenu()">運営の想い</div>
         <div class="sub-item" onclick="openSubPage('voice');closeSubMenu()">卒業生の声</div>
         <div class="sub-item" onclick="openSubPage('contact');closeSubMenu()">問い合わせ</div>
@@ -531,6 +570,62 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       </div>
     </div>
     <div id="sub-voice" style="display:none"><div style="padding:1rem"><p class="sec">卒業生の声</p><div style="text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:12px;line-height:1.8">✦<br>まだレビューはありません。<br>卒業生の方からのご投稿をお待ちしています。</div></div></div>
+    <div id="sub-shindan" style="display:none"><div style="padding:1rem">
+      <p class="sec">相性診断</p>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">気になる方やリアルの知り合いとの相性を、四柱推命で診断できます。</div>
+      <div class="card" style="margin:0 0 .75rem">
+        <div class="fl"><label>お相手のお名前（任意）</label><input type="text" id="sh-name" placeholder="例：山田 花子さん" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+        <div class="fl"><label>性別 <span style="color:#C05050">*</span></label>
+          <div class="sexrow"><button type="button" class="sxbtn" onclick="setShSex(this)">男性</button><button type="button" class="sxbtn" onclick="setShSex(this)">女性</button></div>
+        </div>
+        <div class="fl"><label>生年月日 <span style="color:#C05050">*</span></label>
+          <div class="g3"><input type="number" id="sh-yr" value="1995" min="1900" max="2030" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><input type="number" id="sh-mo" value="5" min="1" max="12" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><input type="number" id="sh-dy" value="26" min="1" max="31" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+        </div>
+        <div style="margin-top:1rem;padding-top:.75rem;border-top:0.5px dashed var(--color-border-tertiary)">
+          <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:.6rem">▼ お分かりであれば（精度が上がります）</div>
+          <div class="fl"><label>出生時刻</label>
+            <div class="g2"><input type="number" id="sh-hr" placeholder="時 (0-23)" min="0" max="23" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><input type="number" id="sh-mn" placeholder="分 (0-59)" min="0" max="59" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+          </div>
+          <div class="fl"><label>都道府県</label><select id="sh-pref" onchange="updShCity()" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></select></div>
+          <div class="fl"><label>市区町村</label><select id="sh-city" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></select></div>
+        </div>
+      </div>
+      <div id="sh-error" style="font-size:11px;color:#C05050;text-align:center;margin-bottom:.5rem;min-height:14px"></div>
+      <button class="btn-gold" onclick="runShindan()" style="margin-bottom:.75rem">相性を診断する</button>
+      <div id="sh-result" style="display:none;margin-top:1rem"></div>
+    </div></div>
+    <div id="sub-memo" style="display:none"><div style="padding:1rem">
+      <p class="sec">相性結果メモ</p>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">過去に診断したお相手を保存したリストです。「詳細を見る」で再表示できます。</div>
+      <div id="memo-list"></div>
+    </div></div>
+    <div id="sub-calendar" style="display:none"><div style="padding:1rem">
+      <p class="sec">運勢カレンダー</p>
+      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">あなたの3柱（日柱／月柱／年柱）と暦の十二支との組み合わせから、月単位・日単位の運勢を読み解きます。</div>
+      <div class="cal-nav-row">
+        <button class="cal-nav-btn" onclick="calPrev()">◀</button>
+        <span class="cal-title" id="cal-title">—</span>
+        <button class="cal-nav-btn" onclick="calNext()">▶</button>
+      </div>
+      <div id="cal-month-summary" class="card" style="margin:0 0 .75rem;padding:.85rem 1rem"></div>
+      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-legend">
+        <span><span class="cal-mk sango">◎</span>三合（吉）</span>
+        <span><span class="cal-mk shigo">〇</span>支合（吉）</span>
+        <span><span class="cal-mk chu">△</span>冲（変化）</span>
+        <span><span class="cal-mk kei">×</span>刑（注意）</span>
+      </div>
+      <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;margin-top:.5rem">※マークは、その日の日支と自分の <strong>日柱（プライベート）／月柱（家族）／年柱（社会）</strong> の関係を、左から順に並べています。</div>
+    </div></div>
+    <div class="modal-bg" id="cal-detail-modal">
+      <div class="modal-card" style="max-width:340px">
+        <div class="modal-hd">
+          <span class="modal-ttl" id="cal-detail-title">—</span>
+          <button class="modal-close" onclick="closeCalDetail()">✕</button>
+        </div>
+        <div id="cal-detail-body"></div>
+      </div>
+    </div>
     <div id="sub-contact" style="display:none"><div style="padding:1rem">
       <p class="sec">問い合わせ</p>
       <div class="card" style="margin:0 0 .75rem">
@@ -565,14 +660,111 @@ var PREF_NAMES=['北海道','青森県','岩手県','宮城県','秋田県','山
 
 // ===== 定数：節気データ・都道府県・関係パターン =====
 var SEKKI={1989:{1:{d:6,h:9,m:58},2:{d:4,h:21,m:28},3:{d:5,h:15,m:57},4:{d:5,h:10,m:32},5:{d:6,h:3,m:54},6:{d:6,h:11,m:3},7:{d:7,h:10,m:24},8:{d:8,h:3,m:48},9:{d:8,h:12,m:54},10:{d:9,h:4,m:18},11:{d:7,h:11,m:35},12:{d:7,h:22,m:28}},1990:{1:{d:6,h:15,m:27},2:{d:4,h:3,m:2},3:{d:6,h:21,m:19},4:{d:5,h:16,m:27},5:{d:6,h:9,m:45},6:{d:6,h:16,m:50},7:{d:7,h:16,m:6},8:{d:8,h:9,m:28},9:{d:8,h:18,m:25},10:{d:9,h:9,m:55},11:{d:7,h:17,m:7},12:{d:8,h:3,m:55}},1991:{1:{d:6,h:21,m:9},2:{d:4,h:8,m:46},3:{d:6,h:3,m:2},4:{d:5,h:21,m:59},5:{d:6,h:15,m:17},6:{d:6,h:22,m:20},7:{d:7,h:21,m:36},8:{d:8,h:14,m:56},9:{d:9,h:0,m:2},10:{d:9,h:15,m:19},11:{d:7,h:22,m:35},12:{d:8,h:9,m:36}},1992:{1:{d:6,h:2,m:48},2:{d:4,h:14,m:48},3:{d:5,h:9,m:2},4:{d:5,h:3,m:57},5:{d:5,h:21,m:12},6:{d:6,h:4,m:14},7:{d:7,h:3,m:28},8:{d:7,h:20,m:50},9:{d:8,h:5,m:49},10:{d:8,h:21,m:6},11:{d:7,h:4,m:21},12:{d:7,h:15,m:24}},1993:{1:{d:6,h:8,m:43},2:{d:4,h:20,m:57},3:{d:6,h:14,m:40},4:{d:5,h:8,m:48},5:{d:6,h:2,m:12},6:{d:6,h:9,m:15},7:{d:7,h:8,m:42},8:{d:8,h:2,m:11},9:{d:8,h:11,m:51},10:{d:9,h:3,m:14},11:{d:7,h:10,m:20},12:{d:7,h:21,m:55}},1994:{1:{d:6,h:14,m:30},2:{d:4,h:2,m:31},3:{d:5,h:20,m:31},4:{d:5,h:14,m:35},5:{d:6,h:7,m:49},6:{d:6,h:14,m:47},7:{d:7,h:14,m:5},8:{d:8,h:7,m:29},9:{d:8,h:17,m:19},10:{d:9,h:8,m:31},11:{d:7,h:15,m:40},12:{d:8,h:3,m:24}},1995:{1:{d:6,h:20,m:16},2:{d:4,h:8,m:13},3:{d:6,h:2,m:14},4:{d:5,h:20,m:21},5:{d:6,h:13,m:35},6:{d:6,h:20,m:34},7:{d:7,h:20,m:0},8:{d:8,h:13,m:14},9:{d:8,h:23,m:13},10:{d:9,h:14,m:27},11:{d:7,h:21,m:35},12:{d:8,h:9,m:18}},1996:{1:{d:6,h:5,m:3},2:{d:4,h:17,m:8},3:{d:5,h:11,m:3},4:{d:5,h:5,m:14},5:{d:5,h:22,m:49},6:{d:6,h:6,m:2},7:{d:7,h:5,m:28},8:{d:7,h:23,m:2},9:{d:8,h:7,m:43},10:{d:8,h:23,m:8},11:{d:7,h:7,m:12},12:{d:7,h:17,m:47}},1997:{1:{d:6,h:11,m:0},2:{d:4,h:22,m:45},3:{d:5,h:17,m:3},4:{d:5,h:11,m:2},5:{d:6,h:4,m:18},6:{d:6,h:11,m:21},7:{d:7,h:10,m:46},8:{d:8,h:4,m:9},9:{d:8,h:13,m:56},10:{d:9,h:5,m:15},11:{d:7,h:12,m:22},12:{d:7,h:23,m:8}},1998:{1:{d:6,h:16,m:55},2:{d:4,h:4,m:51},3:{d:5,h:22,m:54},4:{d:5,h:16,m:57},5:{d:6,h:10,m:6},6:{d:6,h:17,m:4},7:{d:7,h:16,m:20},8:{d:8,h:9,m:40},9:{d:8,h:19,m:31},10:{d:9,h:10,m:47},11:{d:7,h:17,m:59},12:{d:8,h:5,m:41}},1999:{1:{d:5,h:22,m:39},2:{d:4,h:10,m:57},3:{d:6,h:4,m:57},4:{d:5,h:22,m:46},5:{d:6,h:15,m:52},6:{d:6,h:22,m:55},7:{d:7,h:22,m:15},8:{d:8,h:15,m:37},9:{d:9,h:1,m:20},10:{d:9,h:16,m:25},11:{d:7,h:23,m:24},12:{d:8,h:11,m:15}},2000:{1:{d:6,h:4,m:14},2:{d:4,h:16,m:32},3:{d:5,h:10,m:35},4:{d:5,h:4,m:15},5:{d:5,h:21,m:23},6:{d:5,h:4,m:48},7:{d:6,h:23,m:1},8:{d:7,h:16,m:39},9:{d:7,h:2,m:10},10:{d:7,h:17,m:30},11:{d:6,h:0,m:14},12:{d:6,h:10,m:33}}};
-var PREFS=[{name:'北海道',cities:[{n:'札幌市',l:141.35},{n:'函館市',l:140.73}]},{name:'青森県',cities:[{n:'青森市',l:140.74}]},{name:'岩手県',cities:[{n:'盛岡市',l:141.15}]},{name:'宮城県',cities:[{n:'仙台市',l:140.87}]},{name:'秋田県',cities:[{n:'秋田市',l:140.10}]},{name:'山形県',cities:[{n:'山形市',l:140.36}]},{name:'福島県',cities:[{n:'福島市',l:140.47}]},{name:'茨城県',cities:[{n:'水戸市',l:140.45}]},{name:'栃木県',cities:[{n:'宇都宮市',l:139.88}]},{name:'群馬県',cities:[{n:'前橋市',l:139.06}]},{name:'埼玉県',cities:[{n:'さいたま市',l:139.63}]},{name:'千葉県',cities:[{n:'千葉市',l:140.12}]},{name:'東京都',cities:[{n:'千代田区',l:139.75},{n:'新宿区',l:139.69},{n:'渋谷区',l:139.70}]},{name:'神奈川県',cities:[{n:'横浜市',l:139.64},{n:'川崎市',l:139.70},{n:'相模原市',l:139.37},{n:'藤沢市',l:139.48},{n:'横須賀市',l:139.67},{n:'平塚市',l:139.35},{n:'小田原市',l:139.16},{n:'厚木市',l:139.36},{n:'茅ヶ崎市',l:139.40},{n:'鎌倉市',l:139.55}]},{name:'新潟県',cities:[{n:'新潟市',l:139.02}]},{name:'富山県',cities:[{n:'富山市',l:137.21}]},{name:'石川県',cities:[{n:'金沢市',l:136.62}]},{name:'福井県',cities:[{n:'福井市',l:136.22}]},{name:'山梨県',cities:[{n:'甲府市',l:138.57}]},{name:'長野県',cities:[{n:'長野市',l:138.19}]},{name:'岐阜県',cities:[{n:'岐阜市',l:136.72}]},{name:'静岡県',cities:[{n:'静岡市',l:138.38}]},{name:'愛知県',cities:[{n:'名古屋市',l:136.91}]},{name:'三重県',cities:[{n:'津市',l:136.51}]},{name:'滋賀県',cities:[{n:'大津市',l:135.87}]},{name:'京都府',cities:[{n:'京都市',l:135.77}]},{name:'大阪府',cities:[{n:'大阪市',l:135.50},{n:'堺市',l:135.47},{n:'東大阪市',l:135.60}]},{name:'兵庫県',cities:[{n:'神戸市',l:135.19},{n:'姫路市',l:134.69},{n:'西宮市',l:135.34},{n:'尼崎市',l:135.41},{n:'明石市',l:134.99}]},{name:'奈良県',cities:[{n:'奈良市',l:135.83}]},{name:'和歌山県',cities:[{n:'和歌山市',l:135.17}]},{name:'鳥取県',cities:[{n:'鳥取市',l:134.24}]},{name:'島根県',cities:[{n:'松江市',l:133.05}]},{name:'岡山県',cities:[{n:'岡山市',l:133.93}]},{name:'広島県',cities:[{n:'広島市',l:132.46}]},{name:'山口県',cities:[{n:'山口市',l:131.47}]},{name:'徳島県',cities:[{n:'徳島市',l:134.56}]},{name:'香川県',cities:[{n:'高松市',l:134.05}]},{name:'愛媛県',cities:[{n:'松山市',l:132.77}]},{name:'高知県',cities:[{n:'高知市',l:133.55}]},{name:'福岡県',cities:[{n:'福岡市',l:130.40},{n:'北九州市',l:130.88}]},{name:'佐賀県',cities:[{n:'佐賀市',l:130.30}]},{name:'長崎県',cities:[{n:'長崎市',l:129.87}]},{name:'熊本県',cities:[{n:'熊本市',l:130.74}]},{name:'大分県',cities:[{n:'大分市',l:131.61}]},{name:'宮崎県',cities:[{n:'宮崎市',l:131.42}]},{name:'鹿児島県',cities:[{n:'鹿児島市',l:130.56}]},{name:'沖縄県',cities:[{n:'那覇市',l:127.68},{n:'石垣市',l:124.16}]}];
+var PREFS=[
+  {name:'北海道',cities:[{n:'札幌市',l:141.35},{n:'函館市',l:140.73},{n:'旭川市',l:142.36},{n:'釧路市',l:144.39},{n:'帯広市',l:143.20},{n:'苫小牧市',l:141.61},{n:'小樽市',l:141.00},{n:'千歳市',l:141.65}]},
+  {name:'青森県',cities:[{n:'青森市',l:140.74},{n:'弘前市',l:140.47},{n:'八戸市',l:141.49}]},
+  {name:'岩手県',cities:[{n:'盛岡市',l:141.15},{n:'一関市',l:141.13},{n:'奥州市',l:141.13}]},
+  {name:'宮城県',cities:[{n:'仙台市',l:140.87},{n:'石巻市',l:141.30}]},
+  {name:'秋田県',cities:[{n:'秋田市',l:140.10},{n:'横手市',l:140.56},{n:'大仙市',l:140.49}]},
+  {name:'山形県',cities:[{n:'山形市',l:140.36},{n:'鶴岡市',l:139.83},{n:'酒田市',l:139.85},{n:'米沢市',l:140.12}]},
+  {name:'福島県',cities:[{n:'福島市',l:140.47},{n:'郡山市',l:140.39},{n:'いわき市',l:140.89},{n:'会津若松市',l:139.93}]},
+  {name:'茨城県',cities:[{n:'水戸市',l:140.45},{n:'つくば市',l:140.10},{n:'日立市',l:140.65},{n:'ひたちなか市',l:140.53}]},
+  {name:'栃木県',cities:[{n:'宇都宮市',l:139.88},{n:'小山市',l:139.80},{n:'足利市',l:139.45}]},
+  {name:'群馬県',cities:[{n:'前橋市',l:139.06},{n:'高崎市',l:139.02},{n:'太田市',l:139.38},{n:'伊勢崎市',l:139.20}]},
+  {name:'埼玉県',cities:[{n:'さいたま市',l:139.63},{n:'川口市',l:139.71},{n:'川越市',l:139.49},{n:'所沢市',l:139.47},{n:'越谷市',l:139.79},{n:'春日部市',l:139.75}]},
+  {name:'千葉県',cities:[{n:'千葉市',l:140.12},{n:'船橋市',l:139.98},{n:'松戸市',l:139.90},{n:'市川市',l:139.93},{n:'柏市',l:139.97},{n:'浦安市',l:139.89}]},
+  {name:'東京都',cities:[{n:'千代田区',l:139.75},{n:'新宿区',l:139.69},{n:'渋谷区',l:139.70},{n:'港区',l:139.75},{n:'中央区',l:139.78},{n:'品川区',l:139.73},{n:'世田谷区',l:139.65},{n:'杉並区',l:139.64},{n:'目黒区',l:139.70},{n:'大田区',l:139.72},{n:'練馬区',l:139.65},{n:'八王子市',l:139.34},{n:'立川市',l:139.41},{n:'武蔵野市',l:139.57},{n:'三鷹市',l:139.56},{n:'町田市',l:139.44}]},
+  {name:'神奈川県',cities:[{n:'横浜市',l:139.64},{n:'川崎市',l:139.70},{n:'相模原市',l:139.37},{n:'藤沢市',l:139.48},{n:'横須賀市',l:139.67},{n:'平塚市',l:139.35},{n:'小田原市',l:139.16},{n:'厚木市',l:139.36},{n:'茅ヶ崎市',l:139.40},{n:'鎌倉市',l:139.55}]},
+  {name:'新潟県',cities:[{n:'新潟市',l:139.02},{n:'長岡市',l:138.85},{n:'上越市',l:138.24}]},
+  {name:'富山県',cities:[{n:'富山市',l:137.21},{n:'高岡市',l:137.03}]},
+  {name:'石川県',cities:[{n:'金沢市',l:136.62},{n:'小松市',l:136.45},{n:'七尾市',l:136.97}]},
+  {name:'福井県',cities:[{n:'福井市',l:136.22},{n:'敦賀市',l:136.06}]},
+  {name:'山梨県',cities:[{n:'甲府市',l:138.57},{n:'富士吉田市',l:138.79}]},
+  {name:'長野県',cities:[{n:'長野市',l:138.19},{n:'松本市',l:137.97},{n:'上田市',l:138.25}]},
+  {name:'岐阜県',cities:[{n:'岐阜市',l:136.72},{n:'大垣市',l:136.62},{n:'高山市',l:137.25}]},
+  {name:'静岡県',cities:[{n:'静岡市',l:138.38},{n:'浜松市',l:137.73},{n:'沼津市',l:138.86},{n:'富士市',l:138.68},{n:'三島市',l:138.92}]},
+  {name:'愛知県',cities:[{n:'名古屋市',l:136.91},{n:'豊橋市',l:137.39},{n:'岡崎市',l:137.17},{n:'豊田市',l:137.16},{n:'一宮市',l:136.80}]},
+  {name:'三重県',cities:[{n:'津市',l:136.51},{n:'四日市市',l:136.62},{n:'鈴鹿市',l:136.59},{n:'松阪市',l:136.53}]},
+  {name:'滋賀県',cities:[{n:'大津市',l:135.87},{n:'草津市',l:135.96},{n:'彦根市',l:136.26},{n:'長浜市',l:136.27}]},
+  {name:'京都府',cities:[{n:'京都市',l:135.77},{n:'宇治市',l:135.81},{n:'福知山市',l:135.13}]},
+  {name:'大阪府',cities:[{n:'大阪市',l:135.50},{n:'堺市',l:135.47},{n:'東大阪市',l:135.60},{n:'高槻市',l:135.62},{n:'枚方市',l:135.65},{n:'豊中市',l:135.47},{n:'吹田市',l:135.52}]},
+  {name:'兵庫県',cities:[{n:'神戸市',l:135.19},{n:'姫路市',l:134.69},{n:'西宮市',l:135.34},{n:'尼崎市',l:135.41},{n:'明石市',l:134.99}]},
+  {name:'奈良県',cities:[{n:'奈良市',l:135.83},{n:'橿原市',l:135.79}]},
+  {name:'和歌山県',cities:[{n:'和歌山市',l:135.17},{n:'田辺市',l:135.39},{n:'新宮市',l:135.99}]},
+  {name:'鳥取県',cities:[{n:'鳥取市',l:134.24},{n:'米子市',l:133.33},{n:'倉吉市',l:133.83}]},
+  {name:'島根県',cities:[{n:'松江市',l:133.05},{n:'出雲市',l:132.75},{n:'浜田市',l:132.08}]},
+  {name:'岡山県',cities:[{n:'岡山市',l:133.93},{n:'倉敷市',l:133.77},{n:'津山市',l:134.00}]},
+  {name:'広島県',cities:[{n:'広島市',l:132.46},{n:'福山市',l:133.36},{n:'呉市',l:132.57}]},
+  {name:'山口県',cities:[{n:'山口市',l:131.47},{n:'下関市',l:130.94},{n:'宇部市',l:131.25}]},
+  {name:'徳島県',cities:[{n:'徳島市',l:134.56},{n:'鳴門市',l:134.61}]},
+  {name:'香川県',cities:[{n:'高松市',l:134.05},{n:'丸亀市',l:133.79}]},
+  {name:'愛媛県',cities:[{n:'松山市',l:132.77},{n:'今治市',l:132.99},{n:'新居浜市',l:133.28}]},
+  {name:'高知県',cities:[{n:'高知市',l:133.55},{n:'南国市',l:133.64}]},
+  {name:'福岡県',cities:[{n:'福岡市',l:130.40},{n:'北九州市',l:130.88},{n:'久留米市',l:130.51},{n:'大牟田市',l:130.45}]},
+  {name:'佐賀県',cities:[{n:'佐賀市',l:130.30},{n:'唐津市',l:129.97}]},
+  {name:'長崎県',cities:[{n:'長崎市',l:129.87},{n:'佐世保市',l:129.72},{n:'諫早市',l:130.05}]},
+  {name:'熊本県',cities:[{n:'熊本市',l:130.74},{n:'八代市',l:130.60},{n:'天草市',l:130.20}]},
+  {name:'大分県',cities:[{n:'大分市',l:131.61},{n:'別府市',l:131.49},{n:'中津市',l:131.19}]},
+  {name:'宮崎県',cities:[{n:'宮崎市',l:131.42},{n:'都城市',l:131.06},{n:'延岡市',l:131.66}]},
+  {name:'鹿児島県',cities:[{n:'鹿児島市',l:130.56},{n:'霧島市',l:130.76},{n:'鹿屋市',l:130.85}]},
+  {name:'沖縄県',cities:[{n:'那覇市',l:127.68},{n:'石垣市',l:124.16},{n:'沖縄市',l:127.83},{n:'浦添市',l:127.71},{n:'宮古島市',l:125.28}]}
+];
 var KANGO=[[0,5],[2,7],[4,9],[6,1],[8,3]],HANGO=[[0,8],[0,4],[3,11],[3,7],[6,2],[6,10],[9,5],[9,1]],SHIGO=[[0,1],[11,2],[10,3],[9,4],[8,5],[7,6]],CHU=[[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]],KEI_PAIRS=[[10,1],[1,7],[7,10],[5,2],[2,8],[8,5],[0,3]],KEI_SELF=[4,6,9,11];
 
 /* === pillars.js === */
 // ===== 四柱推命：ピラー計算と関係判定 =====
 function isKan(k1,k2){for(var i=0;i<KANGO.length;i++){var p=KANGO[i];if((k1===p[0]&&k2===p[1])||(k1===p[1]&&k2===p[0]))return true;}return false;}
 function isHango(s1,s2){for(var i=0;i<HANGO.length;i++){var p=HANGO[i];if((s1===p[0]&&s2===p[1])||(s1===p[1]&&s2===p[0]))return true;}return false;}
-function getSekki(y,m){if(SEKKI[y]&&SEKKI[y][m])return SEKKI[y][m];return{d:6,h:6,m:0};}
+// === 節入時刻の天文計算（Meeus 太陽黄経式 / 精度 ~5-15分）===
+// 太陽の見かけ黄経 [度] を返す（JD は UT で渡す）
+function sunApparentLon(jdv){
+  var T=(jdv-2451545)/36525;
+  var L0=280.46646+36000.76983*T+0.0003032*T*T;
+  var M=357.52911+35999.05029*T-0.0001537*T*T;
+  var Mr=M*Math.PI/180;
+  var C=(1.914602-0.004817*T-0.000014*T*T)*Math.sin(Mr)+(0.019993-0.000101*T)*Math.sin(2*Mr)+0.000289*Math.sin(3*Mr);
+  var L=L0+C;
+  var om=(125.04-1934.136*T)*Math.PI/180;
+  var lam=L-0.00569-0.00478*Math.sin(om);
+  return((lam%360)+360)%360;
+}
+// 月→節入の太陽黄経
+var SEKKI_LON={1:285,2:315,3:345,4:15,5:45,6:75,7:105,8:135,9:165,10:195,11:225,12:255};
+// 節入時刻のキャッシュ（同じ年月への再計算を避ける）
+var _SEKKI_CACHE={};
+function getSekki(y,m){
+  var key=y+'_'+m;
+  if(_SEKKI_CACHE[key])return _SEKKI_CACHE[key];
+  var targetLon=SEKKI_LON[m];
+  // 節入は各月の3-9日に発生。中央値6日±10日で二分探索
+  var aj=jd(y,m,6,0);
+  var lo=aj-10,hi=aj+10;
+  for(var i=0;i<60;i++){
+    var mid=(lo+hi)/2;
+    var diff=((sunApparentLon(mid)-targetLon+540)%360)-180;
+    if(Math.abs(diff)<1e-7)break;
+    if(diff<0)lo=mid;else hi=mid;
+  }
+  var termJD=(lo+hi)/2;
+  // UT JD → JST (UT+9) → date components
+  var jstJD=termJD+9/24+0.5;
+  var Z=Math.floor(jstJD),F=jstJD-Z,A;
+  if(Z<2299161){A=Z;}
+  else{var alpha=Math.floor((Z-1867216.25)/36524.25);A=Z+1+alpha-Math.floor(alpha/4);}
+  var B=A+1524;
+  var C2=Math.floor((B-122.1)/365.25);
+  var D=Math.floor(365.25*C2);
+  var E=Math.floor((B-D)/30.6001);
+  var dayD=B-D-Math.floor(30.6001*E)+F;
+  var dInt=Math.floor(dayD),fracDay=dayD-dInt;
+  var hour=fracDay*24,hInt=Math.floor(hour);
+  var mInt=Math.round((hour-hInt)*60);
+  if(mInt>=60){mInt=0;hInt++;}
+  if(hInt>=24){hInt=0;dInt++;}
+  var result={d:dInt,h:hInt,m:mInt};
+  _SEKKI_CACHE[key]=result;
+  return result;
+}
 function jd(y,m,d,h){if(m<=2){y--;m+=12;}var A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+h/24+B-1524.5;}
 function eqT(j){var T=(j-2451545)/36525,eps=(23.4393-0.013*T)*Math.PI/180,L0=(280.46646+36000.76983*T)*Math.PI/180,e=0.016708634-0.000042037*T,M=(357.52911+35999.05029*T)*Math.PI/180,y2=Math.tan(eps/2)*Math.tan(eps/2);return(y2*Math.sin(2*L0)-2*e*Math.sin(M)+4*e*y2*Math.sin(M)*Math.cos(2*L0)-0.5*y2*y2*Math.sin(4*L0)-1.25*e*e*Math.sin(2*M))*4*180/Math.PI;}
 function calcPillars(yr,mo,dy,hr,mn,lon){var ld=(lon-135.0)*4,j=jd(yr,mo,dy,hr+mn/60);var tt=((hr*60+mn+ld+eqT(j))%1440+1440)%1440,tH=Math.floor(tt/60);var sk=getSekki(yr,mo),bef=(dy*1440+hr*60+mn)<(sk.d*1440+sk.h*60+sk.m);var nY=yr;if(mo===1){nY=yr-1;}else if(mo===2&&bef){nY=yr-1;}var nKi=((nY-4)%10+10)%10,nSi=((nY-4)%12+12)%12;var mY=yr,mM=mo;if(bef){mM--;if(mM<=0){mM=12;mY--;}}var gY=mY;if(mM===1)gY=mY-1;var gKi=((gY-4)%10+10)%10;var moKi=(GOKOTSU[gKi]+(mM-2+12)%12)%10,moSi=MO_SHI[mM];var dJ=Math.floor(jd(yr,mo,dy,12)),dSt=((dJ+49)%10+10)%10,dSi=((dJ+49)%12+12)%12;var sH=Math.floor(((tH+1)%24)/2),hKi=([0,2,4,6,8][dSt%5]+sH)%10;return [{k:nKi,s:nSi},{k:moKi,s:moSi},{k:dSt,s:dSi},{k:hKi,s:sH}];}
@@ -749,7 +941,15 @@ function renderFiltered(list){var container=document.getElementById('match-list'
     }}
 function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
 function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+KAN[myP[pi].k]+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+SHI[myP[pi].s]+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+KAN[partner.pillars[pi].k]+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+SHI[partner.pillars[pi].s]+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button></div></div>';}
-function renderMatchList(myP){var cache={};for(var i=0;i<PARTNERS.length;i++)cache[i]=checkRelations(myP,PARTNERS[i].pillars);REL_CACHE=cache;PARTNERS_DATA=[];ALL_SORTED=PARTNERS.map(function(p,i){var sc=calcScore(cache[i]),rel=cache[i],th='';if(rel.kango.length>0)th+='<span class="tag g">干合：'+rel.kango.length+'</span>';if(rel.sango.length>0)th+='<span class="tag g">三合：'+rel.sango.length+'</span>';if(rel.shigo.length>0)th+='<span class="tag g">支合：'+rel.shigo.length+'</span>';if(rel.chu.length>0)th+='<span class="tag r">冲：'+rel.chu.length+'</span>';if(rel.kei.length>0)th+='<span class="tag r">刑：'+rel.kei.length+'</span>';PARTNERS_DATA[i]={name:p.name,meta:p.meta,score:sc,tags:th,isDemo:p.isDemo||false};return{p:p,i:i,score:sc,tags:th,isDemo:p.isDemo||false};});ALL_SORTED.sort(function(a,b){return b.score-a.score;});applyFilter();}
+function renderMatchList(myP){
+  // 数値キーのみ更新し、'sh'（相性診断）等の文字列キーは保持する
+  // ※ かつては REL_CACHE=cache; で全置換していたが、ポーリングで相性診断のキャッシュが消える不具合があった
+  for(var i=0;i<PARTNERS.length;i++)REL_CACHE[i]=checkRelations(myP,PARTNERS[i].pillars);
+  PARTNERS_DATA=[];
+  ALL_SORTED=PARTNERS.map(function(p,i){var sc=calcScore(REL_CACHE[i]),rel=REL_CACHE[i],th='';if(rel.kango.length>0)th+='<span class="tag g">干合：'+rel.kango.length+'</span>';if(rel.sango.length>0)th+='<span class="tag g">三合：'+rel.sango.length+'</span>';if(rel.shigo.length>0)th+='<span class="tag g">支合：'+rel.shigo.length+'</span>';if(rel.chu.length>0)th+='<span class="tag r">冲：'+rel.chu.length+'</span>';if(rel.kei.length>0)th+='<span class="tag r">刑：'+rel.kei.length+'</span>';PARTNERS_DATA[i]={name:p.name,meta:p.meta,score:sc,tags:th,isDemo:p.isDemo||false};return{p:p,i:i,score:sc,tags:th,isDemo:p.isDemo||false};});
+  ALL_SORTED.sort(function(a,b){return b.score-a.score;});
+  applyFilter();
+}
 function toggleFilter(){var b=document.getElementById('filter-body'),ic=document.getElementById('filter-icon');var o=b.classList.contains('open');b.classList.toggle('open',!o);ic.classList.toggle('open',!o);}
 function toggleAge(type){ageState[type]=!ageState[type];document.getElementById('age-'+type).classList.toggle('on',ageState[type]);document.getElementById('row-upper').style.display=ageState.older?'flex':'none';document.getElementById('row-lower').style.display=ageState.younger?'flex':'none';updateAgeSummary();applyFilter();}
 function updateAgeSummary(){if(!document.getElementById('age-upper'))return;var u=parseInt(document.getElementById('age-upper').value),l=parseInt(document.getElementById('age-lower').value),p=[];p.push(ageState.older?(u===0?'年上：指定しない':'最大'+u+'歳上まで'):'年上：なし');p.push(ageState.younger?(l===0?'年下：指定しない':'最大'+l+'歳下まで'):'年下：なし');document.getElementById('age-sum').textContent=p.join('・');}
@@ -1187,7 +1387,637 @@ function addNotif(title,body){var list=document.getElementById('notif-list');if(
 function submitContact(){var type=document.getElementById('contact-type').value;if(!type){alert('問い合わせ内容を選択してください');return;}document.getElementById('contact-sent').style.display='block';setTimeout(function(){addOfficialMessage('お問い合わせ（'+type+'）を受け付けました。内容を確認次第、こちらのチャットにてご返答いたします。');addNotif('【運営】お問い合わせを受け付けました','メッセージページの運営チャットにてご返答いたします。');},1000);}
 function toggleSubMenu(e){if(e)e.stopPropagation();var el=document.getElementById('sub-menu');if(el)el.classList.toggle('show');}
 function closeSubMenu(){var el=document.getElementById('sub-menu');if(el)el.classList.remove('show');}
-function openSubPage(page){['plan','omoi','voice','contact'].forEach(function(p){document.getElementById('sub-'+p).style.display='none';});document.getElementById('sub-'+page).style.display='block';document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===3);});document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});document.querySelectorAll('.bni').forEach(function(b,i){b.classList.toggle('on',i===3);});}
+function openSubPage(page){
+  ['plan','omoi','voice','contact','shindan','memo','calendar'].forEach(function(p){
+    var el=document.getElementById('sub-'+p);
+    if(el)el.style.display='none';
+  });
+  var target=document.getElementById('sub-'+page);
+  if(target)target.style.display='block';
+  document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});
+  document.querySelectorAll('.ntab').forEach(function(t,i){t.classList.toggle('on',i===3);});
+  document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});
+  document.querySelectorAll('.bni').forEach(function(b,i){b.classList.toggle('on',i===3);});
+  // 相性診断ページを初めて開いた時に都道府県セレクトを初期化
+  if(page==='shindan'){
+    var sp=document.getElementById('sh-pref');
+    if(sp&&sp.options.length===0)initShPrefs();
+  }
+  // 相性結果メモページを開いた時はリストを再描画
+  if(page==='memo'){
+    if(typeof renderMemoList==='function')renderMemoList();
+  }
+  // 運勢カレンダーページを開いた時に初期化
+  if(page==='calendar'){
+    if(typeof openCalendar==='function')openCalendar();
+  }
+}
+
+/* === ui-shindan.js === */
+// ===== UI: 相性診断（その他タブ内、リアル知り合い等との相性チェック） =====
+
+// 直近の診断データ（メモ保存用）
+var lastShindanData = null;
+
+// localStorage key（ユーザー単位で分離）
+function shindanMemoKey(){
+  return 'shindan_memos_'+(currentUser?currentUser.id:'guest');
+}
+
+// 名前末尾の「さん」を削除（表示時に "さん" を必ず一度だけ付けるため）
+function stripSan(name){
+  return (name||'').replace(/さん$/,'');
+}
+
+// ===== フォーム操作 =====
+
+// 性別ボタンのトグル
+function setShSex(el){
+  document.querySelectorAll('#sub-shindan .sxbtn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+}
+
+// 都道府県セレクト初期化（デフォルトは神奈川県、わからないも選択可）
+function initShPrefs(){
+  var s=document.getElementById('sh-pref');
+  if(!s)return;
+  s.innerHTML='';
+  var unknown=document.createElement('option');
+  unknown.value='-1';
+  unknown.textContent='わからない';
+  s.appendChild(unknown);
+  for(var i=0;i<PREFS.length;i++){
+    var o=document.createElement('option');
+    o.value=i;
+    o.textContent=PREFS[i].name;
+    if(PREFS[i].name==='神奈川県')o.selected=true;
+    s.appendChild(o);
+  }
+  updShCity();
+}
+
+// 都道府県に応じて市区町村セレクトを更新
+function updShCity(){
+  var pi=parseInt(document.getElementById('sh-pref').value);
+  var cs=document.getElementById('sh-city');
+  if(!cs)return;
+  cs.innerHTML='';
+  if(isNaN(pi)||pi<0){
+    var op=document.createElement('option');
+    op.value='-1';
+    op.textContent='わからない';
+    cs.appendChild(op);
+    cs.disabled=true;
+    return;
+  }
+  cs.disabled=false;
+  PREFS[pi].cities.forEach(function(c){
+    var o=document.createElement('option');
+    o.value=c.l;
+    o.textContent=c.n;
+    cs.appendChild(o);
+  });
+}
+
+// ===== 診断実行 =====
+
+function runShindan(){
+  var errEl=document.getElementById('sh-error');
+  errEl.textContent='';
+
+  // 必須チェック
+  var sxBtn=document.querySelector('#sub-shindan .sxbtn.on');
+  if(!sxBtn){errEl.textContent='性別を選択してください';return;}
+  var sex=sxBtn.textContent;
+  var yr=parseInt(document.getElementById('sh-yr').value);
+  var mo=parseInt(document.getElementById('sh-mo').value);
+  var dy=parseInt(document.getElementById('sh-dy').value);
+  if(!yr||!mo||!dy){errEl.textContent='生年月日（年・月・日）を入力してください';return;}
+  if(yr<1900||yr>2030||mo<1||mo>12||dy<1||dy>31){errEl.textContent='生年月日が正しくありません';return;}
+  if(!MY_PILLARS||MY_PILLARS.length===0){errEl.textContent='自分のプロフィール情報が読み込まれていません。再ログインしてお試しください。';return;}
+
+  // 任意項目（不明ならデフォルト値で計算）
+  var hrRaw=document.getElementById('sh-hr').value;
+  var mnRaw=document.getElementById('sh-mn').value;
+  var hr=parseInt(hrRaw);
+  var mn=parseInt(mnRaw);
+  var hasTime=!isNaN(hr);
+  if(isNaN(hr))hr=12;
+  if(isNaN(mn))mn=0;
+
+  var prefIdx=parseInt(document.getElementById('sh-pref').value);
+  var lonStr=document.getElementById('sh-city').value;
+  var lon=parseFloat(lonStr);
+  var hasLocation=!isNaN(lon)&&lon>0;
+  if(!hasLocation)lon=135.0;
+
+  // 計算
+  var partnerPillars=calcPillars(yr,mo,dy,hr,mn,lon);
+  var rel=checkRelations(MY_PILLARS,partnerPillars);
+  // 相手の出生時刻不明 → 相手の時柱(ti=3)は信頼できない値なので、時柱が絡む関係を除外
+  if(!hasTime){
+    ['kango','sango','shigo','chu','kei'].forEach(function(k){
+      rel[k]=rel[k].filter(function(item){return item.ti!==3;});
+    });
+  }
+  var score=calcScore(rel);
+  var comment=generateComment(rel);
+  var name=document.getElementById('sh-name').value.trim()||'お相手';
+
+  // ペアタップで〇＋線を描けるよう REL_CACHE['sh'] に格納
+  REL_CACHE['sh']=rel;
+
+  // 直近のデータを保存（メモ保存用）
+  lastShindanData={
+    name:name,gender:sex,
+    year:yr,month:mo,day:dy,
+    hour:hasTime?hr:null,min:hasTime?mn:null,
+    prefIdx:isNaN(prefIdx)?-1:prefIdx,
+    longitude:hasLocation?lon:null,
+    partnerPillars:partnerPillars,
+    rel:rel,score:score,comment:comment
+  };
+
+  renderShindanResult(name,partnerPillars,score,rel,comment,!hasTime,!hasLocation);
+}
+
+// ===== 結果描画（マッチング画面と統一感、ペアタップで〇＋線対応） =====
+
+function renderShindanResult(name,partnerP,score,rel,comment,missingTime,missingLocation){
+  var el=document.getElementById('sh-result');
+  if(!el)return;
+
+  var displayName=stripSan(name)+'さん';
+  var html='';
+
+  // === 良縁率カード ===
+  html+='<div class="card" style="margin:0 0 .75rem">';
+  html+='<div style="font-size:13px;font-weight:500;margin-bottom:.5rem;text-align:center;color:var(--color-text-secondary)">'+displayName+'との良縁率</div>';
+  html+='<div style="font-family:\'Noto Serif JP\',serif;font-size:36px;font-weight:700;color:#C9A96E;text-align:center;line-height:1.1;margin-bottom:.5rem">'+score+'%</div>';
+  html+='<div class="abar" style="margin-bottom:.75rem"><div class="afill" style="width:'+score+'%"></div></div>';
+  if(missingTime||missingLocation){
+    var notes=[];
+    if(missingTime)notes.push('出生時刻');
+    if(missingLocation)notes.push('出生地');
+    html+='<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;line-height:1.6;margin-bottom:.5rem">※ '+notes.join('・')+'未入力のため一般的な値で計算しました（参考値）</div>';
+  }
+  html+='<div class="comment-box" style="font-size:12px;line-height:1.7;margin-bottom:.75rem">'+comment+'</div>';
+  // メモ保存ボタン
+  html+='<button id="memo-save-btn" onclick="saveShindanMemo()" style="display:block;width:100%;padding:9px 0;font-size:12px;color:#C9A96E;background:transparent;border:0.5px solid #C9A96E;border-radius:8px;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif;letter-spacing:.05em">📝 この結果をメモに保存</button>';
+  html+='</div>';
+
+  // === 命式比較（compare-wrap + svg, 時柱は時刻不明なら空欄）===
+  html+='<div class="card" style="margin:0 0 .75rem">';
+  html+='<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.6rem;text-align:center">命式の比較（ペアをタップで干支を強調）</div>';
+  html+='<div class="compare-wrap"><div class="compare-grid">';
+  // あなた側（時柱は常に表示）
+  html+='<div class="pcol"><div class="col-lbl">あなた</div>';
+  for(var pi=0;pi<4;pi++){
+    html+='<div class="pce mine" id="mypc_sh_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_sh_'+pi+'">'+KAN[MY_PILLARS[pi].k]+'</div><div class="pce-s" id="myshi_sh_'+pi+'">'+SHI[MY_PILLARS[pi].s]+'</div></div>';
+  }
+  html+='</div>';
+  // お相手側（時刻不明なら時柱は空欄）
+  html+='<div class="pcol"><div class="col-lbl">'+displayName+'</div>';
+  for(var pi=0;pi<4;pi++){
+    var kanText=(pi===3&&missingTime)?'—':KAN[partnerP[pi].k];
+    var shiText=(pi===3&&missingTime)?'—':SHI[partnerP[pi].s];
+    html+='<div class="pce" id="thpc_sh_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_sh_'+pi+'">'+kanText+'</div><div class="pce-s" id="thshi_sh_'+pi+'">'+shiText+'</div></div>';
+  }
+  html+='</div></div>';
+  html+='<svg class="svg-ov" id="svgsh"></svg>';
+  html+='</div></div>';
+
+  // === 関係性詳細（タップで〇＋線、推しページと同じ仕様）===
+  function rs(title,items,desc){
+    var isBad=(title==='冲'||title==='刑');
+    var cnt=items.length>0?items.length+'組':'なし';
+    var cntCls=items.length>0?(isBad?'r':''):'none';
+    var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';
+    if(items.length>0){
+      h+='<div class="rel-pairs">';
+      items.forEach(function(item,ii){
+        var cls=item.type==='both'?'both':(isBad?'r':'g');
+        h+='<span class="rel-pair '+cls+'" data-ridx="sh" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';
+      });
+      h+='</div>';
+    }
+    return h+'<div class="rel-desc">'+desc+'</div></div>';
+  }
+  html+='<div class="card" style="margin:0">';
+  html+=rs('干合',rel.kango,'多ければ多いほど一目で惹かれる');
+  html+=rs('三合',rel.sango,'価値観や考え方が似ていて安定した関係');
+  html+=rs('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係');
+  html+=rs('冲',rel.chu,'反発や衝突が起きやすい関係');
+  html+=rs('刑',rel.kei,'トラブルや泥沼化になりやすい関係');
+  html+='</div>';
+
+  el.innerHTML=html;
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ===== メモ機能（localStorage に保存） =====
+
+function getShindanMemos(){
+  try{return JSON.parse(localStorage.getItem(shindanMemoKey())||'[]');}catch(e){return[];}
+}
+
+function setShindanMemos(arr){
+  localStorage.setItem(shindanMemoKey(),JSON.stringify(arr));
+}
+
+function saveShindanMemo(){
+  if(!lastShindanData)return;
+  var memos=getShindanMemos();
+  var entry=Object.assign({},lastShindanData,{
+    id:Date.now(),
+    savedAt:new Date().toISOString()
+  });
+  memos.push(entry);
+  setShindanMemos(memos);
+  // ボタンを「保存しました」表示に
+  var btn=document.getElementById('memo-save-btn');
+  if(btn){
+    btn.textContent='✓ メモに保存しました';
+    btn.disabled=true;
+    btn.style.opacity='0.6';
+    btn.style.cursor='default';
+  }
+}
+
+function renderMemoList(){
+  var container=document.getElementById('memo-list');
+  if(!container)return;
+  var list=getShindanMemos();
+  if(list.length===0){
+    container.innerHTML='<div style="text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:12px;line-height:1.8">✦<br>まだメモがありません。<br>相性診断ページで「メモに保存」を押すと、ここに表示されます。</div>';
+    return;
+  }
+  // 新しい順
+  list.sort(function(a,b){return new Date(b.savedAt)-new Date(a.savedAt);});
+  var html='';
+  list.forEach(function(memo){
+    var displayName=stripSan(memo.name||'お相手')+'さん';
+    var dateStr=memo.year+'年'+memo.month+'月'+memo.day+'日';
+    html+='<div class="card" style="margin:0 0 .6rem;padding:.75rem 1rem">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">';
+    html+='<div style="min-width:0;flex:1">';
+    html+='<div style="font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;word-break:break-all">'+displayName+'</div>';
+    html+='<div style="font-size:11px;color:var(--color-text-tertiary);line-height:1.5">'+dateStr+'  /  '+(memo.gender||'')+'</div>';
+    html+='</div>';
+    html+='<div style="font-family:\'Noto Serif JP\',serif;font-size:22px;font-weight:700;color:#C9A96E;line-height:1;text-align:right;flex-shrink:0">'+memo.score+'<span style="font-size:11px;color:var(--color-text-tertiary);font-weight:400">%</span></div>';
+    html+='</div>';
+    html+='<div style="display:flex;gap:8px;margin-top:.6rem">';
+    html+='<button onclick="reShindan('+memo.id+')" style="flex:1;font-size:11px;padding:7px 12px;border:0.5px solid #C9A96E;color:#C9A96E;background:transparent;border-radius:6px;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">詳細を見る</button>';
+    html+='<button onclick="deleteMemo('+memo.id+')" style="font-size:11px;padding:7px 14px;border:0.5px solid var(--color-border-tertiary);color:var(--color-text-tertiary);background:transparent;border-radius:6px;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">削除</button>';
+    html+='</div>';
+    html+='</div>';
+  });
+  container.innerHTML=html;
+}
+
+function reShindan(id){
+  var memos=getShindanMemos();
+  var memo=memos.find(function(m){return m.id===id;});
+  if(!memo)return;
+  openSubPage('shindan');
+  // フォーム再現
+  document.getElementById('sh-name').value=memo.name||'';
+  document.querySelectorAll('#sub-shindan .sxbtn').forEach(function(b){
+    b.classList.toggle('on',b.textContent===memo.gender);
+  });
+  document.getElementById('sh-yr').value=memo.year;
+  document.getElementById('sh-mo').value=memo.month;
+  document.getElementById('sh-dy').value=memo.day;
+  document.getElementById('sh-hr').value=(memo.hour!=null?memo.hour:'');
+  document.getElementById('sh-mn').value=(memo.min!=null?memo.min:'');
+  if(typeof memo.prefIdx==='number'&&memo.prefIdx>=0){
+    document.getElementById('sh-pref').value=memo.prefIdx;
+    updShCity();
+    if(memo.longitude){
+      // longitude に一致する city option を選択
+      var cs=document.getElementById('sh-city');
+      for(var i=0;i<cs.options.length;i++){
+        if(parseFloat(cs.options[i].value)===memo.longitude){cs.selectedIndex=i;break;}
+      }
+    }
+  }else{
+    document.getElementById('sh-pref').value='-1';
+    updShCity();
+  }
+  // 結果も即再描画（再計算なし、保存データを利用）
+  REL_CACHE['sh']=memo.rel;
+  lastShindanData=memo;
+  renderShindanResult(memo.name,memo.partnerPillars,memo.score,memo.rel,memo.comment,memo.hour==null,memo.longitude==null);
+}
+
+function deleteMemo(id){
+  if(!confirm('このメモを削除しますか？'))return;
+  var memos=getShindanMemos();
+  memos=memos.filter(function(m){return m.id!==id;});
+  setShindanMemos(memos);
+  renderMemoList();
+}
+
+/* === ui-calendar.js === */
+// ===== UI: 運勢カレンダー =====
+// 自分の3柱（日支・月支・年支）と暦の月支・日支との組み合わせから月単位・日単位の運勢を読み解く
+//   - プライベート面 = 自分の日支 vs 暦の支
+//   - 家族面         = 自分の月支 vs 暦の支
+//   - 社会面         = 自分の年支 vs 暦の支
+
+// 状態
+var calCurrentYear = null;
+var calCurrentMonth = null;
+
+// 関係マークと名称
+var REL_MARKS = { sango: '◎', shigo: '〇', chu: '△', kei: '×' };
+var REL_NAMES = { sango: '三合（半会）', shigo: '支合', chu: '冲', kei: '刑' };
+
+// ドメイン定義
+// MY_PILLARS[0]=年柱(年支), [1]=月柱(月支), [2]=日柱(日支), [3]=時柱（使用せず）
+var DOMAIN_INFO = {
+  priv: { label: 'プライベート面', sourceLabel: '自分の日支', userPillarIdx: 2 },
+  fam:  { label: '家族面',         sourceLabel: '自分の月支', userPillarIdx: 1 },
+  soc:  { label: '社会面',         sourceLabel: '自分の年支', userPillarIdx: 0 }
+};
+var DOMAIN_KEYS = ['priv','fam','soc']; // 表示順
+
+// ===== ペアごとの解釈データ（変わらず） =====
+var BRANCH_PAIR_DETAILS = {
+  sango: {
+    '0_4':  { name: '子辰', element: '水', hint: '水のエネルギーが活性化。知性・情報・人脈が広がる流れ' },
+    '0_8':  { name: '子申', element: '水', hint: '水のエネルギーが活性化。柔軟性と機転が冴える流れ' },
+    '3_7':  { name: '卯未', element: '木', hint: '木のエネルギーが活性化。穏やかな成長と人間関係の調和' },
+    '3_11': { name: '卯亥', element: '木', hint: '木のエネルギーが活性化。直感や芸術性が伸びる流れ' },
+    '2_6':  { name: '寅午', element: '火', hint: '火のエネルギーが活性化。情熱・行動力が高まる流れ' },
+    '6_10': { name: '午戌', element: '火', hint: '火のエネルギーが活性化。注目を集めやすく成果が認められる流れ' },
+    '5_9':  { name: '巳酉', element: '金', hint: '金のエネルギーが活性化。判断力・分析力が冴え、財運に吉' },
+    '1_9':  { name: '丑酉', element: '金', hint: '金のエネルギーが活性化。現実的な成果が出やすい流れ' }
+  },
+  shigo: {
+    '0_1':  { name: '子丑', hint: '土と水の和合。地に足のついた信頼関係・家庭運' },
+    '2_11': { name: '寅亥', hint: '水と木の和合。挑戦への支えが得られ、メンター運' },
+    '3_10': { name: '卯戌', hint: '火と木の和合。情熱と感性のバランス・芸術的協業' },
+    '4_9':  { name: '辰酉', hint: '金と土の和合。実務での協力関係・パートナー運' },
+    '5_8':  { name: '巳申', hint: '支合と刑が同居する両刃の関係。協力すれば大きな成果、こじれれば大トラブル' },
+    '6_7':  { name: '午未', hint: '火の和合。明るく賑やかなご縁・人気運' }
+  },
+  chu: {
+    '0_6':  { name: '子午', hint: '水と火のぶつかり合い。住環境・引っ越し・転勤など環境の変化' },
+    '1_7':  { name: '丑未', hint: '土同士のぶつかり（刑も兼ねる）。家族・身内・不動産・健康面のトラブル注意' },
+    '2_8':  { name: '寅申', hint: '木と金の激突（刑も兼ねる）。仕事の変動・人事異動・突発事象' },
+    '3_9':  { name: '卯酉', hint: '木と金のぶつかり。人間関係の見直し・別離・再構築の動き' },
+    '4_10': { name: '辰戌', hint: '土同士のぶつかり。秘密の露呈・過去の清算' },
+    '5_11': { name: '巳亥', hint: '火と水のぶつかり。感情の起伏・急な決断・遠出運' }
+  },
+  kei: {
+    '4_4':   { name: '辰辰自刑', hint: '自分自身との葛藤。プライドが裏目に出やすく、秘密の暴露注意' },
+    '6_6':   { name: '午午自刑', hint: '感情の暴走。衝動的な行動・浪費・恋愛トラブル注意' },
+    '9_9':   { name: '酉酉自刑', hint: '完璧主義の罠。細かいことにこだわりすぎて疲弊しやすい' },
+    '11_11': { name: '亥亥自刑', hint: '思考の堂々巡り。決断できず時を逃す傾向' },
+    '0_3':   { name: '子卯刑', hint: '無礼の刑。マナー違反・約束破りで信頼を失いやすい' },
+    '1_10':  { name: '丑戌刑', hint: '持勢の刑。権力争い・家族間の不和・不動産問題' },
+    '7_10':  { name: '未戌刑', hint: '持勢の刑。権力争い・家族間の不和' },
+    '1_7':   { name: '丑未刑', hint: '持勢の刑（冲も兼ねる）。家族間の不和・不動産問題' },
+    '2_5':   { name: '寅巳刑', hint: '無恩の刑。恩義を忘れる/忘れられる関係' },
+    '2_8':   { name: '寅申刑', hint: '無恩の刑（冲も兼ねる）。仕事や人間関係での裏切り注意' },
+    '5_8':   { name: '巳申刑', hint: '無恩の刑（支合も兼ねる）。一見良縁に見えて実は摩擦の多い両刃の関係' }
+  }
+};
+
+// ===== ドメイン×関係×期間 ごとの簡潔メッセージ =====
+var DOMAIN_ADVICE = {
+  priv: {
+    sango: { month: 'プライベート面で自分にとって有益な縁・情報・気づきが訪れやすい流れの月。能動的に動くと運気が回ります', day: 'プライベート面で自分にとって有益な縁・情報・気づきが訪れやすい吉日。能動的に動くと運気が回ります' },
+    shigo: { month: 'プライベート面で穏やかで調和的な時間を過ごしやすい月。自分のペースを大事に', day: 'プライベート面でリラックスして過ごせる、調和的で穏やかな日。自分のペースを大事に' },
+    chu:   { month: 'プライベート面で気分の揺れや急な変更が起きやすい月。大きな決断は控えめに、無理のない行動を', day: 'プライベート面で気分の揺れや急な変更が起きやすい日。大きな決断や買い物は控えめに、無理のない行動を' },
+    kei:   { month: 'プライベート面で衝動的な行動・トラブルに注意の月。感情に流されないことが鍵', day: 'プライベート面で衝動的な行動・トラブルに注意の日。慎重に過ごし、感情に流されないことが鍵' }
+  },
+  fam: {
+    sango: { month: '家族・パートナーとの絆を深める出来事や良いタイミングが訪れやすい月', day: '家族・パートナーとの絆を深める出来事や良いタイミングが訪れやすい日' },
+    shigo: { month: '家族・パートナーとの調和的な対話や穏やかな時間を持ちやすい月', day: '家族・パートナーとの調和的な対話や穏やかな時間を持ちやすい日' },
+    chu:   { month: '家族・パートナーとの間で関係の見直しを迫られたり、すれ違いが起きやすい月', day: '家族・パートナーとの間で関係の見直しを迫られたり、すれ違いが起きやすい日' },
+    kei:   { month: '家族・パートナーとの間で隠し事の発覚や喧嘩・イザコザが起きやすい月。丁寧に向き合う姿勢を', day: '家族・パートナーとの間で隠し事の発覚や喧嘩・イザコザが起きやすい日。感情的にならず丁寧に向き合う姿勢を' }
+  },
+  soc: {
+    sango: { month: '社会・仕事・親まわりで後々良い方向へ動くキッカケや、自然な追い風が起きやすい月', day: '社会・仕事・親まわりで後々良い方向へ動くキッカケや、自然な追い風が起きやすい日' },
+    shigo: { month: '職場や目上の人との縁・サポートが得られやすい穏やかな月', day: '職場や目上の人との縁・サポートが得られやすい穏やかな日' },
+    chu:   { month: '転職・引越し・人事異動など、社会的な変化や転機のサインが出やすい月', day: '転職・引越し・人事異動など、社会的な変化や転機のサインが出やすい日' },
+    kei:   { month: '職場や親との関係で摩擦・トラブル・不和が起きやすい月。慎重な言動を', day: '職場や親との関係で摩擦・トラブル・不和が起きやすい日。慎重な言動を心がけて' }
+  }
+};
+
+// ===== 関係性チェック（単一ペア用、変わらず） =====
+function checkBranchPair(s1, s2){
+  var rels = [];
+  if(isHango(s1, s2)) rels.push('sango');
+  for(var i=0;i<SHIGO.length;i++){
+    var p=SHIGO[i];
+    if((s1===p[0]&&s2===p[1])||(s1===p[1]&&s2===p[0])){rels.push('shigo');break;}
+  }
+  for(var i=0;i<CHU.length;i++){
+    var p=CHU[i];
+    if((s1===p[0]&&s2===p[1])||(s1===p[1]&&s2===p[0])){rels.push('chu');break;}
+  }
+  for(var i=0;i<KEI_PAIRS.length;i++){
+    var p=KEI_PAIRS[i];
+    if((s1===p[0]&&s2===p[1])||(s1===p[1]&&s2===p[0])){rels.push('kei');break;}
+  }
+  if(s1===s2 && KEI_SELF.indexOf(s1)>=0){
+    if(rels.indexOf('kei')<0) rels.push('kei');
+  }
+  return rels;
+}
+
+function pairKey(s1, s2){
+  return Math.min(s1,s2)+'_'+Math.max(s1,s2);
+}
+
+// ===== マーク計算 =====
+// 暦の支（calBranch）に対し、自分の3柱との関係を返す
+function computeAgainstBranch(calBranch){
+  if(!MY_PILLARS||MY_PILLARS.length===0) return null;
+  return {
+    calBranch: calBranch,
+    privBranch: MY_PILLARS[2].s, // 日柱
+    famBranch:  MY_PILLARS[1].s, // 月柱
+    socBranch:  MY_PILLARS[0].s, // 年柱
+    privRels: checkBranchPair(MY_PILLARS[2].s, calBranch),
+    famRels:  checkBranchPair(MY_PILLARS[1].s, calBranch),
+    socRels:  checkBranchPair(MY_PILLARS[0].s, calBranch)
+  };
+}
+
+function computeDayMarks(year, month, day){
+  var pillars = calcPillars(year, month, day, 12, 0, 135.0);
+  return computeAgainstBranch(pillars[2].s);
+}
+
+function computeMonthMarks(year, month){
+  // 月支は節入後で安定するので15日で計算
+  var pillars = calcPillars(year, month, 15, 12, 0, 135.0);
+  return computeAgainstBranch(pillars[1].s);
+}
+
+// ===== カレンダー描画 =====
+function openCalendar(){
+  if(calCurrentYear==null){
+    var now = new Date();
+    calCurrentYear = now.getFullYear();
+    calCurrentMonth = now.getMonth()+1;
+  }
+  renderCalendar(calCurrentYear, calCurrentMonth);
+}
+
+function renderCalendar(year, month){
+  var titleEl = document.getElementById('cal-title');
+  if(titleEl) titleEl.textContent = year + '年' + month + '月';
+
+  var grid = document.getElementById('cal-grid');
+  var summary = document.getElementById('cal-month-summary');
+  if(!grid) return;
+
+  if(!MY_PILLARS||MY_PILLARS.length===0){
+    grid.innerHTML = '<div style="grid-column:span 7;padding:2rem;text-align:center;color:var(--color-text-tertiary);font-size:12px">プロフィール情報が読み込まれていません。<br>再ログインしてお試しください。</div>';
+    if(summary) summary.innerHTML = '';
+    return;
+  }
+
+  // 月次サマリー描画
+  if(summary){
+    var monthMarks = computeMonthMarks(year, month);
+    summary.innerHTML = renderMonthSummary(year, month, monthMarks);
+  }
+
+  // 日カレンダー描画
+  var firstDay = new Date(year, month-1, 1).getDay();
+  var daysInMonth = new Date(year, month, 0).getDate();
+
+  var html = '';
+  ['日','月','火','水','木','金','土'].forEach(function(h, i){
+    var cls = i===0?'sun':(i===6?'sat':'');
+    html += '<div class="cal-head '+cls+'">'+h+'</div>';
+  });
+  for(var i=0;i<firstDay;i++){
+    html += '<div class="cal-cell empty"></div>';
+  }
+
+  var today = new Date();
+  var isCurMonth = (year===today.getFullYear() && month===today.getMonth()+1);
+
+  for(var d=1; d<=daysInMonth; d++){
+    var dow = new Date(year, month-1, d).getDay();
+    var weekCls = dow===0?'sun':(dow===6?'sat':'');
+    var todayCls = (isCurMonth && d===today.getDate())?'today':'';
+
+    var marks = computeDayMarks(year, month, d);
+    var marksHtml = '';
+    if(marks){
+      // priv → fam → soc の順でマーク表示（被りも全部出す）
+      DOMAIN_KEYS.forEach(function(key){
+        marks[key+'Rels'].forEach(function(rel){
+          marksHtml += '<span class="cal-mk '+rel+'">'+REL_MARKS[rel]+'</span>';
+        });
+      });
+    }
+
+    html += '<div class="cal-cell '+weekCls+' '+todayCls+'" onclick="showCalDetail('+year+','+month+','+d+')">';
+    html += '<div class="cal-day">'+d+'</div>';
+    html += '<div class="cal-marks">'+marksHtml+'</div>';
+    html += '</div>';
+  }
+
+  grid.innerHTML = html;
+}
+
+function calPrev(){
+  calCurrentMonth--;
+  if(calCurrentMonth<1){calCurrentMonth=12;calCurrentYear--;}
+  renderCalendar(calCurrentYear, calCurrentMonth);
+}
+
+function calNext(){
+  calCurrentMonth++;
+  if(calCurrentMonth>12){calCurrentMonth=1;calCurrentYear++;}
+  renderCalendar(calCurrentYear, calCurrentMonth);
+}
+
+// ===== 月次サマリー描画 =====
+function renderMonthSummary(year, month, marks){
+  if(!marks) return '';
+  var html = '<div style="font-family:\'Noto Serif JP\',serif;font-size:15px;font-weight:500;margin-bottom:.4rem;color:var(--color-text-primary);text-align:center;letter-spacing:.05em">今月（'+year+'年'+month+'月 = '+SHI[marks.calBranch]+'月）の運勢傾向</div>';
+  html += '<div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem;text-align:center">3面の傾向（自分の3柱と今月の月支との関係）</div>';
+  DOMAIN_KEYS.forEach(function(domain){
+    var info = DOMAIN_INFO[domain];
+    var userBranch = marks[domain+'Branch'];
+    var rels = marks[domain+'Rels'];
+    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'month');
+  });
+  return html;
+}
+
+// ===== ドメイン別セクション描画（月次・日次共通） =====
+function renderDomainSection(domain, userBranch, calBranch, rels, periodType){
+  var info = DOMAIN_INFO[domain];
+  var calBranchLabel = (periodType==='month' ? '今月の月支' : '今日の日支');
+  var html = '<div class="cal-section">';
+  html += '<div class="cal-section-hd">【'+info.label+'】 '+info.sourceLabel+'「'+SHI[userBranch]+'」 × '+calBranchLabel+'「'+SHI[calBranch]+'」</div>';
+
+  if(rels.length===0){
+    var periodWord = periodType==='month' ? '月' : '日';
+    html += '<div class="cal-section-text cal-no-rel">特段の組み合わせなし。'+info.label+'は穏やかな'+periodWord+'。ルーティンを丁寧に過ごすのが吉。</div>';
+  } else {
+    var marksLine = rels.map(function(r){return '<span class="cal-mk '+r+'">'+REL_MARKS[r]+'</span>';}).join(' ');
+    html += '<div class="cal-section-marks">'+marksLine+'</div>';
+    rels.forEach(function(rel){
+      var key = pairKey(userBranch, calBranch);
+      var pairData = (BRANCH_PAIR_DETAILS[rel]||{})[key];
+      var pairName = pairData ? pairData.name : '';
+      var pairHint = pairData ? pairData.hint : '';
+      var advice = (DOMAIN_ADVICE[domain]||{})[rel];
+      var adviceText = advice ? advice[periodType] : '';
+      var isBad = (rel==='chu'||rel==='kei');
+      html += '<div class="cal-section-text">';
+      html += '<strong'+(isBad?' class="bad"':'')+'>'+REL_MARKS[rel]+' '+REL_NAMES[rel]+(pairName?'（'+pairName+'）':'')+'</strong>';
+      if(pairHint) html += '<br>' + pairHint + '。';
+      if(adviceText) html += '<br>' + adviceText + '。';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+  return html;
+}
+
+// ===== 日詳細モーダル =====
+function showCalDetail(year, month, day){
+  var marks = computeDayMarks(year, month, day);
+  if(!marks) return;
+  var dayOfWeek = ['日','月','火','水','木','金','土'][new Date(year, month-1, day).getDay()];
+
+  var titleEl = document.getElementById('cal-detail-title');
+  if(titleEl) titleEl.textContent = year+'年'+month+'月'+day+'日（'+dayOfWeek+'）';
+
+  var html = '';
+  html += '<div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:.5rem;line-height:1.6">この日の日支「'+SHI[marks.calBranch]+'」と自分の3柱との関係から3面の傾向を表示。</div>';
+  DOMAIN_KEYS.forEach(function(domain){
+    var info = DOMAIN_INFO[domain];
+    var userBranch = marks[domain+'Branch'];
+    var rels = marks[domain+'Rels'];
+    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'day');
+  });
+
+  var body = document.getElementById('cal-detail-body');
+  if(body) body.innerHTML = html;
+
+  var modal = document.getElementById('cal-detail-modal');
+  if(modal) modal.classList.add('show');
+}
+
+function closeCalDetail(){
+  var modal = document.getElementById('cal-detail-modal');
+  if(modal) modal.classList.remove('show');
+}
 
 /* === app.js === */
 // ===== アプリ初期化・タブ切替・ログイン =====
@@ -1370,6 +2200,7 @@ document.addEventListener('keydown', function(e) {
 // ===== 起動 =====
 initPrefs();updateAgeSummary();
 checkSession();
+
 </script>
 </body>
 </html>
