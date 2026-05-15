@@ -104,9 +104,12 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .modal-close{font-size:13px;color:var(--color-text-tertiary);cursor:pointer;padding:2px 7px;border:0.5px solid var(--color-border-tertiary);border-radius:4px;background:transparent}
 .btn-logout{display:block;margin:14px auto 0;padding:8px 32px;font-size:12px;color:var(--color-text-secondary);background:transparent;border:0.5px solid var(--color-border-tertiary);border-radius:8px;cursor:pointer;font-family:'Noto Sans JP',sans-serif;letter-spacing:.05em;transition:all .15s;position:relative;z-index:1}
 .btn-logout:hover{background:rgba(192,80,80,.05);color:#C05050;border-color:#C05050}
-.modal-ava{width:60px;height:60px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.modal-ava{width:72px;height:72px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);margin:0 auto .6rem;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
 .modal-ava img{width:100%;height:100%;object-fit:cover}
-.modal-ava-ph{font-family:'Noto Serif JP',serif;font-size:22px;color:#C9A96E}
+.modal-ava-ph{font-family:'Noto Serif JP',serif;font-size:24px;color:#C9A96E}
+.modal-ava-editable{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.modal-ava-editable:hover{transform:scale(1.04);box-shadow:0 0 0 3px rgba(201,169,110,.18)}
+.modal-ava-edit-badge{position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#C9A96E;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--color-background-primary);box-shadow:0 1px 3px rgba(0,0,0,.18);pointer-events:none}
 .modal-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .modal-row:last-child{border-bottom:none}
 .modal-lbl{color:var(--color-text-secondary)}
@@ -174,7 +177,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .match-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:.75rem 1rem;margin:0 1rem .6rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s}
 .match-card:hover{border-color:#C9A96E}
 .match-card.open{border-color:#C9A96E;border-width:1.5px}
-.ava-blur{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;filter:blur(3px)}
+.ava-blur{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;filter:blur(1px)}
 .ava{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:1.5px solid #C9A96E;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:16px;color:#C9A96E;flex-shrink:0}
 .minfo{flex:1;min-width:0}
 .mname{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
@@ -457,6 +460,26 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   </div>
 </div>
 
+<!-- ===== 確認メール送信完了画面（メール認証 ON 時のみ表示） ===== -->
+<div id="email-confirm-wrap" class="login-wrap" style="display:none">
+  <div class="login-logo">縁の間 ― えにしのま ―</div>
+  <div class="login-tagline">必然的良縁を、あなたに</div>
+  <div class="login-card">
+    <div class="login-title">確認メールを送信しました</div>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.95;text-align:center;margin-bottom:1.25rem">
+      <span id="ec-email-addr" style="color:#C9A96E;font-weight:500"></span>
+      <br>宛に確認メールを送信しました。<br><br>
+      メール内のリンクをクリックすると<br>登録が完了し、自動でログインします。
+    </div>
+    <div style="font-size:11px;color:var(--color-text-tertiary);line-height:1.8;text-align:left;background:var(--color-background-secondary);border-radius:8px;padding:10px 12px;margin-bottom:1rem">
+      ✦ メールが届かない場合は迷惑メールフォルダもご確認ください<br>
+      ✦ ドメイン指定受信を設定している場合は <strong>@supabase.co</strong> または運営からのメールを受信許可してください<br>
+      ✦ 数分待っても届かない場合は別のメールアドレスで再登録するか、お問い合わせください
+    </div>
+    <button class="btn-register" onclick="backToLoginFromConfirm()">ログイン画面に戻る</button>
+  </div>
+</div>
+
 <!-- ===== プラン選択画面 ===== -->
 <div id="plan-select-wrap" class="plan-select-wrap" style="display:none;flex-direction:column;align-items:center">
   <div class="ps-header">
@@ -581,7 +604,13 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   <div class="modal-bg" id="profile-modal">
     <div class="modal-card">
       <div class="modal-hd"><span class="modal-ttl">マイプロフィール</span><button class="modal-close" onclick="toggleModal()">✕</button></div>
-      <div class="modal-ava"><img id="modal-ava-img" src="" style="display:none"><span class="modal-ava-ph" id="modal-ava-ph">は</span></div>
+      <div class="modal-ava modal-ava-editable" onclick="document.getElementById('avatar-edit-input').click()" title="クリックで画像を変更">
+        <img id="modal-ava-img" src="" style="display:none">
+        <span class="modal-ava-ph" id="modal-ava-ph">は</span>
+        <div class="modal-ava-edit-badge" aria-hidden="true">📷</div>
+      </div>
+      <input type="file" id="avatar-edit-input" accept="image/*" style="display:none" onchange="changeAvatar(event)">
+      <div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:-4px;margin-bottom:12px">📷 クリックでプロフィール画像を変更<br><span style="font-size:10px;color:var(--color-text-tertiary)">※ マッチング前のお相手にはぼかして表示されます</span></div>
       <div id="modal-info"></div>
       <div style="margin-top:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px">命式</div><div class="pillars-mini" id="modal-pillars"></div></div>
       <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">会員ID</div><div id="modal-member-id" style="font-size:13px;font-weight:500;color:var(--color-text-primary);font-family:'Noto Serif JP',serif;letter-spacing:.1em"></div></div>
@@ -857,16 +886,543 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 </template>
 <script>
+// @ts-check
+// ===== Sentry エラー監視（任意） =====
+//
+// 有効化方法:
+//   1. https://sentry.io でプロジェクトを作成（Platform = JavaScript / Browser）
+//   2. 発行された DSN を下の SENTRY_DSN にコピペ
+//   3. リロードするとエラー・例外が自動で Sentry に送られる
+//
+// 無効化したい場合は SENTRY_DSN を '' のままにする。
+// DSN が空のときは Sentry SDK 自体を読み込まないので、ネットワークコストはゼロ。
+
+(function(){
+  // 各アプリで別の DSN を使いたい場合はここを書き換える
+  var SENTRY_DSN = '';
+
+  if(!SENTRY_DSN) return;
+
+  var s = document.createElement('script');
+  s.src = 'https://browser.sentry-cdn.com/8.40.0/bundle.min.js';
+  s.crossOrigin = 'anonymous';
+  s.onload = function(){
+    if(!window.Sentry) return;
+    window.Sentry.init({
+      dsn: SENTRY_DSN,
+      tracesSampleRate: 0.1,
+      release: 'enishinoma-user@1.0.0',
+      environment: location.hostname === 'localhost' ? 'development' : 'production',
+      // ユーザー識別情報（ログイン後にセットする）
+      // 例: app.js 側で window.Sentry.setUser({id: currentUser.id, email: currentUser.email})
+    });
+    console.log('[sentry] initialized');
+  };
+  s.onerror = function(){ console.log('[sentry] CDN load failed'); };
+  document.head.appendChild(s);
+})();
+
+</script>
+<script>
+// @ts-check
+// ===== reCAPTCHA v3（任意・雛形） =====
+//
+// 有効化方法:
+//   1. https://www.google.com/recaptcha/admin にアクセスして
+//      「+」で新しいサイトを登録（v3 を選択）
+//   2. 発行された「Site Key」を下の RECAPTCHA_SITE_KEY にコピペ
+//      ※ Secret Key はサーバー側（Supabase Edge Function）でトークン検証に使う
+//   3. Edge Function でトークン検証 → 結果に応じて INSERT を許可する仕組みを追加
+//   4. リロードすると Site Key が設定された状態で SDK 読み込みが始まる
+//
+// 無効化したい場合は RECAPTCHA_SITE_KEY を '' のままにする。
+// 空のときは SDK 自体を読み込まないのでネットワークコストはゼロ。
+//
+// グローバルに以下を公開:
+//   window.getRecaptchaToken(action)  -> Promise<string|null>
+//     action 例: 'register', 'booking', 'contact'
+//     Site Key 未設定 or SDK 読み込み失敗時は null を返す。
+
+(function(){
+  /** @type {string} */
+  var RECAPTCHA_SITE_KEY = '';
+
+  // SDK 未設定 → スタブを公開して呼び出し側を壊さないようにする
+  if(!RECAPTCHA_SITE_KEY){
+    window.getRecaptchaToken = function(){ return Promise.resolve(null); };
+    return;
+  }
+
+  var s = document.createElement('script');
+  s.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(RECAPTCHA_SITE_KEY);
+  s.async = true;
+  s.defer = true;
+  s.onload = function(){ console.log('[recaptcha] SDK loaded'); };
+  s.onerror = function(){ console.log('[recaptcha] CDN load failed'); };
+  document.head.appendChild(s);
+
+  /**
+   * 任意のフォーム送信前に呼び出してトークンを取得し、
+   * Edge Function に渡して検証する想定。
+   * @param {string} action - 計測ラベル（reCAPTCHA Admin のグラフで使える）
+   * @returns {Promise<string|null>}
+   */
+  window.getRecaptchaToken = function(action){
+    return new Promise(function(resolve){
+      try{
+        if(!window.grecaptcha || !window.grecaptcha.ready){
+          resolve(null); return;
+        }
+        window.grecaptcha.ready(function(){
+          window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action: action || 'submit' })
+            .then(function(token){ resolve(token || null); })
+            .catch(function(err){
+              console.log('[recaptcha] execute error:', err);
+              resolve(null);
+            });
+        });
+      }catch(e){
+        console.log('[recaptcha] token error:', e);
+        resolve(null);
+      }
+    });
+  };
+})();
+
+</script>
+<script>
+// @ts-check
+// ===== 縁の間 - 共通ユーティリティ =====
+// 3アプリ（user / admin / booking）で共有される副作用のないヘルパー集。
+// 編集する場合は admin/js/utils.js と booking/js/utils.js も同じ内容に揃えること。
+// （build.py が全アプリの dist にインライン化する）
+
+/**
+ * 任意の値を HTML エスケープした文字列にする。XSS 防止用。
+ * @param {unknown} s
+ * @returns {string}
+ */
+function escapeHtml(s){
+  if(s == null) return '';
+  return String(s).replace(/[&<>"']/g, function(c){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+  });
+}
+
+/** @deprecated 互換のため残してある。新規コードでは escapeHtml を使うこと。 */
+var escapeText = escapeHtml;
+
+/**
+ * 数値を 2 桁ゼロ埋め文字列にする。
+ * @param {number|string} n
+ * @returns {string}
+ */
+function pad2(n){
+  return String(n).padStart(2, '0');
+}
+
+/**
+ * 年月日（数値）から 'YYYY-MM-DD' 形式のキーを作る。
+ * @param {number} y
+ * @param {number} m  - 1始まり（カレンダー的な月）
+ * @param {number} d
+ * @returns {string}
+ */
+function formatDateKey(y, m, d){
+  return y + '-' + pad2(m) + '-' + pad2(d);
+}
+
+/**
+ * ISO 8601 文字列を 'YYYY/MM/DD HH:mm' に整形する。
+ * @param {string|null|undefined} iso
+ * @returns {string}
+ */
+function formatDateTime(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return d.getFullYear() + '/' + pad2(d.getMonth()+1) + '/' + pad2(d.getDate())
+       + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+}
+
+/**
+ * ISO 8601 文字列を「たった今」「3分前」「2日前」のような相対表現にする。
+ * 1週間以上前は formatDateTime にフォールバック。
+ * @param {string|null|undefined} iso
+ * @returns {string}
+ */
+function formatRelative(iso){
+  if(!iso) return '';
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if(diff < 60) return 'たった今';
+  if(diff < 3600) return Math.floor(diff/60) + '分前';
+  if(diff < 86400) return Math.floor(diff/3600) + '時間前';
+  if(diff < 86400*7) return Math.floor(diff/86400) + '日前';
+  return formatDateTime(iso);
+}
+
+/**
+ * 文字列を「HTML エスケープ → URL を <a> リンク化 → 改行を <br>」の順で処理する。
+ * メッセージ本文の表示専用。戻り値は HTML として安全に innerHTML できる。
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+function linkifyText(text){
+  if(text == null) return '';
+  let escaped = escapeHtml(text);
+  escaped = escaped.replace(/(https?:\/\/[^\s<>"']+)/g, function(url){
+    return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" '
+         + 'style="color:inherit;text-decoration:underline;word-break:break-all">'
+         + url + '</a>';
+  });
+  return escaped.replace(/\n/g, '<br>');
+}
+
+// =====================================================================
+// bot 対策ヘルパー
+// =====================================================================
+// 三段構え:
+//   1) Honeypot   - 隠しフィールド。bot が機械的に全項目埋めると検出
+//   2) MinDelay   - フォーム表示〜送信が極端に短ければ bot 判定
+//   3) RateLimit  - クライアント側で連投制限（localStorage 記録）
+// + DB トリガー (admin/setup-rate-limits.sql) でサーバー側も二重防御。
+
+/**
+ * 指定コンテナに honeypot 隠しフィールドを挿入する（重複挿入は防止）。
+ * 既に同名の input があれば何もしない。
+ * @param {string|HTMLElement} containerOrId - 挿入先のフォーム要素 or その id
+ * @param {string} [fieldName='hp_url'] - 隠しフィールド名（bot が好む紛らわしい名前）
+ */
+function applyHoneypot(containerOrId, fieldName){
+  fieldName = fieldName || 'hp_url';
+  const el = (typeof containerOrId === 'string') ? document.getElementById(containerOrId) : containerOrId;
+  if(!el) return;
+  if(el.querySelector('input[name="'+fieldName+'"]')) return; // 既に挿入済
+  const hp = document.createElement('input');
+  hp.type = 'text';
+  hp.name = fieldName;
+  hp.tabIndex = -1;
+  hp.autocomplete = 'off';
+  hp.setAttribute('aria-hidden', 'true');
+  // 見えない+操作不可。display:none だと bot に「フィールド無効」と認識される可能性があるので使わない
+  hp.style.cssText = 'position:absolute !important;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none';
+  el.appendChild(hp);
+}
+
+/**
+ * Honeypot に値が入っていたら true（=bot 検出）。
+ * @param {string|HTMLElement} containerOrId
+ * @param {string} [fieldName='hp_url']
+ * @returns {boolean}
+ */
+function isHoneypotTriggered(containerOrId, fieldName){
+  fieldName = fieldName || 'hp_url';
+  const el = (typeof containerOrId === 'string') ? document.getElementById(containerOrId) : containerOrId;
+  if(!el) return false;
+  const hp = el.querySelector('input[name="'+fieldName+'"]');
+  return !!(hp && hp.value && hp.value.trim() !== '');
+}
+
+/**
+ * フォーム表示時刻を記録する。markFormShown で記録 → wasFormShownTooFast で検証。
+ * @param {string} formKey - 任意のキー名（'register' など）
+ */
+function markFormShown(formKey){
+  try{ sessionStorage.setItem('formShown:'+formKey, String(Date.now())); }catch(e){}
+}
+
+/**
+ * フォーム送信が早すぎるか（=bot 判定）。デフォルトは 1.5 秒未満を NG とする。
+ * markFormShown を呼んでない場合は false（=人間扱い、誤検知を避ける）。
+ * @param {string} formKey
+ * @param {number} [minMs=1500]
+ * @returns {boolean}
+ */
+function wasFormShownTooFast(formKey, minMs){
+  minMs = (typeof minMs === 'number') ? minMs : 1500;
+  try{
+    const shown = parseInt(sessionStorage.getItem('formShown:'+formKey) || '0', 10);
+    if(!shown) return false;
+    return (Date.now() - shown) < minMs;
+  }catch(e){ return false; }
+}
+
+/**
+ * クライアント側レート制限。直前の送信から intervalMs 経っていなければ false を返す。
+ * 通過時は呼び出し側で recordRateLimitHit() を呼ぶこと。
+ * @param {string} key
+ * @param {number} intervalMs - 連投を許す最短間隔（ミリ秒）
+ * @returns {boolean} true=送信OK, false=待機が必要
+ */
+function checkRateLimit(key, intervalMs){
+  try{
+    const last = parseInt(localStorage.getItem('rl:'+key) || '0', 10);
+    return (Date.now() - last) >= intervalMs;
+  }catch(e){ return true; }
+}
+
+/** 送信成功時に呼ぶ：レート制限の最終送信時刻を更新。 */
+function recordRateLimitHit(key){
+  try{ localStorage.setItem('rl:'+key, String(Date.now())); }catch(e){}
+}
+
+/**
+ * 一括バリデーション。bot 判定なら理由を返す（null なら通過）。
+ * 呼び出し例: const reason = checkBotDefense({form:'register', minMs:2000});
+ *             if(reason){ alert(reason); return; }
+ * @param {{form:string, container?:string|HTMLElement, minMs?:number, rateKey?:string, rateMs?:number}} opts
+ * @returns {string|null}  - null=通過、文字列=ユーザーに見せる理由
+ */
+function checkBotDefense(opts){
+  if(!opts) return null;
+  if(opts.container && isHoneypotTriggered(opts.container)){
+    return '入力内容に不正があります。';
+  }
+  if(opts.form && wasFormShownTooFast(opts.form, opts.minMs)){
+    return '操作が早すぎます。少し時間をおいてから送信してください。';
+  }
+  if(opts.rateKey && opts.rateMs && !checkRateLimit(opts.rateKey, opts.rateMs)){
+    const sec = Math.ceil(opts.rateMs / 1000);
+    return '連続送信を防ぐため、' + sec + ' 秒ほど時間をおいてください。';
+  }
+  return null;
+}
+
+// =====================================================================
+// モデレーション（規約違反検知）
+// =====================================================================
+// 縁の間規約「他SNS の ID・連絡先交換は禁止」を機械的にサポート。
+// 完全ブロックではなく「警告 + 強い注意喚起」スタイル。
+// クライアント側のチェックは突破されるので、サーバー側でも将来 trigger
+// で重複検知すると安全（次フェーズで対応する余地あり）。
+
+/**
+ * @typedef {{type:string, label:string, match:string, index:number}} ModerationHit
+ */
+
+// 検知ルール（label は人間向けの説明文）
+const MODERATION_RULES = [
+  {
+    type: 'phone',
+    label: '電話番号',
+    // 0X-XXXX-XXXX / 0X XXXX XXXX / 0XXXXXXXXXX (全角数字も対応)
+    pattern: /(?:0[\d０-９][- 　]?[\d０-９]{2,4}[- 　]?[\d０-９]{3,4})/g,
+  },
+  {
+    type: 'email',
+    label: 'メールアドレス',
+    pattern: /[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g,
+  },
+  {
+    type: 'line_id',
+    label: 'LINE ID',
+    // 「LINE id : xxx」「ライン: xxx」「ラインID xxx」など
+    pattern: /(?:line(?:\s*id)?|ライン(?:\s*id)?)\s*[:：=＝]?\s*[@＠]?[\w\-.][\w\-.]{2,}/gi,
+  },
+  {
+    type: 'instagram',
+    label: 'Instagram',
+    pattern: /(?:instagram(?:\.com)?|インスタ(?:グラム)?)[^\s]{0,40}/gi,
+  },
+  {
+    type: 'twitter',
+    label: 'Twitter / X',
+    pattern: /(?:twitter\.com|x\.com)\/[\w]+/gi,
+  },
+  {
+    type: 'tiktok',
+    label: 'TikTok',
+    pattern: /tiktok\.com\/[\w@.\-]+/gi,
+  },
+  {
+    type: 'facebook',
+    label: 'Facebook',
+    pattern: /facebook\.com\/[\w.\-]+/gi,
+  },
+  {
+    type: 'kakao',
+    label: 'KakaoTalk',
+    pattern: /(?:kakao\s*talk|カカオ\s*トーク?)[^\s]{0,40}/gi,
+  },
+  {
+    type: 'wechat',
+    label: 'WeChat',
+    pattern: /(?:we\s*chat|微信|ウィーチャット)[^\s]{0,40}/gi,
+  },
+  {
+    type: 'telegram',
+    label: 'Telegram',
+    pattern: /(?:t\.me\/[\w]+|telegram\.org|テレグラム)/gi,
+  },
+];
+
+/**
+ * テキストから規約違反になりそうなパターンを検出する。
+ * @param {string} text
+ * @returns {ModerationHit[]}  - 検出されたヒットの配列（空配列なら違反なし）
+ */
+function detectProhibitedContent(text){
+  if(text == null) return [];
+  /** @type {ModerationHit[]} */
+  const hits = [];
+  const seen = new Set();
+  for(const rule of MODERATION_RULES){
+    rule.pattern.lastIndex = 0;
+    let m;
+    while((m = rule.pattern.exec(String(text))) !== null){
+      const key = rule.type + ':' + m.index + ':' + m[0];
+      if(seen.has(key)) continue;
+      seen.add(key);
+      hits.push({ type: rule.type, label: rule.label, match: m[0], index: m.index });
+      if(rule.pattern.lastIndex === m.index) rule.pattern.lastIndex++; // 安全弁
+    }
+  }
+  return hits;
+}
+
+/**
+ * 検出結果を「ユーザーに見せる警告文」に整形する。
+ * @param {ModerationHit[]} hits
+ * @returns {string}
+ */
+function formatModerationWarning(hits){
+  if(!hits || hits.length === 0) return '';
+  const labels = Array.from(new Set(hits.map(function(h){ return h.label; })));
+  return '⚠️ 規約違反となる可能性がある内容が含まれています。\n'
+       + '検出: ' + labels.join('、') + '\n\n'
+       + '他SNSのIDや連絡先の交換は規約違反となります。\n'
+       + '修正してから送信してください。';
+}
+
+/**
+ * 違反があれば false（送信不可）、なければ true。
+ * 呼び出し側で alert(formatModerationWarning(...)) と組み合わせて使う。
+ * @param {string} text
+ * @returns {{ok:boolean, hits:ModerationHit[]}}
+ */
+function checkModeration(text){
+  const hits = detectProhibitedContent(text);
+  return { ok: hits.length === 0, hits: hits };
+}
+
+// =====================================================================
+// 画像（アバター）アップロード
+// =====================================================================
+// Supabase Storage の `avatars` バケットに <user_id>/avatar.<ext> として put。
+// 1ユーザー1ファイル、上書き更新。public bucket なので公開 URL がそのまま使える。
+
+/**
+ * File を圧縮して Blob を返す（クライアント側で軽量化、Storage 帯域節約）。
+ * 長辺を maxSide に縮小、品質 quality の JPEG で再エンコード。
+ * @param {File|Blob} file
+ * @param {{maxSide?:number, quality?:number, mime?:string}} [opts]
+ * @returns {Promise<Blob>}
+ */
+function compressImage(file, opts){
+  const maxSide = (opts && opts.maxSide) || 1200;
+  const quality = (opts && opts.quality) || 0.85;
+  const mime = (opts && opts.mime) || 'image/jpeg';
+  return new Promise(function(resolve, reject){
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = function(){
+      const w = img.naturalWidth, h = img.naturalHeight;
+      let dw = w, dh = h;
+      if(Math.max(w, h) > maxSide){
+        if(w >= h){ dw = maxSide; dh = Math.round(h * maxSide / w); }
+        else { dh = maxSide; dw = Math.round(w * maxSide / h); }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = dw; canvas.height = dh;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, dw, dh);
+      canvas.toBlob(function(blob){
+        URL.revokeObjectURL(url);
+        if(blob) resolve(blob); else reject(new Error('canvas.toBlob failed'));
+      }, mime, quality);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('image load failed')); };
+    img.src = url;
+  });
+}
+
+/**
+ * Supabase Storage に画像をアップロードして公開 URL を返す。
+ * @param {object} supabaseClient - supa（Supabase JS クライアント）
+ * @param {string} userId
+ * @param {File|Blob} fileOrBlob
+ * @returns {Promise<{url:string|null, error:any}>}
+ */
+async function uploadAvatar(supabaseClient, userId, fileOrBlob){
+  if(!supabaseClient || !userId || !fileOrBlob){
+    return { url: null, error: new Error('invalid args') };
+  }
+  try{
+    // 圧縮（5MB 制限内に収める）
+    const blob = await compressImage(fileOrBlob, { maxSide: 1200, quality: 0.85 });
+    const path = userId + '/avatar.jpg';
+    const { error: upErr } = await supabaseClient.storage
+      .from('avatars')
+      .upload(path, blob, {
+        upsert: true,                  // 同じパスに上書き保存
+        contentType: 'image/jpeg',
+        cacheControl: '3600',
+      });
+    if(upErr) return { url: null, error: upErr };
+    // 公開 URL を取得（キャッシュバスティング用に ?t=<timestamp> を付与）
+    const { data: pub } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+    const url = pub && pub.publicUrl ? pub.publicUrl + '?t=' + Date.now() : null;
+    return { url: url, error: null };
+  }catch(e){
+    return { url: null, error: e };
+  }
+}
+
+</script>
+<script>
+// @ts-check
 // ===== 定数：四柱推命用テーブル =====
+
+/** 十干（甲乙丙丁戊己庚辛壬癸） @type {readonly string[]} */
 var KAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+
+/** 十二支（子丑寅卯辰巳午未申酉戌亥） @type {readonly string[]} */
 var SHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+
+/** 五虎遁（年干→月干の特殊変換テーブル） @type {readonly number[]} */
 var GOKOTSU=[2,4,6,8,0,2,4,6,8,0];
+
+/** 月→月支マッピング（key:月1-12 → value:支インデックス0-11） @type {Record<number, number>} */
 var MO_SHI={1:1,2:2,3:3,4:4,5:5,6:6,7:7,8:8,9:9,10:10,11:11,12:0};
+
+/** 柱のラベル @type {readonly string[]} */
 var PL=['年柱','月柱','日柱','時柱'];
+/** 都道府県名一覧（PREFS と同じ順序） @type {readonly string[]} */
 var PREF_NAMES=['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
 
+/**
+ * @typedef {Object} SekkiPoint
+ * @property {number} d - 節入りの日
+ * @property {number} h - 節入りの時
+ * @property {number} m - 節入りの分
+ */
+
+/**
+ * @typedef {Object} City
+ * @property {string} n - 市名
+ * @property {number} l - 経度
+ */
+
+/**
+ * @typedef {Object} Prefecture
+ * @property {string} name - 都道府県名
+ * @property {City[]} cities - 主要都市
+ */
+
 // ===== 定数：節気データ・都道府県・関係パターン =====
+
+/** 節気の年月別データ。SEKKI[年][月] = {d,h,m} で節入り時刻を取得。 @type {Record<number, Record<number, SekkiPoint>>} */
 var SEKKI={1989:{1:{d:6,h:9,m:58},2:{d:4,h:21,m:28},3:{d:5,h:15,m:57},4:{d:5,h:10,m:32},5:{d:6,h:3,m:54},6:{d:6,h:11,m:3},7:{d:7,h:10,m:24},8:{d:8,h:3,m:48},9:{d:8,h:12,m:54},10:{d:9,h:4,m:18},11:{d:7,h:11,m:35},12:{d:7,h:22,m:28}},1990:{1:{d:6,h:15,m:27},2:{d:4,h:3,m:2},3:{d:6,h:21,m:19},4:{d:5,h:16,m:27},5:{d:6,h:9,m:45},6:{d:6,h:16,m:50},7:{d:7,h:16,m:6},8:{d:8,h:9,m:28},9:{d:8,h:18,m:25},10:{d:9,h:9,m:55},11:{d:7,h:17,m:7},12:{d:8,h:3,m:55}},1991:{1:{d:6,h:21,m:9},2:{d:4,h:8,m:46},3:{d:6,h:3,m:2},4:{d:5,h:21,m:59},5:{d:6,h:15,m:17},6:{d:6,h:22,m:20},7:{d:7,h:21,m:36},8:{d:8,h:14,m:56},9:{d:9,h:0,m:2},10:{d:9,h:15,m:19},11:{d:7,h:22,m:35},12:{d:8,h:9,m:36}},1992:{1:{d:6,h:2,m:48},2:{d:4,h:14,m:48},3:{d:5,h:9,m:2},4:{d:5,h:3,m:57},5:{d:5,h:21,m:12},6:{d:6,h:4,m:14},7:{d:7,h:3,m:28},8:{d:7,h:20,m:50},9:{d:8,h:5,m:49},10:{d:8,h:21,m:6},11:{d:7,h:4,m:21},12:{d:7,h:15,m:24}},1993:{1:{d:6,h:8,m:43},2:{d:4,h:20,m:57},3:{d:6,h:14,m:40},4:{d:5,h:8,m:48},5:{d:6,h:2,m:12},6:{d:6,h:9,m:15},7:{d:7,h:8,m:42},8:{d:8,h:2,m:11},9:{d:8,h:11,m:51},10:{d:9,h:3,m:14},11:{d:7,h:10,m:20},12:{d:7,h:21,m:55}},1994:{1:{d:6,h:14,m:30},2:{d:4,h:2,m:31},3:{d:5,h:20,m:31},4:{d:5,h:14,m:35},5:{d:6,h:7,m:49},6:{d:6,h:14,m:47},7:{d:7,h:14,m:5},8:{d:8,h:7,m:29},9:{d:8,h:17,m:19},10:{d:9,h:8,m:31},11:{d:7,h:15,m:40},12:{d:8,h:3,m:24}},1995:{1:{d:6,h:20,m:16},2:{d:4,h:8,m:13},3:{d:6,h:2,m:14},4:{d:5,h:20,m:21},5:{d:6,h:13,m:35},6:{d:6,h:20,m:34},7:{d:7,h:20,m:0},8:{d:8,h:13,m:14},9:{d:8,h:23,m:13},10:{d:9,h:14,m:27},11:{d:7,h:21,m:35},12:{d:8,h:9,m:18}},1996:{1:{d:6,h:5,m:3},2:{d:4,h:17,m:8},3:{d:5,h:11,m:3},4:{d:5,h:5,m:14},5:{d:5,h:22,m:49},6:{d:6,h:6,m:2},7:{d:7,h:5,m:28},8:{d:7,h:23,m:2},9:{d:8,h:7,m:43},10:{d:8,h:23,m:8},11:{d:7,h:7,m:12},12:{d:7,h:17,m:47}},1997:{1:{d:6,h:11,m:0},2:{d:4,h:22,m:45},3:{d:5,h:17,m:3},4:{d:5,h:11,m:2},5:{d:6,h:4,m:18},6:{d:6,h:11,m:21},7:{d:7,h:10,m:46},8:{d:8,h:4,m:9},9:{d:8,h:13,m:56},10:{d:9,h:5,m:15},11:{d:7,h:12,m:22},12:{d:7,h:23,m:8}},1998:{1:{d:6,h:16,m:55},2:{d:4,h:4,m:51},3:{d:5,h:22,m:54},4:{d:5,h:16,m:57},5:{d:6,h:10,m:6},6:{d:6,h:17,m:4},7:{d:7,h:16,m:20},8:{d:8,h:9,m:40},9:{d:8,h:19,m:31},10:{d:9,h:10,m:47},11:{d:7,h:17,m:59},12:{d:8,h:5,m:41}},1999:{1:{d:5,h:22,m:39},2:{d:4,h:10,m:57},3:{d:6,h:4,m:57},4:{d:5,h:22,m:46},5:{d:6,h:15,m:52},6:{d:6,h:22,m:55},7:{d:7,h:22,m:15},8:{d:8,h:15,m:37},9:{d:9,h:1,m:20},10:{d:9,h:16,m:25},11:{d:7,h:23,m:24},12:{d:8,h:11,m:15}},2000:{1:{d:6,h:4,m:14},2:{d:4,h:16,m:32},3:{d:5,h:10,m:35},4:{d:5,h:4,m:15},5:{d:5,h:21,m:23},6:{d:5,h:4,m:48},7:{d:6,h:23,m:1},8:{d:7,h:16,m:39},9:{d:7,h:2,m:10},10:{d:7,h:17,m:30},11:{d:6,h:0,m:14},12:{d:6,h:10,m:33}}};
+/** 都道府県と主要都市（経度付き）@type {Prefecture[]} */
 var PREFS=[
   {name:'北海道',cities:[{n:'札幌市',l:141.35},{n:'函館市',l:140.73},{n:'旭川市',l:142.36},{n:'釧路市',l:144.39},{n:'帯広市',l:143.20},{n:'苫小牧市',l:141.61},{n:'小樽市',l:141.00},{n:'千歳市',l:141.65}]},
   {name:'青森県',cities:[{n:'青森市',l:140.74},{n:'弘前市',l:140.47},{n:'八戸市',l:141.49}]},
@@ -916,15 +1472,49 @@ var PREFS=[
   {name:'鹿児島県',cities:[{n:'鹿児島市',l:130.56},{n:'霧島市',l:130.76},{n:'鹿屋市',l:130.85}]},
   {name:'沖縄県',cities:[{n:'那覇市',l:127.68},{n:'石垣市',l:124.16},{n:'沖縄市',l:127.83},{n:'浦添市',l:127.71},{n:'宮古島市',l:125.28}]}
 ];
-var KANGO=[[0,5],[2,7],[4,9],[6,1],[8,3]],HANGO=[[0,8],[0,4],[3,11],[3,7],[6,2],[6,10],[9,5],[9,1]],SHIGO=[[0,1],[11,2],[10,3],[9,4],[8,5],[7,6]],CHU=[[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]],KEI_PAIRS=[[10,1],[1,7],[7,10],[5,2],[2,8],[8,5],[0,3]],KEI_SELF=[4,6,9,11];
+/**
+ * 関係パターン（数値はインデックス、配列の各要素は [a,b] のペア）
+ * KANGO: 干合, HANGO: 半合（三合の半分）, SHIGO: 支合, CHU: 冲, KEI_PAIRS: 刑（ペア）, KEI_SELF: 自刑
+ * @type {[number, number][]}
+ */
+var KANGO=[[0,5],[2,7],[4,9],[6,1],[8,3]];
+/** @type {[number, number][]} */
+var HANGO=[[0,8],[0,4],[3,11],[3,7],[6,2],[6,10],[9,5],[9,1]];
+/** @type {[number, number][]} */
+var SHIGO=[[0,1],[11,2],[10,3],[9,4],[8,5],[7,6]];
+/** @type {[number, number][]} */
+var CHU=[[0,6],[1,7],[2,8],[3,9],[4,10],[5,11]];
+/** @type {[number, number][]} */
+var KEI_PAIRS=[[10,1],[1,7],[7,10],[5,2],[2,8],[8,5],[0,3]];
+/** 自刑となる支のインデックス @type {readonly number[]} */
+var KEI_SELF=[4,6,9,11];
 
 </script>
 <script>
+// @ts-check
 // ===== 四柱推命：ピラー計算と関係判定 =====
+
+/**
+ * 2 つの干が干合の関係か判定。
+ * @param {number} k1 - 干 1 (0-9)
+ * @param {number} k2 - 干 2 (0-9)
+ * @returns {boolean}
+ */
 function isKan(k1,k2){for(var i=0;i<KANGO.length;i++){var p=KANGO[i];if((k1===p[0]&&k2===p[1])||(k1===p[1]&&k2===p[0]))return true;}return false;}
+
+/**
+ * 2 つの支が半合の関係か判定。
+ * @param {number} s1 - 支 1 (0-11)
+ * @param {number} s2 - 支 2 (0-11)
+ * @returns {boolean}
+ */
 function isHango(s1,s2){for(var i=0;i<HANGO.length;i++){var p=HANGO[i];if((s1===p[0]&&s2===p[1])||(s1===p[1]&&s2===p[0]))return true;}return false;}
 // === 節入時刻の天文計算（Meeus 太陽黄経式 / 精度 ~5-15分）===
-// 太陽の見かけ黄経 [度] を返す（JD は UT で渡す）
+/**
+ * 太陽の見かけ黄経 [度] を返す。
+ * @param {number} jdv - ユリウス日 (UT)
+ * @returns {number} 黄経 (0-360 度)
+ */
 function sunApparentLon(jdv){
   var T=(jdv-2451545)/36525;
   var L0=280.46646+36000.76983*T+0.0003032*T*T;
@@ -936,10 +1526,17 @@ function sunApparentLon(jdv){
   var lam=L-0.00569-0.00478*Math.sin(om);
   return((lam%360)+360)%360;
 }
-// 月→節入の太陽黄経
+/** 月→節入の太陽黄経 @type {Record<number, number>} */
 var SEKKI_LON={1:285,2:315,3:345,4:15,5:45,6:75,7:105,8:135,9:165,10:195,11:225,12:255};
-// 節入時刻のキャッシュ（同じ年月への再計算を避ける）
+/** 節入時刻のキャッシュ（同じ年月への再計算を避ける） @type {Object<string, {d:number,h:number,m:number}>} */
 var _SEKKI_CACHE={};
+
+/**
+ * 指定した年月の節入り時刻を返す（JST 基準、d/h/m を持つオブジェクト）。
+ * @param {number} y - 年
+ * @param {number} m - 月 (1-12)
+ * @returns {{d:number, h:number, m:number}}
+ */
 function getSekki(y,m){
   var key=y+'_'+m;
   if(_SEKKI_CACHE[key])return _SEKKI_CACHE[key];
@@ -973,8 +1570,36 @@ function getSekki(y,m){
   _SEKKI_CACHE[key]=result;
   return result;
 }
+/**
+ * グレゴリオ暦の年月日時刻からユリウス日 (JD) を計算。
+ * @param {number} y - 年
+ * @param {number} m - 月 (1-12)
+ * @param {number} d - 日
+ * @param {number} h - 時（小数可）
+ * @returns {number} JD
+ */
 function jd(y,m,d,h){if(m<=2){y--;m+=12;}var A=Math.floor(y/100),B=2-A+Math.floor(A/4);return Math.floor(365.25*(y+4716))+Math.floor(30.6001*(m+1))+d+h/24+B-1524.5;}
+
+/**
+ * 均時差を分単位で返す（地方時補正用）。
+ * @param {number} j - ユリウス日
+ * @returns {number} 均時差（分）
+ */
 function eqT(j){var T=(j-2451545)/36525,eps=(23.4393-0.013*T)*Math.PI/180,L0=(280.46646+36000.76983*T)*Math.PI/180,e=0.016708634-0.000042037*T,M=(357.52911+35999.05029*T)*Math.PI/180,y2=Math.tan(eps/2)*Math.tan(eps/2);return(y2*Math.sin(2*L0)-2*e*Math.sin(M)+4*e*y2*Math.sin(M)*Math.cos(2*L0)-0.5*y2*y2*Math.sin(4*L0)-1.25*e*e*Math.sin(2*M))*4*180/Math.PI;}
+
+/**
+ * 生年月日時刻から四柱（年柱・月柱・日柱・時柱）を計算。
+ * 時刻が未入力の場合（hr が null/undefined/NaN）は時柱を null で返す。
+ *
+ * @param {number} yr - 生年
+ * @param {number} mo - 生月 (1-12)
+ * @param {number} dy - 生日
+ * @param {number|null} hr - 生時 (0-23) または null
+ * @param {number|null} mn - 生分 (0-59) または null
+ * @param {number|null} lon - 経度（度）、未入力なら null
+ * @returns {[{k:number,s:number}, {k:number,s:number}, {k:number,s:number}, {k:number,s:number}|null]}
+ *   年柱・月柱・日柱・時柱（時柱は null 許容）
+ */
 function calcPillars(yr,mo,dy,hr,mn,lon){
   // 時刻・経度の有無を判定（null/undefined/NaN を未入力扱い）
   var hasTime=(hr!=null&&!isNaN(hr));
@@ -998,39 +1623,183 @@ function calcPillars(yr,mo,dy,hr,mn,lon){
   }
   return [{k:nKi,s:nSi},{k:moKi,s:moSi},{k:dSt,s:dSi},hourPillar];
 }
+/**
+ * @typedef {Object} RelHit
+ * @property {string} label - 表示用ラベル
+ * @property {number} mi - 自分の柱インデックス 0-3
+ * @property {number} ti - 相手の柱インデックス 0-3
+ * @property {string} [type] - 'g'|'r'|'both' （色分け用、shigo/chu/kei で使用）
+ */
+
+/**
+ * @typedef {Object} Relations
+ * @property {RelHit[]} kango - 干合
+ * @property {RelHit[]} sango - 三合（半会）
+ * @property {RelHit[]} shigo - 支合
+ * @property {RelHit[]} chu - 冲
+ * @property {RelHit[]} kei - 刑
+ */
+
+/**
+ * 自分と相手の四柱を比較して、すべての関係性ヒットを返す。
+ * @param {Array<{k:number,s:number}|null>} myP - 自分の四柱
+ * @param {Array<{k:number,s:number}|null>} thP - 相手の四柱
+ * @returns {Relations}
+ */
 function checkRelations(myP,thP){var res={kango:[],sango:[],shigo:[],chu:[],kei:[]};for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;if(isKan(myP[i].k,thP[j].k))res.kango.push({label:KAN[myP[i].k]+'✕'+KAN[thP[j].k],mi:i,ti:j});}}for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;var s1=myP[i].s,s2=thP[j].s;if(isHango(s1,s2))res.sango.push({label:SHI[s1]+'・'+SHI[s2]+'（半会）',mi:i,ti:j});}}for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;var s1=myP[i].s,s2=thP[j].s;for(var p=0;p<SHIGO.length;p++){var sp=SHIGO[p];if((s1===sp[0]&&s2===sp[1])||(s1===sp[1]&&s2===sp[0])){var isBoth=(s1===8&&s2===5)||(s1===5&&s2===8);res.shigo.push({label:SHI[s1]+'・'+SHI[s2],mi:i,ti:j,type:isBoth?'both':'g'});if(isBoth)res.kei.push({label:SHI[s1]+'・'+SHI[s2]+'（支合も）',mi:i,ti:j,type:'both'});}}}}for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;var s1=myP[i].s,s2=thP[j].s;for(var p=0;p<CHU.length;p++){var cp=CHU[p];if((s1===cp[0]&&s2===cp[1])||(s1===cp[1]&&s2===cp[0]))res.chu.push({label:SHI[s1]+'・'+SHI[s2],mi:i,ti:j,type:'r'});}}}for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;var s1=myP[i].s,s2=thP[j].s;for(var p=0;p<KEI_PAIRS.length;p++){var kp=KEI_PAIRS[p];if((s1===kp[0]&&s2===kp[1])||(s1===kp[1]&&s2===kp[0]))res.kei.push({label:SHI[s1]+'・'+SHI[s2],mi:i,ti:j,type:'r'});}}}for(var i=0;i<4;i++){if(!myP[i])continue;for(var j=0;j<4;j++){if(!thP[j])continue;if(myP[i].s===thP[j].s&&KEI_SELF.indexOf(myP[i].s)>=0)res.kei.push({label:SHI[myP[i].s]+'（自刑）',mi:i,ti:j,type:'r'});}}return res;}
+
+/**
+ * 関係性から良縁率スコアを算出（15〜99 でクランプ）。
+ * 干合 +4 / 三合 +10 / 支合 +7 / 冲 -7 / 刑 -10 のベース 50 加算。
+ * @param {Relations} rel
+ * @returns {number}
+ */
 function calcScore(rel){return Math.min(99,Math.max(15,50+rel.kango.length*4+rel.sango.length*10+rel.shigo.length*7-rel.chu.length*7-rel.kei.length*10));}
+
+/**
+ * 関係性のサマリーから人間向けコメント文を生成。
+ * @param {Relations} rel
+ * @returns {string}
+ */
 function generateComment(rel){var kg=rel.kango.length,sg=rel.sango.length,sh=rel.shigo.length,ch=rel.chu.length,ke=rel.kei.length,good=kg+sg+sh,bad=ch+ke;if(kg>=3&&bad===0)return '一目会った瞬間から惹かれ合い、安定した関係を築きやすい、理想的な縁です。';if(kg>=2&&sh>=1&&bad===0)return '会った時から自然に引き合い、穏やかな関係が築けそうです。';if(kg>=1&&sg>=1&&bad===0)return 'どこか懐かしさを感じ、価値観も合う良い縁です。';if(good>=2&&bad===0)return 'バランスの取れた良縁です。自然な形で関係が深まっていきやすい組み合わせです。';if(bad>=3&&good<=1)return '縁自体はあるものの、衝突やトラブルが多くなりやすい組み合わせです。';return '個性ある縁の組み合わせです。お互いの違いを尊重することで良い関係が育まれそうです。';}
 
 </script>
 <script>
 // ===== アプリ全体の状態変数 =====
-// （他ファイルから自由に読み書きされる前提のグローバル変数）
+// 既存コードは下記のフラットなグローバル変数を直接参照している。
+// 段階的に整理するため、新規の状態は window.App.state.* 配下に置くこと（下記参照）。
+//
+// グローバル変数一覧（責務付き）:
+//  ▼ 認証・プロフィール
+//    currentUser     : Supabase auth user (login 後)
+//    mySex           : '男性' | '女性' | 'その他' など
+//    myPlan          : 'trial' | 'no_matching' | 'total'
+//    myCreatedAt     : ISO 文字列、profiles.created_at （これより前のアナウンスは非表示）
+//    memberID        : 会員ID 'EN-XXXXXXXX'
+//  ▼ マッチング・メッセージ
+//    enList          : 縁リスト（pending/matched/.../coupled の自分のマッチ）
+//    PARTNERS_DATA   : 推し画面に表示する候補配列（DBから）
+//    ALL_SORTED      : 良縁率ソート済の全候補
+//    officialMessages: 運営チャットの履歴（メモリ上、loadOfficialChatHistory で再構築）
+//    myCashbacks     : 自分が紹介者として獲得したキャッシュバック
+//  ▼ 命式・診断キャッシュ
+//    savedPillars, savedImgSrc, MY_PILLARS, REL_CACHE
+//  ▼ オリエンテーション・UI 状態
+//    currentSlide, totalSlides, selectedPlan, currentReviewStar
+//    demoGuideDismissed, ageState
+//  ▼ ポーリング
+//    pollingTimer    : setInterval ハンドル（10秒ごとに DB 同期）
+
+// 新規追加するグローバルは下記の名前空間に集約していく。
+// 既存コードは触らないが、新しい機能はここに状態を置くと整理が進む。
+window.App = window.App || { state: {}, util: {} };
+
+// ===== 型定義 =====
+
+/**
+ * 四柱推命の柱（干支ペア）
+ * @typedef {Object} Pillar
+ * @property {number} k - 干（KAN）のインデックス 0-9
+ * @property {number} s - 支（SHI）のインデックス 0-11
+ */
+
+/**
+ * 縁リストの 1 件
+ * @typedef {Object} EnItem
+ * @property {string} matchId - matches.id
+ * @property {string} name - 'XXさん'
+ * @property {string} meta - '32歳・兵庫県' のような表示文字列
+ * @property {string|null} [memberId] - 'EN-XXXXXXXX'
+ * @property {string|null} [avatarUrl]
+ * @property {number|string} score - 良縁率 or '--'
+ * @property {string} status - pending/sent/matched/chatting/date_set/dated/coupled/rejected_notify/approved/approved_by_me/reviewed
+ * @property {boolean} [reviewed]
+ * @property {string|null} [coupledAt]
+ */
+
+/**
+ * 推しページに表示するパートナー
+ * @typedef {Object} Partner
+ * @property {string} name
+ * @property {string} meta
+ * @property {(Pillar|null)[]} pillars - 4 要素（時柱は null 許容）
+ * @property {string} [userId] - DB 上のユーザー ID（リアルユーザーのみ）
+ * @property {string} [memberId]
+ * @property {string|null} [avatarUrl]
+ * @property {boolean} isDemo
+ * @property {string} [sex]
+ */
+
+/**
+ * 運営チャットの 1 メッセージ
+ * @typedef {Object} OfficialMsg
+ * @property {'official'|'user'} from
+ * @property {string} text
+ */
+
+/** 年齢フィルタ @type {{older:boolean, younger:boolean}} */
 var ageState={older:true,younger:true};
-var savedPillars=[],savedImgSrc='',MY_PILLARS=[],REL_CACHE={};
-var enList=[],PARTNERS_DATA=[],ALL_SORTED=[],memberID='';
+
+/** 自分の命式（calcPillars の結果） @type {(Pillar|null)[]} */
+var savedPillars=[];
+/** 登録時に選んだ画像（Base64 / DataURL） @type {string} */
+var savedImgSrc='';
+/** 自分の命式（マッチング画面でも使う） @type {(Pillar|null)[]} */
+var MY_PILLARS=[];
+/** 推しページの相性キャッシュ。key:idx, value:checkRelations の結果 @type {Object<number, any>} */
+var REL_CACHE={};
+
+/** 縁リスト（自分が関わるすべての matches） @type {EnItem[]} */
+var enList=[];
+/** @type {Partner[]} */
+var PARTNERS_DATA=[];
+/** @type {Partner[]} */
+var ALL_SORTED=[];
+/** 会員ID 'EN-XXXXXXXX' @type {string} */
+var memberID='';
+
+/** 運営チャット履歴（メモリ上） @type {OfficialMsg[]} */
 var officialMessages=[{from:'official',text:'縁の間へようこそ！ご不明な点はいつでもお気軽にお問い合わせください。'}];
+
 var currentSlide=0,totalSlides=7;
-var selectedPlan=null; // 'trial' / 'no_matching' / 'total'（プラン選択画面で設定）
+/** プラン選択画面で選ばれた値 @type {('trial'|'no_matching'|'total'|null)} */
+var selectedPlan=null;
 var currentReviewStar=0;
 var demoGuideDismissed=false;
+
+/** Supabase auth ユーザー @type {any} */
 var currentUser = null;
+/** 自分の性別 @type {string} */
 var mySex = "";
-var myPlan = 'total'; // 'trial' / 'no_matching' / 'total'
-var myCreatedAt = null; // ISO文字列、登録日時。これより前のアナウンスは非表示
+/** 自分のプラン @type {('trial'|'no_matching'|'total')} */
+var myPlan = 'total';
+/** プロフィール作成日時（ISO 文字列） @type {string|null} */
+var myCreatedAt = null;
+/** ポーリング interval ハンドル @type {number|null} */
 var pollingTimer = null;
 // 自分宛のキャッシュバックレコード（自分=紹介者として、被紹介者の卒業承認時に生成される）
+/** @type {Array<{status:string, amount?:number, [key:string]:any}>} */
 var myCashbacks = [];
 
 // ===== デモパートナー（pillars.js に依存） =====
+/** @type {Partner[]} */
 var PARTNERS=[{name:'つきみさん',meta:'32歳・兵庫県・初婚・子なし',pillars:calcPillars(1992,3,15,8,20,135.19),isDemo:true,sex:'女性'},{name:'はなこさん',meta:'29歳・大阪府・初婚・子なし',pillars:calcPillars(1995,7,22,14,30,135.50),isDemo:true,sex:'女性'},{name:'そらさん',meta:'35歳・京都府・初婚・子なし',pillars:calcPillars(1989,11,3,6,45,135.77),isDemo:true,sex:'女性'},{name:'あきさん',meta:'34歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,9,5,18,15,134.69),isDemo:true,sex:'女性'},{name:'ひかりさん',meta:'28歳・大阪府・初婚・子なし',pillars:calcPillars(1997,5,12,12,0,135.50),isDemo:true,sex:'女性'}];
+/** @type {Partner[]} */
 var DEMO_MALE=[{name:'ゆうきさん',meta:'28歳・東京都・初婚・子なし',pillars:calcPillars(1997,8,15,10,30,139.75),isDemo:true,sex:'男性'},{name:'れんさん',meta:'31歳・大阪府・初婚・子なし',pillars:calcPillars(1994,4,22,7,0,135.50),isDemo:true,sex:'男性'},{name:'はるとさん',meta:'33歳・神奈川県・初婚・子なし',pillars:calcPillars(1992,12,3,21,45,139.64),isDemo:true,sex:'男性'},{name:'そうたさん',meta:'29歳・京都府・初婚・子なし',pillars:calcPillars(1996,6,18,15,20,135.77),isDemo:true,sex:'男性'},{name:'かいとさん',meta:'35歳・兵庫県・初婚・子なし',pillars:calcPillars(1990,2,8,5,10,135.19),isDemo:true,sex:'男性'}];
 
 </script>
 <script>
 // ===== Supabase 初期化 =====
+// 注: 外部依存 `supabase` (CDN) のグローバル UMD が未型付けなので
+// @ts-check は外している。supa は any 扱いで利用される。
+
+/** Supabase プロジェクト URL @type {string} */
 const SUPABASE_URL = 'https://ogshjcqkvuidlaenawth.supabase.co';
+/** Supabase anon (public) key — RLS で保護される前提 @type {string} */
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9nc2hqY3FrdnVpZGxhZW5hd3RoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNzIyMDUsImV4cCI6MjA5Mjg0ODIwNX0.xCw4h4vBDf4mlilgHYUQbG0pPYfySMInrZPXwB-NsVI';
+
+/** Supabase JS クライアント。型は @supabase/supabase-js の SupabaseClient @type {any} */
+// eslint-disable-next-line no-undef
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
 
 </script>
@@ -1060,7 +1829,7 @@ const SLIDE_DATA = {
     '<div class="slide-badge">③ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
     +'<div class="slide-sub">四柱推命の相性判定をもとに良縁率を算出し、<br>高い順に表示します。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔍</div><div class="feature-text"><div class="feature-title">絞り込み条件</div><div class="feature-desc">性別・年齢・居住地・良縁率の最低ラインなどで絞り込めます。</div></div></div>'
-    +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(3px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
+    +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(1px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">💬</div><div class="feature-text"><div class="feature-title">「話してみたい」ボタン</div><div class="feature-desc">気になる方に押すと、相手の縁リストに申請が届きます。</div></div></div>',
     // 4. 縁リスト
     '<div class="slide-badge">④ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
@@ -1145,7 +1914,7 @@ const SLIDE_DATA = {
     '<div class="slide-badge">③ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
     +'<div class="slide-sub">四柱推命の相性判定をもとに良縁率を算出し、<br>高い順に表示します。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔍</div><div class="feature-text"><div class="feature-title">絞り込み条件</div><div class="feature-desc">性別・年齢・居住地・良縁率の最低ラインなどで絞り込めます。</div></div></div>'
-    +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(3px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
+    +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(1px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">💬</div><div class="feature-text"><div class="feature-title">「話してみたい」ボタン</div><div class="feature-desc">気になる方に押すと、相手の縁リストに申請が届きます。</div></div></div>',
     // 4. 縁リスト
     '<div class="slide-badge">④ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
@@ -1228,6 +1997,9 @@ function startReg(){
   applyPlanToRegistrationForm(selectedPlan);
   document.getElementById('reg-wrap').style.display='block';
   document.getElementById('reg-wrap').style.visibility='visible';
+  // bot 対策: フォーム表示時刻を記録 + honeypot 挿入
+  markFormShown('register');
+  applyHoneypot('reg-wrap');
 }
 
 // プランに応じて登録フォームの不要項目を非表示にする
@@ -1351,8 +2123,39 @@ function updCity(){
   });
 }
 
+// ===== 確認メール送信完了画面（メール認証 ON 時） =====
+function showEmailConfirmScreen(email){
+  // 他の画面を隠してメール確認画面のみ表示
+  ['login-wrap','plan-select-wrap','orient-wrap','reg-wrap','app-wrap'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  var addr = document.getElementById('ec-email-addr');
+  if(addr) addr.textContent = email || '';
+  var w = document.getElementById('email-confirm-wrap');
+  if(w) w.style.display = 'flex';
+}
+
+function backToLoginFromConfirm(){
+  var w = document.getElementById('email-confirm-wrap');
+  if(w) w.style.display = 'none';
+  var lw = document.getElementById('login-wrap');
+  if(lw) lw.style.display = 'flex';
+}
+
 // ===== Supabase版：登録完了処理 =====
 async function completeReg() {
+  // bot 対策: honeypot + 表示〜送信時間 + クライアントレート制限
+  // 登録は 30 分に 1 回まで（同じ端末からの連続登録を抑制）
+  const botReason = checkBotDefense({
+    form: 'register',
+    container: 'reg-wrap',
+    minMs: 3000,                         // 登録は項目が多いので 3 秒以上経過してから
+    rateKey: 'register',
+    rateMs: 30 * 60 * 1000,              // 30 分
+  });
+  if(botReason){ alert(botReason); return; }
+
   const emailEl = document.getElementById('r-email');
   const passEl = document.getElementById('r-password');
   const phoneEl = document.getElementById('r-phone');
@@ -1393,13 +2196,23 @@ async function completeReg() {
   }
 
   // Supabaseに新規登録
+  // emailRedirectTo: メール認証 ON 時、確認リンクをクリック後にここへ戻る
+  const redirectUrl = window.location.origin + window.location.pathname;
   try {
-    const { data, error } = await supa.auth.signUp({ email, password });
+    const { data, error } = await supa.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: redirectUrl },
+    });
     if (error) {
       alert('登録エラー：' + error.message);
       console.log('登録エラー詳細:', error);
       return;
     }
+
+  // メール認証 ON のとき: data.session は null（ユーザーはまだ未認証）
+  // → プロフィール情報を localStorage に保存し、確認メール経由の初回ログインで INSERT
+  const isEmailConfirmRequired = !data.session && !!data.user;
 
   currentUser = data.user;
   if (!currentUser) {
@@ -1472,14 +2285,51 @@ async function completeReg() {
     referrer_id: referrerId,
     phone_number: phone,
     plan: selectedPlan || 'total',
-    profile_text: ((document.getElementById('r-profile-text') || {}).value || '').trim().substring(0, 500) || null
+    profile_text: ((document.getElementById('r-profile-text') || {}).value || '').trim().substring(0, 500) || null,
+    avatar_url: null,
   };
+
+  // 画像をアップロード（ファイル選択されていれば Storage に保存し avatar_url を埋める）
+  const imgInput = document.getElementById('img-input');
+  const imgFile = imgInput && imgInput.files && imgInput.files[0] ? imgInput.files[0] : null;
+  if (imgFile && !isEmailConfirmRequired) {
+    // ★ メール認証 OFF のときのみ即時アップロード（ON のときは確認後アップロード）
+    try {
+      const { url, error: upErr } = await uploadAvatar(supa, currentUser.id, imgFile);
+      if (upErr) { console.log('avatar upload error (continuing without):', upErr); }
+      else if (url) { profileData.avatar_url = url; }
+    } catch (e) { console.log('avatar upload exception:', e); }
+  }
+
+  // ★ メール認証 ON のときはまだ未認証 → INSERT を保留して localStorage へ
+  if (isEmailConfirmRequired) {
+    try {
+      localStorage.setItem('pending_profile_' + currentUser.id, JSON.stringify(profileData));
+      localStorage.setItem('pending_profile_email_' + currentUser.id, email);
+      // 画像も Base64 化して保留（メール確認後にアップロード）
+      if (imgFile) {
+        const reader = new FileReader();
+        reader.onload = function(ev){
+          try { localStorage.setItem('pending_avatar_' + currentUser.id, ev.target.result); }
+          catch(e){ console.log('pending avatar save error:', e); }
+        };
+        reader.readAsDataURL(imgFile);
+      }
+    } catch (e) { console.log('pending profile save error:', e); }
+    recordRateLimitHit('register');
+    showEmailConfirmScreen(email);
+    return;
+  }
+
   const { error: profileError } = await supa.from('profiles').insert(profileData);
 
   if (profileError) {
     alert('プロフィール保存エラー：' + profileError.message);
     return;
   }
+
+  // 登録成功 → レート制限ヒット記録
+  recordRateLimitHit('register');
 
   // 画面遷移：まずshowAppWrapでDOMを展開してから要素にアクセス
   document.getElementById('reg-wrap').style.display = 'none';
@@ -1527,7 +2377,14 @@ function renderFiltered(list){var container=document.getElementById('match-list'
       });
     }}
 function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
-function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+'<div class="ava-blur">🙂</div>'+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+'<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>'+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
+function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];
+// マッチ前なので必ずぼかし表示。画像がなければ絵文字。
+var avaHtml = partner.avatarUrl
+  ? '<div class="ava-blur" style="background-image:url(\''+partner.avatarUrl+'\');background-size:cover;background-position:center;font-size:0"></div>'
+  : '<div class="ava-blur">🙂</div>';
+var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
+   ? '<button class="btn-hanashi sent" id="hanashi-btn-'+idx+'" disabled style="opacity:.5;cursor:not-allowed">🎉 カップル成立中のため申請不可</button>'
+   : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
 function renderMatchList(myP){
   // 数値キーのみ更新し、'sh'（相性診断）等の文字列キーは保持する
   // ※ かつては REL_CACHE=cache; で全置換していたが、ポーリングで相性診断のキャッシュが消える不具合があった
@@ -1548,8 +2405,24 @@ function drawCircle(svg,cx,cy,rw,rh,color){var el=document.createElementNS('http
 function drawLine(svg,x1,y1,x2,y2,color){var line=document.createElementNS('http://www.w3.org/2000/svg','line');line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);line.setAttribute('stroke',color);line.setAttribute('stroke-width','1.5');line.setAttribute('stroke-dasharray','5 3');line.setAttribute('opacity','0.85');svg.appendChild(line);}
 function highlightPair(idx,type,ii){clearSvg(idx);var svg=document.getElementById('svg'+idx);if(!svg)return;var rel=REL_CACHE[idx];var color='#C9A96E';if(type==='冲'||type==='刑')color='#C05050';var items={干合:rel.kango,三合:rel.sango,支合:rel.shigo,冲:rel.chu,刑:rel.kei};var item=(items[type]||[])[ii];if(!item)return;if(item.type==='both')color='#9966CC';var et=(type==='干合')?'kan':'shi';var myEl=document.getElementById('my'+et+'_'+idx+'_'+item.mi),thEl=document.getElementById('th'+et+'_'+idx+'_'+item.ti);if(!myEl||!thEl)return;var c1=getCenter(myEl,svg),c2=getCenter(thEl,svg);drawCircle(svg,c1.x,c1.y,c1.w,c1.h,color);drawCircle(svg,c2.x,c2.y,c2.w,c2.h,color);drawLine(svg,c1.x,c1.y,c2.x,c2.y,color);}
 
+// 自分が既にカップル成立中なら true
+function isCoupledNow(){
+  return Array.isArray(enList) && enList.some(function(e){ return e.status === 'coupled'; });
+}
+
 // ===== マッチ申請（hanashi） =====
 async function hanashi(idx){
+  // 既にカップル成立中なら他ユーザーに申請不可
+  if(isCoupledNow()){
+    alert('現在カップル成立中のため、他の方への新規マッチング申請はできません。');
+    var btnX = document.getElementById('hanashi-btn-'+idx);
+    if(btnX){
+      btnX.textContent = '🎉 カップル成立中のため申請不可';
+      btnX.classList.add('sent');
+      btnX.disabled = true;
+    }
+    return;
+  }
   var partner=PARTNERS[idx];
   if(!partner||!partner.userId||partner.isDemo){
     // デモユーザーの場合はボタン変更のみ
@@ -1615,6 +2488,7 @@ async function loadRealUsers() {
         ],
         userId: u.id,
         memberId: u.member_id,
+        avatarUrl: u.avatar_url || null,
         isDemo: false
       };
     });
@@ -1687,21 +2561,58 @@ function scrollChatToBottom(){
   });
 }
 
-// ===== テキスト整形：HTMLエスケープ + URL 自動リンク化 + \n を <br> に =====
-function linkifyText(text){
-  if(text == null) return '';
-  // 1. HTMLエスケープ（XSS防止）
-  var escaped = String(text).replace(/[&<>"']/g, function(c){
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
-  });
-  // 2. URL を <a> に変換（http(s)://...）
-  escaped = escaped.replace(/(https?:\/\/[^\s<>"']+)/g, function(url){
-    return '<a href="'+url+'" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:underline;word-break:break-all">'+url+'</a>';
-  });
-  // 3. 改行を <br> に
-  escaped = escaped.replace(/\n/g, '<br>');
-  return escaped;
-}
+// ===== チャット最下部から少しでも上にスクロールしたらページ最上部へジャンプ =====
+// メッセージが多くなるとタブ選択まで遠くなるので、最下部での上方向スクロールを「上に戻る」操作として扱う
+(function setupChatScrollUpToTop(){
+  var lastTouchY = null;
+  var cooldownUntil = 0;
+  function inChatView(){
+    var cv = document.getElementById('msg-chat-view');
+    return cv && cv.style.display === 'block';
+  }
+  function isAtBottom(){
+    var docH = document.documentElement.scrollHeight;
+    var winY = window.scrollY || window.pageYOffset || 0;
+    if(winY + window.innerHeight >= docH - 4) return true;
+    var shell = document.querySelector('.shell');
+    if(shell && shell.scrollHeight > shell.clientHeight + 4 &&
+       shell.scrollTop + shell.clientHeight >= shell.scrollHeight - 4) return true;
+    var s2 = document.getElementById('s2');
+    if(s2 && s2.scrollHeight > s2.clientHeight + 4 &&
+       s2.scrollTop + s2.clientHeight >= s2.scrollHeight - 4) return true;
+    return false;
+  }
+  function jumpToTop(){
+    var now = Date.now();
+    if(now < cooldownUntil) return;
+    cooldownUntil = now + 700;
+    try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){ window.scrollTo(0,0); }
+    var shell = document.querySelector('.shell');
+    if(shell){ try{ shell.scrollTo({top:0, behavior:'smooth'}); }catch(e){ shell.scrollTop = 0; } }
+    var s2 = document.getElementById('s2');
+    if(s2){ try{ s2.scrollTo({top:0, behavior:'smooth'}); }catch(e){ s2.scrollTop = 0; } }
+  }
+  document.addEventListener('wheel', function(e){
+    if(!inChatView()) return;
+    if(e.deltaY < 0 && isAtBottom()){
+      e.preventDefault();
+      jumpToTop();
+    }
+  }, {passive:false});
+  document.addEventListener('touchstart', function(e){
+    if(e.touches && e.touches.length === 1) lastTouchY = e.touches[0].clientY;
+  }, {passive:true});
+  document.addEventListener('touchmove', function(e){
+    if(!inChatView() || lastTouchY === null) return;
+    var dy = e.touches[0].clientY - lastTouchY;
+    if(dy > 12 && isAtBottom()){
+      jumpToTop();
+      lastTouchY = null;
+    }
+  }, {passive:true});
+})();
+
+// ===== テキスト整形：linkifyText は js/utils.js で共通定義 =====
 function updateEnBadge(){var p=enList.filter(function(e){return e.status==='pending';}).length;['en-badge','bni-badge'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=p>0?'block':'none';});}
 function renderEnList(){
   var el=document.getElementById('en-list'),empty=document.getElementById('en-empty');
@@ -1714,7 +2625,10 @@ function renderEnList(){
   var html='';
   sorted.forEach(function(item){
     var s=item.status;
-    var midArg=item.memberId?",'"+item.memberId+"'":'';
+    // openChat(name, memberId, avatarUrl) 用の引数列。memberId 無なら null を入れて avatarUrl の位置を保つ
+    var midArg = item.memberId ? ",'"+item.memberId+"'" : ",null";
+    var avaArg = item.avatarUrl ? ",'"+item.avatarUrl.replace(/'/g,"\\'")+"'" : ",null";
+    midArg = midArg + avaArg;
     var badgeLabel={'matched':'やりとり中','approved':'承認されました！','approved_by_me':'承認しました','sent':'申請中','pending':'承認待ち','rejected_notify':'キャンセル','chatting':'やりとり中','date_set':'デート決定！','dated':'デート完了','coupled':'カップル成立！'}[s]||s;
     var badgeClass='pending';
     if(s==='matched'||s==='approved'||s==='approved_by_me'||s==='chatting')badgeClass='chatting';
@@ -1724,7 +2638,16 @@ function renderEnList(){
     if(s==='approved'||s==='approved_by_me')badgeClass='matched';
     var isCompact=(s==='matched'||s==='chatting'||s==='date_set'||s==='dated'||s==='coupled');
     html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
-    html+='<div class="en-top"><div class="ava">'+item.name.charAt(0)+'</div><div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div></div>';
+    // マッチ後（matched 以降）はクリア表示、申請中(sent/pending) はぼかし
+    var enAvaBlurred = (s === 'sent' || s === 'pending');
+    var enAvaHtml;
+    if(item.avatarUrl){
+      var blurStyle = enAvaBlurred ? 'filter:blur(1px);' : '';
+      enAvaHtml = '<div class="ava" style="background-image:url(\''+item.avatarUrl+'\');background-size:cover;background-position:center;font-size:0;'+blurStyle+'"></div>';
+    } else {
+      enAvaHtml = '<div class="ava">'+item.name.charAt(0)+'</div>';
+    }
+    html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div></div>';
     if(s==='pending'){
       html+='<div class="en-actions"><button class="btn-ok" onclick="enOK(\''+item.matchId+'\')">お話しOK</button><button class="btn-ng" onclick="enNG(\''+item.matchId+'\')">ごめんなさい</button></div>';
     }else if(s==='approved_by_me'){
@@ -1874,11 +2797,44 @@ async function enNG(matchId){
 }
 
 // ===== メッセージ一覧・チャット =====
-function renderMsgList(){var matched=enList.filter(function(e){return e.status==='matched';});var container=document.getElementById('msg-list-items');if(matched.length===0){container.innerHTML='';return;}var html='';matched.forEach(function(item,i){var unread=(i===0);var midArg=item.memberId?",'"+item.memberId+"'":"";html+='<div class="msg-list-item" onclick="openChat(\''+item.name+'\''+midArg+')"><div class="msg-list-ava">'+item.name.charAt(0)+(unread?'<div class="msg-unread-dot"></div>':'')+'</div><div class="msg-list-info"><div class="msg-list-name">'+item.name+'</div><div class="msg-list-preview">ほんとですね。どちらにお住まいですか？</div></div><div class="msg-list-time">11:20</div></div>';});container.innerHTML=html;}
-function openChat(name,memberId){
+function renderMsgList(){
+  // メッセージ機能を使える状態：matched / chatting / date_set / dated / coupled
+  // （pending・sent・approved・approved_by_me は申請段階なので除外）
+  var chatStatuses = ['matched','chatting','date_set','dated','coupled'];
+  var matched = enList.filter(function(e){ return chatStatuses.indexOf(e.status) >= 0; });
+  var container=document.getElementById('msg-list-items');
+  if(matched.length===0){container.innerHTML='';return;}
+  var html='';
+  matched.forEach(function(item,i){
+    var unread=(i===0);
+    var midArg=item.memberId?",'"+item.memberId+"'":",null";
+    var avaArg = item.avatarUrl ? ",'"+item.avatarUrl.replace(/'/g,"\\'")+"'" : ",null";
+    // マッチ後なのでクリア表示（avatar_url あれば背景画像、なければイニシャル）
+    var ava;
+    if(item.avatarUrl){
+      ava = '<div class="msg-list-ava" style="background-image:url(\''+item.avatarUrl+'\');background-size:cover;background-position:center;font-size:0">'+(unread?'<div class="msg-unread-dot"></div>':'')+'</div>';
+    } else {
+      ava = '<div class="msg-list-ava">'+item.name.charAt(0)+(unread?'<div class="msg-unread-dot"></div>':'')+'</div>';
+    }
+    html+='<div class="msg-list-item" onclick="openChat(\''+item.name+'\''+midArg+avaArg+')">'+ava+'<div class="msg-list-info"><div class="msg-list-name">'+item.name+'</div><div class="msg-list-preview">ほんとですね。どちらにお住まいですか？</div></div><div class="msg-list-time">11:20</div></div>';
+  });
+  container.innerHTML=html;
+}
+function openChat(name,memberId,avatarUrl){
   document.getElementById('chat-name').textContent=name;
-  document.getElementById('chat-ava').textContent=name.charAt(0);
-  document.getElementById('chat-ava').className='msg-list-ava';
+  var chatAva=document.getElementById('chat-ava');
+  chatAva.className='msg-list-ava';
+  if(avatarUrl){
+    chatAva.textContent='';
+    chatAva.style.backgroundImage='url("'+avatarUrl+'")';
+    chatAva.style.backgroundSize='cover';
+    chatAva.style.backgroundPosition='center';
+    chatAva.style.fontSize='0';
+  } else {
+    chatAva.textContent=name.charAt(0);
+    chatAva.style.backgroundImage='';
+    chatAva.style.fontSize='';
+  }
   document.getElementById('chat-official-badge').style.display='none';
   // チャットヘッダーに通報ボタンを差し込む（既存があれば一旦削除して付け直し）
   var header=document.querySelector('.msg-chat-header');
@@ -1908,18 +2864,44 @@ function showMsgList(){document.getElementById('msg-list-view').style.display='b
 // ===== 公式（運営）チャット =====
 function addOfficialMessage(text){officialMessages.push({from:'official',text:text});document.getElementById('official-preview').textContent=text.substring(0,25)+'…';}
 function openOfficialChat(){
+  // 入力中の値とフォーカス状態を保存（再描画でカーソルが飛ぶのを防ぐ）
+  var oldInput = document.getElementById('official-input');
+  var savedValue = oldInput ? oldInput.value : '';
+  var wasFocused = oldInput && document.activeElement === oldInput;
+  var savedSelStart = oldInput ? oldInput.selectionStart : null;
+  var savedSelEnd = oldInput ? oldInput.selectionEnd : null;
   // 他チャットから移ってきた時に通報ボタンが残らないよう除去
   var hdr=document.querySelector('.msg-chat-header');
   if(hdr){var ob=hdr.querySelector('.chat-report-btn');if(ob)ob.remove();}
   // 既読化：最終閲覧時刻を更新し、メッセージバッジ・赤ポッチを消す
+  // localStorage は即時、DB は async でデバイス間同期に使う
   if(currentUser){
-    localStorage.setItem('official_chat_last_opened_'+currentUser.id,String(Date.now()));
+    var nowIso = new Date().toISOString();
+    localStorage.setItem('official_chat_last_opened_'+currentUser.id, String(Date.now()));
+    // DB へ非同期で保存（失敗しても致命的ではない＝localStorage で動くため）
+    supa.from('profiles').update({last_official_chat_read_at: nowIso}).eq('id', currentUser.id)
+      .then(function(res){ if(res && res.error) console.log('last_read save error:', res.error); });
   }
   var msgBadge=document.getElementById('msg-badge');
   if(msgBadge)msgBadge.style.display='none';
   var officialItem=document.getElementById('official-msg-item');
   if(officialItem){var dot=officialItem.querySelector('.msg-unread-dot');if(dot)dot.remove();}
   document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';document.getElementById('chat-name').textContent='縁の間 運営';document.getElementById('chat-ava').textContent='縁';document.getElementById('chat-ava').className='msg-list-ava official';document.getElementById('chat-official-badge').style.display='inline-block';var body=document.getElementById('chat-body');var html='<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem;line-height:1.6">縁の間 運営との公式チャットです。<br>問い合わせへの返答もこちらから届きます。</div>';officialMessages.forEach(function(msg){if(msg.from==='official'){html+='<div class="msg-wrap"><div class="bubble">'+linkifyText(msg.text)+'</div><div class="mtime">縁の間 運営</div></div>';}else{html+='<div class="msg-wrap me"><div class="bubble me">'+linkifyText(msg.text)+'</div><div class="mtime">あなた</div></div>';}});html+='<div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" id="official-input" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button onclick="sendToOfficial()" style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div>';body.innerHTML=html;goTab(2);
+  // 入力値・カーソル位置・フォーカスを復元
+  var newInput = document.getElementById('official-input');
+  if(newInput){
+    if(savedValue) newInput.value = savedValue;
+    if(wasFocused){
+      newInput.focus();
+      try{
+        var pos = savedValue.length;
+        newInput.setSelectionRange(
+          savedSelStart != null ? savedSelStart : pos,
+          savedSelEnd != null ? savedSelEnd : pos
+        );
+      }catch(e){}
+    }
+  }
   // 最新メッセージ（一番下）へ自動スクロール
   scrollChatToBottom();
 }
@@ -1928,6 +2910,12 @@ async function sendToOfficial(){
   if(!input||!input.value.trim())return;
   var text=input.value.trim();
   if(!currentUser){alert('ログインが必要です');return;}
+  // bot/連投対策: 3秒に1回まで
+  var botReason=checkBotDefense({rateKey:'official-msg', rateMs:3000});
+  if(botReason){ alert(botReason); return; }
+  // 規約違反検知（電話番号 / メアド / 他SNS の ID 等）
+  var modCheck = checkModeration(text);
+  if(!modCheck.ok){ alert(formatModerationWarning(modCheck.hits)); return; }
   // 楽観的にローカルへ即追加（即時に画面反映）
   officialMessages.push({from:'user',text:text});
   input.value='';
@@ -1941,8 +2929,10 @@ async function sendToOfficial(){
       member_id:memberID||null,
       nickname:nick||null,
       contact_type:'メッセージ',
-      body:text
+      body:text,
+      status:'open'
     });
+    if(!error){ recordRateLimitHit('official-msg'); }
     if(error){
       console.log('メッセージ送信エラー:',error);
       addOfficialMessage('⚠️ 送信に失敗しました：'+error.message);
@@ -1972,10 +2962,10 @@ async function loadEnList(){
     if(sentPending){
       for(var i=0;i<sentPending.length;i++){
         var m=sentPending[i];
-        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id').eq('id',m.to_user_id).single();
+        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,score:'--',status:'sent'});
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'sent'});
         }
       }
     }
@@ -1987,13 +2977,13 @@ async function loadEnList(){
       if(sentS){
         for(var i=0;i<sentS.length;i++){
           var m=sentS[i];
-          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id').eq('id',m.to_user_id).single();
+          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
           if(prof){
             var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
           }
         }
       }
@@ -2003,10 +2993,10 @@ async function loadEnList(){
     if(sentRejected){
       for(var i=0;i<sentRejected.length;i++){
         var m=sentRejected[i];
-        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id').eq('id',m.to_user_id).single();
+        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,score:'--',status:'rejected_notify'});
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'rejected_notify'});
         }
       }
     }
@@ -2021,7 +3011,7 @@ async function loadEnList(){
           var theirPillars=[{k:prof.pillar_year_k||0,s:prof.pillar_year_s||0},{k:prof.pillar_month_k||0,s:prof.pillar_month_s||0},{k:prof.pillar_day_k||0,s:prof.pillar_day_s||0},{k:prof.pillar_hour_k||0,s:prof.pillar_hour_s||0}];
           var rel=checkRelations(MY_PILLARS,theirPillars);
           var sc=calcScore(rel);
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,score:sc,status:'pending'});
+          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:sc,status:'pending'});
         }
       }
     }
@@ -2033,13 +3023,13 @@ async function loadEnList(){
       if(recS){
         for(var i=0;i<recS.length;i++){
           var m=recS[i];
-          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id').eq('id',m.from_user_id).single();
+          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.from_user_id).single();
           if(prof){
             var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
           }
         }
       }
@@ -2349,6 +3339,46 @@ async function openProfileTextEdit(){
 function closeProfileTextEdit(){
   document.getElementById('profile-text-edit-modal').classList.remove('show');
 }
+
+// ===== アバター画像の差し替え =====
+// プロフィールモーダル内のアバターをクリック → ファイル選択 → Storage にアップロード → DB 更新
+async function changeAvatar(e){
+  var file = e && e.target && e.target.files ? e.target.files[0] : null;
+  if(!file) return;
+  if(!currentUser){ alert('ログインが必要です'); return; }
+  // ファイルサイズチェック（5MB）
+  if(file.size > 5 * 1024 * 1024){
+    alert('画像サイズは 5MB 以内にしてください');
+    e.target.value = '';
+    return;
+  }
+  // アップロード中はモーダル内に状態表示
+  var modAva = document.getElementById('modal-ava-img');
+  var origDisplay = modAva ? modAva.style.opacity : '';
+  if(modAva) modAva.style.opacity = '0.4';
+  try{
+    var res = await uploadAvatar(supa, currentUser.id, file);
+    if(res.error || !res.url){
+      alert('画像のアップロードに失敗しました：' + (res.error && res.error.message || '不明なエラー'));
+      return;
+    }
+    // profiles を更新
+    const { error } = await supa.from('profiles').update({ avatar_url: res.url }).eq('id', currentUser.id);
+    if(error){
+      alert('プロフィール更新エラー：' + error.message);
+      return;
+    }
+    // モーダルを再描画（最新の profile を取り直す）
+    const { data: updated } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(updated && typeof populateProfileModal === 'function') populateProfileModal(updated);
+  }catch(err){
+    console.log('changeAvatar error:', err);
+    alert('画像変更中にエラーが発生しました');
+  }finally{
+    if(modAva) modAva.style.opacity = origDisplay || '';
+    e.target.value = '';  // 同じファイルを再選択しても onchange が発火するようにクリア
+  }
+}
 async function saveProfileTextEdit(){
   if(!currentUser)return;
   var errEl=document.getElementById('pt-error'),okEl=document.getElementById('pt-success');
@@ -2607,7 +3637,7 @@ async function refreshSotsugyouState(){
   window._sotsugyouCtx = {coupledPartner:coupledPartner,myReq:myReq,partnerReq:partnerReq,state:state};
 }
 
-function escapeText(s){return (s==null?'':String(s)).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+// escapeText は js/utils.js で escapeHtml のエイリアスとして提供される
 
 function openSotsugyouRequest(){
   var ctx = window._sotsugyouCtx;
@@ -2825,6 +3855,9 @@ async function submitReport(){
   if(targetMid===memberID){errEl.textContent='ご自身を通報することはできません';return;}
   if(!category){errEl.textContent='通報理由を選択してください';return;}
   if(!body){errEl.textContent='詳細を入力してください';return;}
+  // bot/連投対策: 通報は 60 秒に 1 回まで
+  var botReason=checkBotDefense({rateKey:'report', rateMs:60*1000});
+  if(botReason){ errEl.textContent=botReason; return; }
   var btn=document.getElementById('rp-submit-btn');
   btn.disabled=true;btn.textContent='送信中...';
   try{
@@ -2848,6 +3881,7 @@ async function submitReport(){
     });
     if(insertErr){errEl.textContent='送信に失敗しました：'+insertErr.message;btn.disabled=false;btn.textContent='通報する';return;}
     // 成功
+    recordRateLimitHit('report');
     okEl.style.display='block';
     addOfficialMessage('通報を受け付けました（対象：'+targetMid+' / 理由：'+category+'）。運営が内容を確認次第、対応いたします。');
     addNotif('【運営】通報を受け付けました','内容を確認次第、対応いたします。');
@@ -2870,6 +3904,15 @@ async function submitContact(){
   if(!type){alert('問い合わせ内容を選択してください');return;}
   if(!body){alert('詳細内容を入力してください');return;}
   if(!currentUser){alert('ログインが必要です');return;}
+  // bot/連投対策: 問い合わせは 30 秒に 1 回まで
+  var botReason=checkBotDefense({rateKey:'contact', rateMs:30*1000});
+  if(botReason){ alert(botReason); return; }
+  // 規約違反検知（問い合わせ本文に他SNSのID等が含まれてないか）
+  // ※ 運営連絡には電話番号OKなので、より緩く適用：警告のみ、ブロックはしない
+  var modCheck = checkModeration(body);
+  if(!modCheck.ok){
+    if(!confirm(formatModerationWarning(modCheck.hits) + '\n\nこのまま送信しますか？')) return;
+  }
   try{
     const{error}=await supa.from('contacts').insert({
       user_id:currentUser.id,
@@ -2879,6 +3922,7 @@ async function submitContact(){
       body:body
     });
     if(error){alert('送信に失敗しました：'+error.message);return;}
+    recordRateLimitHit('contact');
     document.getElementById('contact-sent').style.display='block';
     // 公式チャットに自分の質問を追加（運営からの返答は管理者が返信した時点で取り込まれる）
     officialMessages.push({from:'user',text:'【'+type+'】\n'+body});
@@ -3698,9 +4742,26 @@ function toggleModal(){document.getElementById('profile-modal').classList.toggle
 // 新規登録(completeReg)・自動ログイン(checkSession)・手動ログイン(doLogin) から呼ばれる。
 // profile はDBの行（または同じ形のオブジェクト）。MY_PILLARS グローバル変数も更新する。
 function populateProfileModal(profile) {
-  // 上部アイコン・モーダルアバター（イニシャル）
-  document.getElementById('topbar-initial').textContent = (profile.nickname||'').charAt(0);
-  document.getElementById('modal-ava-ph').textContent = (profile.nickname||'').charAt(0);
+  // 上部アイコン・モーダルアバター
+  // avatar_url があれば <img> を表示、なければイニシャル文字に
+  var nickInit = (profile.nickname||'').charAt(0);
+  document.getElementById('topbar-initial').textContent = nickInit;
+  document.getElementById('modal-ava-ph').textContent = nickInit;
+  var topAva = document.getElementById('topbar-ava');
+  var topInit = document.getElementById('topbar-initial');
+  var modAva = document.getElementById('modal-ava-img');
+  var modInit = document.getElementById('modal-ava-ph');
+  if (profile.avatar_url) {
+    if (topAva) { topAva.src = profile.avatar_url; topAva.style.display = 'block'; }
+    if (topInit) topInit.style.display = 'none';
+    if (modAva) { modAva.src = profile.avatar_url; modAva.style.display = 'block'; }
+    if (modInit) modInit.style.display = 'none';
+  } else {
+    if (topAva) { topAva.src = ''; topAva.style.display = 'none'; }
+    if (topInit) topInit.style.display = '';
+    if (modAva) { modAva.src = ''; modAva.style.display = 'none'; }
+    if (modInit) modInit.style.display = '';
+  }
   // 会員ID・お問い合わせ欄の事前入力
   document.getElementById('modal-member-id').textContent = profile.member_id || '';
   document.getElementById('contact-id').value = profile.member_id || '';
@@ -3724,7 +4785,7 @@ function populateProfileModal(profile) {
   // プロフィール文セクション
   modalInfo += '<div style="margin-top:14px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">プロフィール文</div>';
   if(profile.profile_text){
-    var ptEsc = String(profile.profile_text).replace(/[&<>"']/g, function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});
+    var ptEsc = escapeHtml(profile.profile_text);
     modalInfo += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.7;background:var(--color-background-secondary);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-word">'+ptEsc+'</div>';
   } else {
     modalInfo += '<div style="font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:6px;padding:8px 10px">未設定</div>';
@@ -3781,6 +4842,7 @@ function showAppWrap() {
     document.getElementById('app-wrap').style.visibility = 'visible';
     document.getElementById('s0').classList.add('on');
     startPolling();
+    startRealtime();
     return;
   }
   var template = document.getElementById('app-template');
@@ -3791,6 +4853,7 @@ function showAppWrap() {
   document.getElementById('app-wrap').style.visibility = 'visible';
   document.getElementById('s0').classList.add('on');
   startPolling();
+  startRealtime();
 }
 
 // ===== キャッシュバック取得（自分が紹介者であるレコード） =====
@@ -3816,12 +4879,17 @@ async function loadOfficialChatHistory() {
       .select('title, body, created_at')
       .order('created_at', { ascending: true });
     if (myCreatedAt) annQuery = annQuery.gte('created_at', myCreatedAt);
-    const [contactsRes, annRes] = await Promise.all([
+    // contacts / announcements / 自分の最終既読時刻 を並列取得
+    const [contactsRes, annRes, profileRes] = await Promise.all([
       supa.from('contacts')
         .select('contact_type, body, reply_text, created_at, replied_at')
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: true }),
-      annQuery
+      annQuery,
+      supa.from('profiles')
+        .select('last_official_chat_read_at')
+        .eq('id', currentUser.id)
+        .single(),
     ]);
     if (contactsRes.error) { console.log('chat history load error (contacts):', contactsRes.error); }
     if (annRes.error) { console.log('chat history load error (announcements):', annRes.error); }
@@ -3897,8 +4965,12 @@ async function loadOfficialChatHistory() {
       const ms = new Date(a.created_at).getTime();
       if (ms > latestAdminMsgTime) latestAdminMsgTime = ms;
     });
+    // 最終既読：localStorage と DB の新しい方を採用（デバイス間同期のため）
     const lastOpenKey = 'official_chat_last_opened_' + currentUser.id;
-    const lastOpened = parseInt(localStorage.getItem(lastOpenKey) || '0', 10);
+    const localLastOpened = parseInt(localStorage.getItem(lastOpenKey) || '0', 10);
+    const dbLastOpenedRaw = profileRes && profileRes.data ? profileRes.data.last_official_chat_read_at : null;
+    const dbLastOpened = dbLastOpenedRaw ? new Date(dbLastOpenedRaw).getTime() : 0;
+    const lastOpened = Math.max(localLastOpened, dbLastOpened);
     // 運営チャットを今開いていれば「読んでる」とみなして lastOpened を更新
     // ※ メッセージタブ(s2)が現在アクティブであることも必須。s2 が非表示ならチャットも実質的に見えていない。
     var s2El = document.getElementById('s2');
@@ -3908,7 +4980,12 @@ async function loadOfficialChatHistory() {
       chatViewEl && chatViewEl.style.display === 'block' &&
       chatNameEl && chatNameEl.textContent === '縁の間 運営';
     if (isOfficialOpen && latestAdminMsgTime > 0) {
-      localStorage.setItem(lastOpenKey, String(Date.now()));
+      const nowMs = Date.now();
+      localStorage.setItem(lastOpenKey, String(nowMs));
+      // DB も同期（失敗しても致命的ではない）
+      supa.from('profiles').update({last_official_chat_read_at: new Date(nowMs).toISOString()})
+        .eq('id', currentUser.id)
+        .then(function(res){ if(res && res.error) console.log('last_read sync error:', res.error); });
     }
     const hasUnread = !isOfficialOpen && latestAdminMsgTime > lastOpened;
     // ベル通知：新しい管理者メッセージがあれば fire（既に通知したものはスキップ）
@@ -3981,7 +5058,8 @@ async function loadOfficialChatHistory() {
   }
 }
 
-// ===== 10秒ごとにDBの最新状態を確認 =====
+// ===== ポーリング（Realtime の安全弁。60秒に1回） =====
+// Realtime が WebSocket 切断などで失敗した時のフォールバック
 function startPolling() {
   if (pollingTimer) return;
   pollingTimer = setInterval(function() {
@@ -4000,10 +5078,144 @@ function startPolling() {
         loadRealUsers();
       }
     }
-  }, 10000);
+  }, 60000);  // 10s → 60s（Realtime で即時反映されるためポーリング間隔を緩める）
+}
+
+// ===== Realtime: Supabase WebSocket で push 通知を受ける =====
+// 既存のポーリングは安全弁として残しつつ、Realtime で即時更新する。
+// テーブル別に subscribe。RLS が効くので自分が見える行の変更だけ届く。
+let realtimeChannels = [];
+function startRealtime() {
+  if (!currentUser) return;
+  // 既存の channel があれば一旦解除
+  stopRealtime();
+
+  const uid = currentUser.id;
+
+  // 1) 運営チャット用: contacts は自分宛 + announcements は全員宛
+  const chatChannel = supa
+    .channel('rt-chat-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'contacts', filter: 'user_id=eq.' + uid },
+      function(){ loadOfficialChatHistory(); }
+    )
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'announcements' },
+      function(){ loadOfficialChatHistory(); }
+    )
+    .subscribe(function(status){
+      if(status === 'SUBSCRIBED') console.log('[realtime] chat subscribed');
+    });
+  realtimeChannels.push(chatChannel);
+
+  // 2) マッチング: 自分が from でも to でも反映したい → 全行 INSERT/UPDATE を受けて
+  //    ハンドラ側で自分関連かどうか判定 → 関連あれば loadEnList()
+  const matchChannel = supa
+    .channel('rt-match-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'matches' },
+      function(payload){
+        const row = payload.new || payload.old || {};
+        if(row.from_user_id === uid || row.to_user_id === uid){
+          loadEnList();
+          // 推しの詳細が開いていなければ推しページも更新
+          var openDetail = document.querySelector('.detail-panel.open');
+          if(!openDetail && typeof loadRealUsers === 'function') loadRealUsers();
+        }
+      }
+    )
+    .subscribe();
+  realtimeChannels.push(matchChannel);
+
+  // 3) キャッシュバック: 自分が referrer_id のレコードのみ
+  const cbChannel = supa
+    .channel('rt-cb-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'cashbacks', filter: 'referrer_id=eq.' + uid },
+      function(){
+        if(typeof loadMyCashbacks === 'function') loadMyCashbacks();
+        // ベル通知も
+        if(typeof loadOfficialChatHistory === 'function') loadOfficialChatHistory();
+      }
+    )
+    .subscribe();
+  realtimeChannels.push(cbChannel);
+
+  // 4) 卒業申請: 自分か相手の申請状況が変わった時に反映
+  const sgChannel = supa
+    .channel('rt-sg-' + uid)
+    .on('postgres_changes',
+      { event: '*', schema: 'public', table: 'sotsugyou_requests' },
+      function(payload){
+        const row = payload.new || payload.old || {};
+        if(row.user_id === uid || row.partner_user_id === uid){
+          var planVisible = document.getElementById('sub-plan');
+          if(planVisible && planVisible.style.display !== 'none' && typeof refreshSotsugyouState === 'function'){
+            refreshSotsugyouState();
+          }
+        }
+      }
+    )
+    .subscribe();
+  realtimeChannels.push(sgChannel);
+}
+
+function stopRealtime(){
+  realtimeChannels.forEach(function(ch){
+    try{ supa.removeChannel(ch); }catch(e){ console.log('removeChannel error:', e); }
+  });
+  realtimeChannels = [];
 }
 
 // ===== 起動時：ログイン状態チェック =====
+// ===== メール認証 ON 経由の初回ログイン処理 =====
+// signUp 時に localStorage へ保存しておいた profile データを DB へ INSERT する。
+// 成功すれば profile レコードを返し、失敗 or データがなければ null。
+async function flushPendingProfile(userId){
+  const key = 'pending_profile_' + userId;
+  let raw;
+  try { raw = localStorage.getItem(key); } catch(e){ raw = null; }
+  if (!raw) return null;
+  try {
+    const profileData = JSON.parse(raw);
+    profileData.id = userId; // 念のため上書き
+
+    // 保留されたアバター画像があれば Storage にアップロード
+    try {
+      const pendingAvatar = localStorage.getItem('pending_avatar_' + userId);
+      if (pendingAvatar && pendingAvatar.indexOf('data:') === 0) {
+        // dataURL → Blob 変換
+        const res = await fetch(pendingAvatar);
+        const blob = await res.blob();
+        const { url, error: upErr } = await uploadAvatar(supa, userId, blob);
+        if (upErr) { console.log('pending avatar upload error:', upErr); }
+        else if (url) { profileData.avatar_url = url; }
+        localStorage.removeItem('pending_avatar_' + userId);
+      }
+    } catch (avErr) { console.log('pending avatar process error:', avErr); }
+
+    const { error } = await supa.from('profiles').insert(profileData);
+    if (error) {
+      console.log('pending profile INSERT error:', error);
+      // 一意制約違反（既に存在）なら localStorage だけ消して既存 profile を取得
+      if (String(error.code) === '23505' || /duplicate/i.test(error.message || '')) {
+        try { localStorage.removeItem(key); localStorage.removeItem('pending_profile_email_' + userId); } catch(e){}
+        const { data: existing } = await supa.from('profiles').select('*').eq('id', userId).single();
+        return existing || null;
+      }
+      return null;
+    }
+    // INSERT 成功 → localStorage クリア
+    try { localStorage.removeItem(key); localStorage.removeItem('pending_profile_email_' + userId); } catch(e){}
+    // 新規行を読み直して返す（DB のデフォルト値などを反映するため）
+    const { data: inserted } = await supa.from('profiles').select('*').eq('id', userId).single();
+    return inserted || null;
+  } catch (e) {
+    console.log('pending profile flush exception:', e);
+    return null;
+  }
+}
+
 async function checkSession() {
   // URLハッシュ #register でログイン状態を無視してプラン選択画面へ
   // 例: http://localhost:8766/index.html#register?ref=EN-12345678（紹介QR経由）
@@ -4029,7 +5241,13 @@ async function checkSession() {
       return;
     }
     currentUser = session.user;
-    const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    let { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+
+    // メール認証 ON 経由：profile がまだ DB に無いが localStorage に保留があれば INSERT
+    if (!profile) {
+      profile = await flushPendingProfile(currentUser.id);
+    }
+
     if (profile && profile.banned_at) {
       // BAN済みアカウントはログアウトさせる
       alert('このアカウントは利用停止されています。\n理由：' + (profile.banned_reason || '（理由の記載なし）'));
@@ -4045,6 +5263,8 @@ async function checkSession() {
       document.getElementById('orient-wrap').style.display = 'none';
       document.getElementById('reg-wrap').style.display = 'none';
       document.getElementById('login-wrap').style.display = 'none';
+      var ecw = document.getElementById('email-confirm-wrap');
+      if(ecw) ecw.style.display = 'none';
       showAppWrap();
       await loadMyCashbacks();
       populateProfileModal(profile);
@@ -4055,6 +5275,8 @@ async function checkSession() {
     } else {
       document.getElementById('orient-wrap').style.display = 'none';
       document.getElementById('reg-wrap').style.display = 'block';
+      markFormShown('register');
+      applyHoneypot('reg-wrap');
     }
   } catch(e) { console.log('セッション確認エラー', e); }
 }
@@ -4082,8 +5304,11 @@ async function doLogin() {
   currentUser = data.user;
   document.getElementById('login-wrap').style.display = 'none';
 
-  // プロフィール確認
-  const { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+  // プロフィール確認（メール認証経由で初回ログインなら localStorage の保留 profile を INSERT）
+  let { data: profile } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+  if (!profile) {
+    profile = await flushPendingProfile(currentUser.id);
+  }
   if (profile && profile.banned_at) {
     // BAN済みアカウント
     errEl.textContent = 'このアカウントは利用停止されています';
@@ -4123,6 +5348,8 @@ function goToRegister() {
 async function logout() {
   if (!confirm('ログアウトしますか？')) return;
   try {
+    if (typeof stopRealtime === 'function') stopRealtime();
+    if (pollingTimer) { clearInterval(pollingTimer); pollingTimer = null; }
     await supa.auth.signOut();
   } catch (e) {
     console.log('ログアウトエラー:', e);
