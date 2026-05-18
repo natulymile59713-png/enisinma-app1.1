@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- maskable 用：セーフゾーン (中央 80%) に主要要素を収める -->
+  <rect width="512" height="512" fill="#1a1a1a"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#C9A96E" stroke-width="5" opacity="0.4"/>
+  <text x="256" y="320" text-anchor="middle"
+        font-family="'Noto Serif JP','Hiragino Mincho ProN',serif"
+        font-size="220" font-weight="700"
+        fill="#C9A96E">縁</text>
+</svg>

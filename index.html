@@ -3,6 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#C9A96E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="縁の間">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+
 <title>縁の間 ― えにしのま ―</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -1345,6 +1353,91 @@ function compressImage(file, opts){
   });
 }
 
+// =====================================================================
+// PWA / Web Push ヘルパー
+// =====================================================================
+// VAPID 公開鍵は config に置く想定（未設定なら push 機能は無効）。
+// Edge Function 側で web-push ライブラリを使って配信する。
+
+/**
+ * VAPID 公開鍵（Base64URL）。Supabase Edge Function 作成時に
+ * 同じキーペアの公開鍵を window.VAPID_PUBLIC_KEY にセットして使う。
+ * 未設定なら push subscribe しない（無効化）。
+ * @returns {string|null}
+ */
+function getVapidPublicKey(){
+  return (typeof window !== 'undefined' && window.VAPID_PUBLIC_KEY) ? window.VAPID_PUBLIC_KEY : null;
+}
+
+/**
+ * Base64URL → Uint8Array（PushManager.subscribe の applicationServerKey 用）
+ * @param {string} base64String
+ * @returns {Uint8Array}
+ */
+function urlBase64ToUint8Array(base64String){
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  const arr = new Uint8Array(raw.length);
+  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+  return arr;
+}
+
+/**
+ * Notification の許可をリクエスト。
+ * @returns {Promise<NotificationPermission>}  - 'granted' / 'denied' / 'default'
+ */
+async function requestNotificationPermission(){
+  if (!('Notification' in window)) return 'denied';
+  if (Notification.permission === 'granted') return 'granted';
+  if (Notification.permission === 'denied') return 'denied';
+  return await Notification.requestPermission();
+}
+
+/**
+ * Push の購読を試みる。VAPID 公開鍵が必要。
+ * 成功すれば PushSubscription オブジェクトを返す。
+ * @returns {Promise<PushSubscription|null>}
+ */
+async function subscribePush(){
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
+  const vapid = getVapidPublicKey();
+  if (!vapid) { console.log('[push] VAPID key not set'); return null; }
+  const perm = await requestNotificationPermission();
+  if (perm !== 'granted') return null;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(vapid),
+      });
+    }
+    return sub;
+  } catch (e) {
+    console.log('[push] subscribe error:', e);
+    return null;
+  }
+}
+
+/**
+ * Push 購読を解除（profiles 側のカラムは別途クリアする）。
+ * @returns {Promise<boolean>}
+ */
+async function unsubscribePush(){
+  if (!('serviceWorker' in navigator)) return false;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) return true;
+    return await sub.unsubscribe();
+  } catch (e) {
+    console.log('[push] unsubscribe error:', e);
+    return false;
+  }
+}
+
 /**
  * Supabase Storage に画像をアップロードして公開 URL を返す。
  * @param {object} supabaseClient - supa（Supabase JS クライアント）
@@ -1380,6 +1473,14 @@ async function uploadAvatar(supabaseClient, userId, fileOrBlob){
 </script>
 <script>
 // @ts-check
+// ===== Web Push VAPID 公開鍵 =====
+// Edge Function を作成する際に発行したキーペアの「公開鍵」をここに入れる。
+// 空のままなら Push 通知機能は無効化される（PWA としては動く）。
+// 生成方法（CLI）:
+//   npx web-push generate-vapid-keys
+// または Supabase Edge Function 内で web-push.generateVAPIDKeys() を呼ぶ。
+window.VAPID_PUBLIC_KEY = '';
+
 // ===== 定数：四柱推命用テーブル =====
 
 /** 十干（甲乙丙丁戊己庚辛壬癸） @type {readonly string[]} */
@@ -3340,6 +3441,52 @@ function closeProfileTextEdit(){
   document.getElementById('profile-text-edit-modal').classList.remove('show');
 }
 
+// ===== Web Push 通知のオン/オフ =====
+async function enablePushNotifications(){
+  if(!currentUser){ alert('ログインが必要です'); return; }
+  if(!window.VAPID_PUBLIC_KEY){ alert('通知機能は現在準備中です（VAPID未設定）'); return; }
+  try{
+    var sub = await subscribePush();
+    if(!sub){
+      alert('通知の許可が得られませんでした。ブラウザの設定で通知を許可してください。');
+      return;
+    }
+    // PushSubscription を JSON 化（endpoint と keys を保持）
+    var subJson = sub.toJSON();
+    const { error } = await supa.from('profiles').update({
+      push_subscription: subJson,
+      push_subscribed_at: new Date().toISOString(),
+    }).eq('id', currentUser.id);
+    if(error){ alert('通知設定の保存に失敗しました：'+error.message); return; }
+    // 再描画
+    const { data: updated } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(updated && typeof populateProfileModal === 'function') populateProfileModal(updated);
+    alert('🔔 通知をオンにしました');
+  }catch(e){
+    console.log('enablePush error:', e);
+    alert('通知設定中にエラーが発生しました');
+  }
+}
+
+async function disablePushNotifications(){
+  if(!currentUser) return;
+  if(!confirm('通知をオフにしますか？')) return;
+  try{
+    await unsubscribePush();
+    const { error } = await supa.from('profiles').update({
+      push_subscription: null,
+      push_subscribed_at: null,
+    }).eq('id', currentUser.id);
+    if(error){ alert('通知設定の更新に失敗しました：'+error.message); return; }
+    const { data: updated } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(updated && typeof populateProfileModal === 'function') populateProfileModal(updated);
+    alert('🔕 通知をオフにしました');
+  }catch(e){
+    console.log('disablePush error:', e);
+    alert('通知設定中にエラーが発生しました');
+  }
+}
+
 // ===== アバター画像の差し替え =====
 // プロフィールモーダル内のアバターをクリック → ファイル選択 → Storage にアップロード → DB 更新
 async function changeAvatar(e){
@@ -4815,6 +4962,22 @@ function populateProfileModal(profile) {
     modalInfo += '</div>';
   }
 
+  // ===== 通知設定セクション =====
+  // VAPID_PUBLIC_KEY が設定されている時のみ表示。未設定なら UI も出さない。
+  if (window.VAPID_PUBLIC_KEY) {
+    modalInfo += '<div style="margin-top:14px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">';
+    modalInfo += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">通知設定</div>';
+    var hasSub = !!profile.push_subscription;
+    if (hasSub) {
+      modalInfo += '<div style="font-size:11px;color:#3a9a3a;background:rgba(58,154,58,.06);border-radius:6px;padding:7px 9px;line-height:1.7">🔔 通知が有効になっています</div>';
+      modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="disablePushNotifications()" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:var(--color-text-secondary);background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">通知をオフにする</button></div>';
+    } else {
+      modalInfo += '<div style="font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:7px 9px;line-height:1.7">マッチ成立・メッセージ受信などの通知を受け取れます</div>';
+      modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="enablePushNotifications()" class="btn-gold" style="display:inline-block;width:auto;padding:8px 18px;font-size:12px;margin-bottom:0">🔔 通知をオンにする</button></div>';
+    }
+    modalInfo += '</div>';
+  }
+
   document.getElementById('modal-info').innerHTML = modalInfo;
 
   // 四柱（MY_PILLARS グローバル変数を更新 + modal-pillars 表示）
@@ -5370,6 +5533,16 @@ document.addEventListener('keydown', function(e) {
 initPrefs();updateAgeSummary();
 checkSession();
 
+</script>
+<script>
+  // Service Worker 登録（PWA有効化）
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function(reg){ console.log('[sw] registered:', reg.scope); })
+        .catch(function(err){ console.log('[sw] register failed:', err); });
+    });
+  }
 </script>
 </body>
 </html>
