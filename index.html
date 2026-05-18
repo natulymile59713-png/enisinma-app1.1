@@ -1422,6 +1422,43 @@ async function subscribePush(){
 }
 
 /**
+ * Push 通知を Edge Function (send-push) 経由で送信する。
+ * 失敗しても呼び出し元のメイン処理を止めないよう、例外を握りつぶす設計。
+ *
+ * @param {object} supabaseClient - supa
+ * @param {{
+ *   target_user_id?: string,
+ *   target_user_ids?: string[],
+ *   broadcast?: boolean,
+ *   title: string,
+ *   body: string,
+ *   url?: string,
+ *   tag?: string,
+ * }} payload
+ * @returns {Promise<{ok:boolean, sent?:number, failed?:number, error?:string}>}
+ */
+async function sendPushNotification(supabaseClient, payload){
+  if (!payload || !payload.title || !payload.body) {
+    return { ok: false, error: 'title and body required' };
+  }
+  // VAPID 公開鍵が未設定なら Push 自体が無効 → スキップ
+  if (typeof window !== 'undefined' && !window.VAPID_PUBLIC_KEY) {
+    return { ok: false, error: 'push disabled' };
+  }
+  try {
+    const { data, error } = await supabaseClient.functions.invoke('send-push', { body: payload });
+    if (error) {
+      console.log('[push] send error:', error);
+      return { ok: false, error: String(error.message || error) };
+    }
+    return Object.assign({ ok: true }, data || {});
+  } catch (e) {
+    console.log('[push] send exception:', e);
+    return { ok: false, error: String(e) };
+  }
+}
+
+/**
  * Push 購読を解除（profiles 側のカラムは別途クリアする）。
  * @returns {Promise<boolean>}
  */
@@ -1479,7 +1516,7 @@ async function uploadAvatar(supabaseClient, userId, fileOrBlob){
 // 生成方法（CLI）:
 //   npx web-push generate-vapid-keys
 // または Supabase Edge Function 内で web-push.generateVAPIDKeys() を呼ぶ。
-window.VAPID_PUBLIC_KEY = '';
+window.VAPID_PUBLIC_KEY = 'BBtqSSSZxx4l1FdTXORHWkZ9hCX0Oyx2iW2xeJhdRUcATm8xNMiXGtyvbGPDFfLR1C0LP96CKGemNay0HrYMWqs';
 
 // ===== 定数：四柱推命用テーブル =====
 
@@ -2541,6 +2578,14 @@ async function hanashi(idx){
     var{error}=await supa.from('matches').insert({from_user_id:currentUser.id,to_user_id:partner.userId,status:'pending'});
     if(error){alert('申請エラー：'+error.message);if(btn){btn.textContent='話してみたい';btn.disabled=false;}return;}
     if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}
+    // 相手にプッシュ通知（fire-and-forget）
+    sendPushNotification(supa, {
+      target_user_id: partner.userId,
+      title: '💝 マッチング申請が届きました',
+      body: 'お相手があなたに「話してみたい」と言っています',
+      url: './#en',
+      tag: 'match-request',
+    });
     loadEnList();
   }catch(e){console.log('hanashiエラー:',e);if(btn){btn.textContent='話してみたい';btn.disabled=false;}}
 }
@@ -2816,7 +2861,23 @@ async function endWithThanks(matchId){
 }
 async function setCoupled(matchId){
   var nowIso=new Date().toISOString();
-  try{await supa.from('matches').update({status:'coupled',coupled_at:nowIso}).eq('id',matchId);}catch(e){}
+  try{
+    // 相手 user_id 取得 → push
+    var{data:m}=await supa.from('matches').select('from_user_id,to_user_id').eq('id',matchId).single();
+    await supa.from('matches').update({status:'coupled',coupled_at:nowIso}).eq('id',matchId);
+    if(m){
+      var partnerId = (m.from_user_id === currentUser.id) ? m.to_user_id : m.from_user_id;
+      if(partnerId){
+        sendPushNotification(supa, {
+          target_user_id: partnerId,
+          title: '🎊 カップル成立！',
+          body: 'お相手があなたとのカップル成立を宣言しました',
+          url: './#en',
+          tag: 'coupled',
+        });
+      }
+    }
+  }catch(e){}
   var item=enList.find(function(e){return e.matchId===matchId;});
   if(item){item.status='coupled';item.coupledAt=nowIso;}
   renderEnList();
@@ -2883,8 +2944,19 @@ async function dismissRejected(matchId){
 }
 async function enOK(matchId){
   try{
+    // 申請者 (from_user_id) を取得して push 通知
+    var{data:match}=await supa.from('matches').select('from_user_id').eq('id',matchId).single();
     var{error}=await supa.from('matches').update({status:'matched'}).eq('id',matchId);
     if(error){alert('承認エラー：'+error.message);return;}
+    if(match && match.from_user_id){
+      sendPushNotification(supa, {
+        target_user_id: match.from_user_id,
+        title: '🎉 マッチが成立しました！',
+        body: 'お相手があなたの申請を承認しました。メッセージを送ってみましょう',
+        url: './#en',
+        tag: 'match-accepted',
+      });
+    }
     loadEnList();
   }catch(e){console.log('enOKエラー:',e);}
 }
