@@ -3387,6 +3387,12 @@ async function sendUserMessage(){
     });
     if(error){
       console.log('メッセージ送信エラー:', error);
+      // レート制限ヒット時は管理画面 DM 監視に記録（best-effort、失敗しても無視）
+      var msg = String(error.message || '');
+      if(/rate_limit_exceeded|message_limit_exceeded/.test(msg) || error.code === '54000'){
+        var reason = /message_limit_exceeded/.test(msg) ? 'message_limit' : 'rate_limit';
+        try{ supa.rpc('record_message_rate_hit', { p_reason: reason, p_detail: msg.substring(0, 200) }); }catch(e){}
+      }
       alert('送信に失敗しました：'+(error.message||'通信エラー'));
       return;
     }
