@@ -185,6 +185,9 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .match-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:.75rem 1rem;margin:0 1rem .6rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s}
 .match-card:hover{border-color:#C9A96E}
 .match-card.open{border-color:#C9A96E;border-width:1.5px}
+/* カップル成立中ロック表示：推しページのカードをグレーアウト */
+.match-card.card-locked{filter:grayscale(.9) opacity(.55);cursor:not-allowed}
+.match-card.card-locked:hover{border-color:var(--color-border-tertiary)}
 .ava-blur{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;filter:blur(1px)}
 .ava{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:1.5px solid #C9A96E;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:16px;color:#C9A96E;flex-shrink:0}
 .minfo{flex:1;min-width:0}
@@ -258,6 +261,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .bubble{display:inline-block;max-width:78%;padding:7px 11px;border-radius:10px;font-size:12px;line-height:1.6;background:var(--color-background-secondary);color:var(--color-text-primary);text-align:left}
 .bubble.me{background:#C9A96E;color:#fff}
 .mtime{font-size:9px;color:var(--color-text-tertiary);margin-top:2px}
+.read-mark{color:#C9A96E;font-weight:500}
 .mcnt{font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem}
 .plan-status-badge{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:500;white-space:nowrap}
 .plan-status-badge.active{background:rgba(201,169,110,.15);color:#C9A96E;border:0.5px solid #C9A96E}
@@ -720,7 +724,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div class="sub-item" onclick="openSubPage('memo');closeSubMenu()">相性結果メモ</div>
         <div class="sub-item" onclick="openSubPage('refer');closeSubMenu()">紹介</div>
         <div class="sub-item" onclick="openSubPage('omoi');closeSubMenu()">運営の想い</div>
-        <div class="sub-item" onclick="openSubPage('voice');closeSubMenu()">卒業生の声</div>
+        <div class="sub-item" onclick="openSubPage('voice');closeSubMenu()">卒業生の間</div>
         <div class="sub-item" onclick="openSubPage('contact');closeSubMenu()">問い合わせ</div>
         <div class="sub-item" onclick="openSubPage('cancel');closeSubMenu()" style="color:#C05050">退会</div>
       </div>
@@ -748,7 +752,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec">月額プラン</p>
       <div id="plans-subs-container"></div>
       <p class="sec" style="margin-top:1.25rem">特別プラン</p>
-      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)">¥ 36,900 <span class="other-plan-unit">一括</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)">・お互いのリアル鑑定（対面 or オンライン）<br>・今後の鑑定料が永久30%OFF<br>・月額解約後も連絡可能<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
+      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)">¥ 36,900 <span class="other-plan-unit">一括</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)">・卒業後も運営への連絡が可能<br>・今後の全ての鑑定が永久30%OFF<br>・卒業生の間への参加権<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
       <div id="sotsugyou-status-area"></div>
       <div class="other-plan-card" style="background:var(--color-background-secondary)"><div class="other-plan-nm">紹介プログラム（卒業生限定）</div><div class="other-plan-items">卒業鑑定プランで卒業後、知人を紹介してその方が同じく卒業鑑定プランで卒業した場合、3,690円をご紹介者様へキャッシュバック（人数制限なし）！</div></div>
     </div></div>
@@ -774,7 +778,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div class="blog-sign">運営責任者：<strong>KAZKIN</strong></div>
       </div>
     </div>
-    <div id="sub-voice" style="display:none"><div style="padding:1rem"><p class="sec">卒業生の声</p><div style="text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:12px;line-height:1.8">✦<br>まだレビューはありません。<br>卒業生の方からのご投稿をお待ちしています。</div></div></div>
+    <div id="sub-voice" style="display:none"><div style="padding:1rem"><p class="sec">卒業生の間</p><div style="text-align:center;padding:2rem 1rem;color:var(--color-text-tertiary);font-size:12px;line-height:1.8">✦<br>卒業生同士のトーク・近況報告の場（準備中）<br>近日公開予定です。</div></div></div>
     <div id="sub-shindan" style="display:none"><div style="padding:1rem">
       <p class="sec">相性診断</p>
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">気になる方やリアルの知り合いとの相性を、四柱推命で診断できます。</div>
@@ -1958,6 +1962,10 @@ var memberID='';
 /** 運営チャット履歴（メモリ上） @type {OfficialMsg[]} */
 var officialMessages=[{from:'official',text:'縁の間へようこそ！ご不明な点はいつでもお気軽にお問い合わせください。'}];
 
+/** 自分が卒業済みか（sotsugyou_requests に status='approved' の自分のレコードがあれば true）
+ *  「卒業生の間」サブメニューの可視性判定に使う @type {boolean} */
+var myIsGraduated = false;
+
 // ===== ユーザー間メッセージ =====
 /**
  * 現在開いているチャットの match_id（null なら閉じている）
@@ -2635,7 +2643,10 @@ function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[id
 var avaHtml = partner.avatarUrl
   ? '<div class="ava-blur" style="background-image:url(\''+partner.avatarUrl+'\');background-size:cover;background-position:center;font-size:0"></div>'
   : '<div class="ava-blur">🙂</div>';
-var card='<div class="match-card" id="card'+idx+'" onclick="toggleDetail('+idx+')">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
+var _isLocked=isCoupledNow();
+var _cardCls=_isLocked?'match-card card-locked':'match-card';
+var _cardOnclick=_isLocked?'showOshiLockedAlert()':'toggleDetail('+idx+')';
+var card='<div class="'+_cardCls+'" id="card'+idx+'" onclick="'+_cardOnclick+'">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
    ? '<button class="btn-hanashi sent" id="hanashi-btn-'+idx+'" disabled style="opacity:.5;cursor:not-allowed">🎉 カップル成立中のため申請不可</button>'
    : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
 /** 自分の命式から全パートナーとの相性を計算し、ソートして表示
@@ -2676,6 +2687,12 @@ function highlightPair(idx,type,ii){clearSvg(idx);var svg=document.getElementByI
 /** 自分が現在カップル成立中（enList に status==="coupled" がある）か @returns {boolean} */
 function isCoupledNow(){
   return Array.isArray(enList) && enList.some(function(e){ return e.status === 'coupled'; });
+}
+
+/** 推しページのカードがカップル成立中にタップされた時のアラート */
+function showOshiLockedAlert(){
+  var name = (typeof getCoupledPartnerName === 'function') ? (getCoupledPartnerName() || 'お相手') : 'お相手';
+  alert('現在' + name + 'とカップル成立中なので、他の方の閲覧とコンタクトはできません');
 }
 
 // ===== マッチ申請（hanashi） =====
@@ -2909,6 +2926,16 @@ function renderEnList(){
   var statusOrder={approved:0,approved_by_me:1,chatting:2,date_set:3,dated:4,coupled:5,pending:6,sent:7,rejected_notify:8,matched:9};
   var sorted=enList.slice().sort(function(a,b){return (statusOrder[a.status]||99)-(statusOrder[b.status]||99);});
   var html='';
+  // カップル成立中フィルタ: 未送信の他相手 / 相手が別カップル成立中 → 非表示
+  var coupledNow = isCoupledNow();
+  sorted = sorted.filter(function(item){
+    if(item.status === 'coupled') return true; // 自分のカップル相手は常に表示
+    // 自分がカップル中 → 過去メッセージ無しの他相手は隠す
+    if(coupledNow && !hasPriorMessages(item.matchId)) return false;
+    // 相手が他とカップル中 → 過去メッセージ無しは隠す（相手側目線の closure）
+    if(item.partnerIsCoupledWithOther && !hasPriorMessages(item.matchId)) return false;
+    return true;
+  });
   sorted.forEach(function(item){
     var s=item.status;
     // openChat(name, memberId, avatarUrl, matchId) 用の引数列
@@ -2916,6 +2943,8 @@ function renderEnList(){
     var avaArg = item.avatarUrl ? ",'"+item.avatarUrl.replace(/'/g,"\\'")+"'" : ",null";
     var matchArg = ",'"+item.matchId+"'";
     midArg = midArg + avaArg + matchArg;
+    // カップルロック判定（自分がカップル中で、この相手はカップル相手ではない）
+    var locked = isLockedByMyCouple(item);
     var badgeLabel={'matched':'やりとり中','approved':'承認されました！','approved_by_me':'承認しました','sent':'申請中','pending':'承認待ち','rejected_notify':'キャンセル','chatting':'やりとり中','date_set':'デート決定！','dated':'デート完了','coupled':'カップル成立！'}[s]||s;
     var badgeClass='pending';
     if(s==='matched'||s==='approved'||s==='approved_by_me'||s==='chatting')badgeClass='chatting';
@@ -2941,22 +2970,50 @@ function renderEnList(){
       enAvaHtml = '<div class="ava">'+item.name.charAt(0)+'</div>';
     }
     html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div></div>';
+    // ロック中のボタン生成ヘルパー（見た目だけ無効化、クリックでアラート）
+    // disabled 属性を付けると onclick が発火しないため、style と onclick のみで実現
+    // 自分カップル中 → 自分視点アラート / 相手カップル中 → 相手視点アラート
+    var alertCall = getCoupleLockAlertCall(item);
+    var lockedAttr = ' style="opacity:.45;cursor:not-allowed;background:var(--color-background-secondary);color:var(--color-text-tertiary)" onclick="event.preventDefault();event.stopPropagation();' + alertCall + ';return false;"';
     if(s==='pending'){
-      html+='<div class="en-actions"><button class="btn-ok" onclick="enOK(\''+item.matchId+'\')">お話しOK</button><button class="btn-ng" onclick="enNG(\''+item.matchId+'\')">ごめんなさい</button></div>';
+      if(locked){
+        html+='<div class="en-actions"><button class="btn-ok"'+lockedAttr+'>お話しOK</button><button class="btn-ng"'+lockedAttr+'>ごめんなさい</button></div>';
+      }else{
+        html+='<div class="en-actions"><button class="btn-ok" onclick="enOK(\''+item.matchId+'\')">お話しOK</button><button class="btn-ng" onclick="enNG(\''+item.matchId+'\')">ごめんなさい</button></div>';
+      }
     }else if(s==='approved_by_me'){
       html+='<div style="font-size:12px;color:#C9A96E;text-align:center;margin-bottom:.4rem">'+item.name+'の申請を承認しました</div>';
-      html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\''+midArg+')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+      if(locked){
+        html+='<div class="en-actions"><button class="btn-ok"'+lockedAttr+'>メッセージを送る</button><button class="btn-ng"'+lockedAttr+'>後で送る</button></div>';
+      }else{
+        html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\''+midArg+')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+      }
     }else if(s==='approved'){
       html+='<div style="font-size:12px;color:#C9A96E;text-align:center;margin-bottom:.4rem">'+item.name+'が申請を承認しました！</div>';
-      html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\''+midArg+')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+      if(locked){
+        html+='<div class="en-actions"><button class="btn-ok"'+lockedAttr+'>メッセージを送る</button><button class="btn-ng"'+lockedAttr+'>後で送る</button></div>';
+      }else{
+        html+='<div class="en-actions"><button class="btn-ok" onclick="startChatting(\''+item.matchId+'\');openChat(\''+item.name+'\''+midArg+')">メッセージを送る</button><button class="btn-ng" onclick="startChatting(\''+item.matchId+'\')">後で送る</button></div>';
+      }
     }else if(s==='matched'||s==='chatting'){
-      html+='<div class="en-phase-btns"><button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button><button class="en-phase-btn primary" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button><button class="en-phase-btn secondary" onclick="endWithThanks(\''+item.matchId+'\')">感謝して完了</button></div>';
+      // メッセージと感謝して完了は許可、デート決定！はロック対象
+      var msgBtn = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
+      var dateBtn = locked
+        ? '<button class="en-phase-btn primary"'+lockedAttr+'>デート決定！</button>'
+        : '<button class="en-phase-btn primary" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button>';
+      var thanksBtn = '<button class="en-phase-btn secondary" onclick="endWithThanks(\''+item.matchId+'\')">感謝して完了</button>';
+      html+='<div class="en-phase-btns">'+msgBtn+dateBtn+thanksBtn+'</div>';
     }else if(s==='date_set'){
       // レビュー未送信なら「お相手をレビュー」、送信済みなら「レビュー済み ✓」
       var reviewBtnDS = item.reviewed
         ? '<button class="en-phase-btn secondary" disabled style="opacity:.55;cursor:default">レビュー済み ✓</button>'
         : '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">お相手をレビュー</button>';
-      html+='<div class="en-phase-btns"><button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button><button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>'+reviewBtnDS+'</div>';
+      // メッセージとレビューは許可、付き合いました！はロック対象
+      var msgBtnD = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
+      var coupledBtn = locked
+        ? '<button class="en-phase-btn primary"'+lockedAttr+'>付き合いました！</button>'
+        : '<button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>';
+      html+='<div class="en-phase-btns">'+msgBtnD+coupledBtn+reviewBtnDS+'</div>';
     }else if(s==='dated'){
       html+='<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.3rem 0">レビュー済み・完了</div>';
     }else if(s==='coupled'){
@@ -3016,7 +3073,19 @@ async function setCoupled(matchId){
   try{
     // 相手 user_id 取得 → push
     var{data:m}=await supa.from('matches').select('from_user_id,to_user_id').eq('id',matchId).single();
-    await supa.from('matches').update({status:'coupled',coupled_at:nowIso}).eq('id',matchId);
+    var{error:updErr}=await supa.from('matches').update({status:'coupled',coupled_at:nowIso}).eq('id',matchId);
+    if(updErr){
+      // DB トリガー prevent_double_couple で弾かれた場合
+      var errMsg = String(updErr.message || '');
+      if(/already_coupled_with_another/.test(errMsg) || updErr.code === '54000'){
+        alert('お相手は既に別の方とカップル成立されているため、カップル成立できませんでした。');
+        // 相手側の最新状態を取り込むため再読込
+        await loadEnList();
+        return;
+      }
+      alert('カップル成立に失敗しました: ' + errMsg);
+      return;
+    }
     if(m){
       var partnerId = (m.from_user_id === currentUser.id) ? m.to_user_id : m.from_user_id;
       if(partnerId){
@@ -3029,10 +3098,25 @@ async function setCoupled(matchId){
         });
       }
     }
-  }catch(e){}
+    // 運営からの卒業案内通知を両者の運営チャットへ送る（重複は RPC 側で防止）
+    supa.rpc('send_couple_notice', { p_match_id: matchId })
+      .then(function(r){
+        if(r && r.error){ console.log('send_couple_notice error:', r.error); }
+        else {
+          // 自分側の運営チャットを即時更新（相手側は realtime で拾う）
+          if(typeof loadOfficialChatHistory === 'function') loadOfficialChatHistory();
+          // 通知欄にも追加
+          if(typeof addNotif === 'function') addNotif('🎊 ご卒業の案内が届きました', '運営からの今後の流れについてご確認ください');
+        }
+      })
+      .catch(function(e){ console.log('send_couple_notice exception:', e); });
+  }catch(e){ console.log('setCoupled error:', e); }
   var item=enList.find(function(e){return e.matchId===matchId;});
   if(item){item.status='coupled';item.coupledAt=nowIso;}
   renderEnList();
+  renderMsgList();
+  // 推しページのカードをグレーアウト再描画
+  loadRealUsers();
   // 卒業鑑定プラン解放（自分側）
   refreshSotsugyouState();
 }
@@ -3127,6 +3211,89 @@ async function enNG(matchId){
   }catch(e){console.log('enNGエラー:',e);}
 }
 
+// ===== カップル成立中ガード（他相手へのアクションを制限）=====
+// 仕様:
+//   - カップル成立後、他相手とは「過去にメッセージ1通以上」のみ表示/送信可能
+//   - 未送信の他相手は縁リストから消える + アラート文言を表示
+//   - 「デート決定！」「付き合いました！」「お話しOK」「ごめんなさい」など進展系ボタンは全て無効化
+//   - 「メッセージ」「感謝して完了」「お相手をレビュー」のみ許可
+
+/** 自分の現在のカップル相手のニックネームを返す（成立してなければ null） */
+function getCoupledPartnerName(){
+  if(!Array.isArray(enList)) return null;
+  var couple = enList.find(function(e){ return e.status === 'coupled'; });
+  return couple ? (couple.name || null) : null;
+}
+
+/** 指定マッチで過去メッセージ1通以上ある？ msgPreviewCache を見る */
+function hasPriorMessages(matchId){
+  return !!(msgPreviewCache && msgPreviewCache[matchId]);
+}
+
+/** カップル成立中ガードの対象マッチか
+ *  自分が coupled (対象マッチがカップル相手ではない場合) → true
+ *  または 相手が他とカップル成立済み → true */
+function isLockedByMyCouple(item){
+  if(!item) return false;
+  if(item.status === 'coupled') return false; // 自分のカップル相手は対象外
+  if(isCoupledNow()) return true;             // 自分がカップル中
+  if(item.partnerIsCoupledWithOther) return true; // 相手が他とカップル中
+  return false;
+}
+
+/** item に応じたロックボタンの onclick alert 文言を返す */
+function getCoupleLockAlertCall(item){
+  if(isCoupledNow()){
+    // 自分がカップル中 → 自分のカップル相手名でアラート
+    return 'showCoupledLockAlertSelf()';
+  }
+  if(item && item.partnerIsCoupledWithOther){
+    // 相手が他とカップル中 → 相手の名前を渡してアラート
+    var safeName = String(item.name || '').replace(/'/g, "\\'");
+    return "showCoupledLockAlertOther('" + safeName + "')";
+  }
+  return 'void(0)';
+}
+
+/** 相手側が別の人と coupled になってる縁を縁リストにマーク。
+ *  loadEnList の最後で呼ぶ。partnerIsCoupledWithOther フラグを各 enList 要素に付与。
+ *  ⚠️ RLS 回避: 自分のマッチ相手が他のユーザーと coupled になってるかは RLS で見えないため、
+ *  SECURITY DEFINER の RPC `get_coupled_user_ids` を呼んで判定する。 */
+async function markPartnerCoupledStatus(){
+  if(!Array.isArray(enList) || enList.length === 0) return;
+  // 自分のカップル相手以外の partner_id を収集
+  var partnerIds = [];
+  enList.forEach(function(e){
+    if(e.status !== 'coupled' && e.partnerUserId) partnerIds.push(e.partnerUserId);
+  });
+  if(partnerIds.length === 0) return;
+  try{
+    // SECURITY DEFINER RPC で coupled なユーザーIDだけ返してもらう
+    var{data, error}=await supa.rpc('get_coupled_user_ids', { user_ids: partnerIds });
+    if(error){ console.log('get_coupled_user_ids error:', error); return; }
+    var coupledSet = new Set();
+    (data||[]).forEach(function(row){
+      if(row && row.user_id) coupledSet.add(row.user_id);
+    });
+    enList.forEach(function(e){
+      if(e.status !== 'coupled' && e.partnerUserId && coupledSet.has(e.partnerUserId)){
+        e.partnerIsCoupledWithOther = true;
+      }
+    });
+  }catch(e){ console.log('markPartnerCoupledStatus exception:', e); }
+}
+
+/** カップル成立中のガードアラートを出す（自分側） */
+function showCoupledLockAlertSelf(){
+  var name = getCoupledPartnerName() || 'お相手';
+  alert(name + 'とカップル成立中のため、他の方とのメッセージはできません');
+}
+
+/** 相手が他とカップル成立して縁が切れたことを伝えるアラート（相手目線） */
+function showCoupledLockAlertOther(partnerName){
+  alert((partnerName || 'お相手') + 'は別の方とカップル成立されたため、メッセージのやり取りができなくなりました');
+}
+
 // ===== メッセージ一覧・チャット =====
 
 /** マッチ相手ごとの最新メッセージ・時刻・未読数をまとめて取得（メッセージ一覧用） */
@@ -3205,7 +3372,14 @@ function updateMsgTabBadge(){
 /** メッセージ一覧（chat 可能なステータスの相手）を描画 */
 function renderMsgList(){
   var chatStatuses = ['matched','chatting','date_set','dated','coupled'];
-  var matched = enList.filter(function(e){ return chatStatuses.indexOf(e.status) >= 0; });
+  var coupledNow = isCoupledNow();
+  var matched = enList.filter(function(e){
+    if(chatStatuses.indexOf(e.status) < 0) return false;
+    if(e.status === 'coupled') return true;
+    // 自分または相手がカップル中 + 過去メッセージ無し → リストから除外
+    if((coupledNow || e.partnerIsCoupledWithOther) && !hasPriorMessages(e.matchId)) return false;
+    return true;
+  });
   var container=document.getElementById('msg-list-items');
   if(!container) return;
   if(matched.length===0){container.innerHTML='';return;}
@@ -3313,13 +3487,18 @@ async function loadAndRenderChat(name, matchId){
   if(matchId && currentUser){
     try{
       var{data,error}=await supa.from('messages')
-        .select('id,sender_id,body,created_at')
+        .select('id,sender_id,body,created_at,read_at')
         .eq('match_id', matchId)
         .order('created_at',{ascending:true});
       if(!error && data){
         messages = data;
         mySentCount = data.filter(function(m){ return m.sender_id === currentUser.id; }).length;
       }
+      // 相手が送ってきた未読メッセージを既読化（best-effort、失敗しても無視）
+      // ⚠️ supa.rpc は .then() を付けないと実際にリクエスト発火しない（lazy 評価）
+      supa.rpc('mark_messages_read', { p_match_id: matchId })
+        .then(function(r){ if(r && r.error) console.log('mark_messages_read error:', r.error); })
+        .catch(function(e){ console.log('mark_messages_read exception:', e); });
     }catch(e){ console.log('loadChat error:', e); }
   }
   currentChatMessages = messages;
@@ -3330,12 +3509,19 @@ async function loadAndRenderChat(name, matchId){
   if(messages.length === 0){
     html += '<div style="text-align:center;padding:2rem 0;color:var(--color-text-tertiary);font-size:12px;line-height:1.8">まだメッセージはありません。<br>最初のメッセージを送ってみましょう！</div>';
   } else {
+    // 自分が送った最後の既読メッセージだけに「既読」を出す（LINE風: 連続した既読は1つにまとめる）
+    var lastReadMyMsgId = null;
+    for(var ri = messages.length - 1; ri >= 0; ri--){
+      var rm = messages[ri];
+      if(rm.sender_id === currentUser.id && rm.read_at){ lastReadMyMsgId = rm.id; break; }
+    }
     messages.forEach(function(msg){
       var isMe = msg.sender_id === currentUser.id;
       var t = new Date(msg.created_at);
       var timeStr = pad2(t.getHours())+':'+pad2(t.getMinutes());
       var senderLabel = isMe ? '' : name+'｜';
-      html += '<div class="msg-wrap'+(isMe?' me':'')+'"><div class="bubble'+(isMe?' me':'')+'">'+linkifyText(msg.body)+'</div><div class="mtime">'+senderLabel+timeStr+'</div></div>';
+      var readMark = (isMe && msg.id === lastReadMyMsgId) ? '<span class="read-mark"> ・既読</span>' : '';
+      html += '<div class="msg-wrap'+(isMe?' me':'')+'"><div class="bubble'+(isMe?' me':'')+'">'+linkifyText(msg.body)+'</div><div class="mtime">'+senderLabel+timeStr+readMark+'</div></div>';
     });
   }
 
@@ -3360,6 +3546,18 @@ async function sendUserMessage(){
   var text = input.value.trim();
   if(!currentUser){ alert('ログインが必要です'); return; }
   if(!currentChatMatchId){ alert('チャット相手が不明です'); return; }
+
+  // カップル成立中の他相手 + 過去メッセージ無し → 送信ブロック
+  var currentItem = Array.isArray(enList) ? enList.find(function(e){ return e.matchId === currentChatMatchId; }) : null;
+  if(currentItem && isCoupledNow() && currentItem.status !== 'coupled' && !hasPriorMessages(currentChatMatchId)){
+    showCoupledLockAlertSelf();
+    return;
+  }
+  // 相手側が別カップル成立 + 過去メッセージ無し → 送信ブロック（相手目線の closure 文言）
+  if(currentItem && currentItem.partnerIsCoupledWithOther && !hasPriorMessages(currentChatMatchId)){
+    showCoupledLockAlertOther(currentItem.name);
+    return;
+  }
 
   // bot/連投対策
   var botReason = checkBotDefense({rateKey:'user-msg', rateMs:2000});
@@ -3391,7 +3589,9 @@ async function sendUserMessage(){
       var msg = String(error.message || '');
       if(/rate_limit_exceeded|message_limit_exceeded/.test(msg) || error.code === '54000'){
         var reason = /message_limit_exceeded/.test(msg) ? 'message_limit' : 'rate_limit';
-        try{ supa.rpc('record_message_rate_hit', { p_reason: reason, p_detail: msg.substring(0, 200) }); }catch(e){}
+        // ⚠️ .then() 必須（supa.rpc は lazy 評価で .then 無しだと実行されない）
+        supa.rpc('record_message_rate_hit', { p_reason: reason, p_detail: msg.substring(0, 200) })
+          .then(function(){}).catch(function(){});
       }
       alert('送信に失敗しました：'+(error.message||'通信エラー'));
       return;
@@ -3445,7 +3645,7 @@ function showMsgList(){
 
 // ===== 公式（運営）チャット =====
 /** 運営チャットにメッセージ追加（ローカル状態のみ） @param {string} text */
-function addOfficialMessage(text){officialMessages.push({from:'official',text:text});document.getElementById('official-preview').textContent=text.substring(0,25)+'…';}
+function addOfficialMessage(text){officialMessages.push({from:'official',text:text,timestamp:new Date().toISOString()});document.getElementById('official-preview').textContent=text.substring(0,25)+'…';}
 /** 運営チャット画面を開く（既読化・入力欄保持） */
 function openOfficialChat(){
   // 入力中の値とフォーカス状態を保存（再描画でカーソルが飛ぶのを防ぐ）
@@ -3470,7 +3670,7 @@ function openOfficialChat(){
   updateMsgTabBadge();
   var officialItem=document.getElementById('official-msg-item');
   if(officialItem){var dot=officialItem.querySelector('.msg-unread-dot');if(dot)dot.remove();}
-  document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';document.getElementById('chat-name').textContent='縁の間 運営';document.getElementById('chat-ava').textContent='縁';document.getElementById('chat-ava').className='msg-list-ava official';document.getElementById('chat-official-badge').style.display='inline-block';var body=document.getElementById('chat-body');var html='<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem;line-height:1.6">縁の間 運営との公式チャットです。<br>問い合わせへの返答もこちらから届きます。</div>';officialMessages.forEach(function(msg){if(msg.from==='official'){html+='<div class="msg-wrap"><div class="bubble">'+linkifyText(msg.text)+'</div><div class="mtime">縁の間 運営</div></div>';}else{html+='<div class="msg-wrap me"><div class="bubble me">'+linkifyText(msg.text)+'</div><div class="mtime">あなた</div></div>';}});html+='<div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" id="official-input" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button onclick="sendToOfficial()" style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div>';body.innerHTML=html;goTab(2);
+  document.getElementById('msg-list-view').style.display='none';document.getElementById('msg-chat-view').style.display='block';document.getElementById('chat-name').textContent='縁の間 運営';document.getElementById('chat-ava').textContent='縁';document.getElementById('chat-ava').className='msg-list-ava official';document.getElementById('chat-official-badge').style.display='inline-block';var body=document.getElementById('chat-body');var html='<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:.75rem;line-height:1.6">縁の間 運営との公式チャットです。<br>問い合わせへの返答もこちらから届きます。</div>';officialMessages.forEach(function(msg){var ts=msg.timestamp?(' / '+formatDateTime(msg.timestamp)):'';if(msg.from==='official'){html+='<div class="msg-wrap"><div class="bubble">'+linkifyText(msg.text)+'</div><div class="mtime">縁の間 運営'+ts+'</div></div>';}else{html+='<div class="msg-wrap me"><div class="bubble me">'+linkifyText(msg.text)+'</div><div class="mtime">あなた'+ts+'</div></div>';}});html+='<div style="display:flex;gap:8px;margin-top:.75rem"><input type="text" id="official-input" placeholder="メッセージを入力..." style="flex:1;font-size:13px"><button onclick="sendToOfficial()" style="padding:0 14px;border:0.5px solid #C9A96E;border-radius:6px;font-size:12px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap">送信</button></div>';body.innerHTML=html;goTab(2);
   // 入力値・カーソル位置・フォーカスを復元
   var newInput = document.getElementById('official-input');
   if(newInput){
@@ -3502,7 +3702,7 @@ async function sendToOfficial(){
   var modCheck = checkModeration(text);
   if(!modCheck.ok){ alert(formatModerationWarning(modCheck.hits)); return; }
   // 楽観的にローカルへ即追加（即時に画面反映）
-  officialMessages.push({from:'user',text:text});
+  officialMessages.push({from:'user',text:text,timestamp:new Date().toISOString()});
   input.value='';
   openOfficialChat();
   // DBに保存して管理者に届ける
@@ -3535,11 +3735,13 @@ async function sendToOfficial(){
 }
 
 // ===== 縁リストをDBから読み込む =====
-/** 縁リストを DB から再構築：matches テーブルから自分関連の全レコードを取得 */
+/** 縁リストを DB から再構築：matches テーブルから自分関連の全レコードを取得
+ *  ⚠️ レース対策: enList を冒頭で空にせず、ローカル tmp に溜めて最後にアトミック差し替え。
+ *  これで loadEnList が並列に走っても、isCoupledNow() が「途中の空配列」を見ない。 */
 async function loadEnList(){
   if(!currentUser)return;
   try{
-    enList=[];
+    var tmp=[]; // 完成後に enList = tmp で差し替え
     // 自分がレビュー済みの match_id 一覧を一度だけ取得（個別判定で使う）
     var{data:myReviews}=await supa.from('reviews').select('match_id').eq('user_id',currentUser.id);
     var reviewedIds=(myReviews||[]).map(function(r){return r.match_id;});
@@ -3551,7 +3753,7 @@ async function loadEnList(){
         var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'sent'});
+          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'sent'});
         }
       }
     }
@@ -3569,7 +3771,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
           }
         }
       }
@@ -3582,7 +3784,7 @@ async function loadEnList(){
         var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'rejected_notify'});
+          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'rejected_notify'});
         }
       }
     }
@@ -3597,7 +3799,7 @@ async function loadEnList(){
           var theirPillars=[{k:prof.pillar_year_k||0,s:prof.pillar_year_s||0},{k:prof.pillar_month_k||0,s:prof.pillar_month_s||0},{k:prof.pillar_day_k||0,s:prof.pillar_day_s||0},{k:prof.pillar_hour_k||0,s:prof.pillar_hour_s||0}];
           var rel=checkRelations(MY_PILLARS,theirPillars);
           var sc=calcScore(rel);
-          enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:sc,status:'pending'});
+          tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:sc,status:'pending'});
         }
       }
     }
@@ -3615,15 +3817,26 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            enList.push({matchId:m.id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
           }
         }
       }
     }
+    // ★ アトミック差し替え（ここまで enList は古いデータのまま、isCoupledNow が空配列を見ることはない）
+    enList = tmp;
+    // 相手側がこちらと無関係のマッチで coupled になっているか検知
+    await markPartnerCoupledStatus();
     renderEnList();
     updateEnBadge();
     await loadMsgPreviews();
+    // 過去メッセージ有無のフィルタが効くよう再描画
+    renderEnList();
     renderMsgList();
+    // 推しページが既に描画済み(PARTNERS あり) → ロック状態を反映するため再描画
+    // 起動時のレース対策: loadRealUsers が先に走って enList がまだ空のまま buildDetail されるケース
+    if(typeof PARTNERS !== 'undefined' && PARTNERS.length > 0 && typeof applyFilter === 'function'){
+      applyFilter();
+    }
     // 自分のマッチがcoupled状態なら卒業プランを解放（相手側が「付き合いました!」を押した時もここで検知）
     if(enList.some(function(e){return e.status==='coupled';})){
       refreshSotsugyouState();
@@ -3737,13 +3950,25 @@ function applyPlanUI(plan){
   // マッチせず、NOマッチング切替時に display:none が効かなくなる。
   ungrayoutAllSubMenuItems();
 
+  // 「卒業生の間」(voice) アクセス制御用メッセージ
+  // 認定済 + NOマッチング以外 → 「NOマッチングへ切替で利用可」
+  // 未認定 → 「卒業鑑定を受けて認定後 + NOマッチング切替で利用可」
+  var isCertified = (typeof myIsGraduated !== 'undefined') && myIsGraduated;
+  var voiceLockMsg = isCertified
+    ? '「卒業生の間」は NOマッチングプランへ切り替え後にご利用いただけます。'
+    : '「卒業生の間」は、卒業鑑定をお受け頂きNOマッチングプランへ切り替えた方のみご利用いただけます。';
+
   // === NOマッチング：推し・縁リストを非表示、相性・運勢カレンダー タブを挿入 ===
   if(plan === 'no_matching'){
     if(tabOshi) tabOshi.style.display = 'none';
     if(tabEn) tabEn.style.display = 'none';
     insertNoMatchingTabs();
-    // その他のサブメニューを縮小
-    setSubMenuAllowed(['plan','refer','omoi','voice','contact','cancel']);
+    // 卒業済みなら voice を含む / 未卒業(初めから NOマッチング)なら voice を除外して非表示
+    var nmAllowed = ['plan','refer','omoi','contact','cancel'];
+    if(typeof myIsGraduated !== 'undefined' && myIsGraduated){
+      nmAllowed.push('voice');
+    }
+    setSubMenuAllowed(nmAllowed);
     // 推し or 縁リストにいる場合のみ相性タブへ移動
     if(onOshi || onEnlist){
       if(s0) s0.classList.remove('on');
@@ -3751,21 +3976,20 @@ function applyPlanUI(plan){
       setTimeout(function(){ goAishouTab(); }, 50);
     }
   }
-  // === お試しプラン：相性診断・結果メモ・運勢カレンダーをグレーアウト ===
+  // === お試しプラン：相性診断・結果メモ・運勢カレンダー + 卒業生の間 をグレーアウト ===
   else if(plan === 'trial'){
     if(tabOshi) tabOshi.style.display = '';
     if(tabEn) tabEn.style.display = '';
-    // NO-matching 専用タブ（相性 or 運勢カレンダー）にいたら推しページへ
     if(aishouOnNow || calendarOnNow){
       removeNoMatchingTabs();
       setTimeout(function(){ goTab(0); }, 50);
     } else {
       removeNoMatchingTabs();
     }
-    setSubMenuAllowed(null); // 全表示に戻す
-    grayoutSubMenuItems(['shindan','memo','calendar']);
+    setSubMenuAllowed(null);
+    grayoutSubMenuItems(['shindan','memo','calendar','voice'], { voice: voiceLockMsg });
   }
-  // === トータル：制限なし（全表示） ===
+  // === トータル：マッチング機能全開放、卒業生の間のみグレーアウト ===
   else {
     if(tabOshi) tabOshi.style.display = '';
     if(tabEn) tabEn.style.display = '';
@@ -3777,6 +4001,7 @@ function applyPlanUI(plan){
     }
     setSubMenuAllowed(null);
     ungrayoutAllSubMenuItems();
+    grayoutSubMenuItems(['voice'], { voice: voiceLockMsg });
   }
 }
 
@@ -3894,8 +4119,12 @@ function setSubMenuAllowed(allowedList){
 }
 
 // 指定機能のサブメニュー項目をグレーアウト＋クリック制御
-/** その他サブメニューで指定キーをグレーアウト @param {string[]} forbiddenList */
-function grayoutSubMenuItems(forbiddenList){
+/** その他サブメニューで指定キーをグレーアウト
+ * @param {string[]} forbiddenList
+ * @param {Object<string,string>} [messages] - キー別アラート文言。指定なければ既定文言 */
+function grayoutSubMenuItems(forbiddenList, messages){
+  messages = messages || {};
+  var defaultMsg = 'この機能はお試しプランではご利用いただけません。\n「プラン」から変更してご利用ください。';
   document.querySelectorAll('.sub-menu .sub-item').forEach(function(item){
     var onclickStr = item.getAttribute('onclick') || '';
     var match = onclickStr.match(/openSubPage\(['"](\w+)['"]\)/);
@@ -3907,8 +4136,11 @@ function grayoutSubMenuItems(forbiddenList){
       if(!item.hasAttribute('data-original-onclick')){
         item.setAttribute('data-original-onclick', onclickStr);
       }
+      var rawMsg = messages[feature] || defaultMsg;
+      // alert 文字列内に埋め込むため、シングルクォートと改行をエスケープ
+      var escMsg = rawMsg.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n');
       item.setAttribute('onclick',
-        "alert('この機能はお試しプランではご利用いただけません。\\n「プラン」から変更してご利用ください。');closeSubMenu();"
+        "alert('" + escMsg + "');closeSubMenu();"
       );
     } else {
       item.classList.remove('plan-disabled');
@@ -4230,9 +4462,22 @@ async function refreshSotsugyouState(){
     }catch(e){console.log('partner sotsugyou request lookup error:',e);}
   }
 
+  // 卒業認定ステータスを最新化（運営側で認定された直後も反映できるよう毎回フェッチ）
+  var prevGraduated = (typeof myIsGraduated !== 'undefined') ? myIsGraduated : false;
+  if(typeof loadMyGraduationStatus === 'function'){
+    try{ await loadMyGraduationStatus(); }catch(e){}
+  }
+  // 認定状態が変化していたら applyPlanUI を再実行（卒業生の間 サブメニューを更新）
+  if(myIsGraduated !== prevGraduated && typeof applyPlanUI === 'function' && typeof myPlan !== 'undefined'){
+    try{ applyPlanUI(myPlan); }catch(e){}
+  }
+
   // ===== ステータス判定 =====
-  var state = 'no_couple'; // no_couple / can_apply / waiting_partner / waiting_admin / approved / rejected
-  if(myReq){
+  // graduated は他のどの状態よりも優先
+  var state = 'no_couple'; // no_couple / can_apply / waiting_partner / waiting_admin / approved / rejected / graduated
+  if(myIsGraduated){
+    state = 'graduated';
+  }else if(myReq){
     if(myReq.status==='approved') state='approved';
     else if(myReq.status==='rejected') state='rejected';
     else if(partnerReq && partnerReq.status!=='rejected') state='waiting_admin';
@@ -4243,7 +4488,10 @@ async function refreshSotsugyouState(){
 
   // ===== カードの解放表示制御 =====
   var ln = card.querySelector('.lock-notice');
-  if(state==='approved'){
+  // 既存の「特典付与」メッセージがあれば一旦削除（状態切替で再生成するため）
+  var existingGrant = card.querySelector('.grad-grant-msg');
+  if(existingGrant) existingGrant.remove();
+  if(state==='approved' || state==='graduated'){
     card.classList.remove('locked');
     card.style.borderColor='#C9A96E';card.style.opacity='1';card.style.filter='none';
     var nm=card.querySelector('.other-plan-nm');if(nm)nm.style.color='#C9A96E';
@@ -4252,7 +4500,19 @@ async function refreshSotsugyouState(){
     if(ln)ln.style.display='none';
     badge.className='plan-status-badge unlocked';
     badge.style.cssText='';
-    badge.textContent='申込可';
+    if(state==='graduated'){
+      badge.textContent='申込済';
+      // 特典リストの下に「4つの特典の権利が付与されました！」を追加（赤・めでたい雰囲気）
+      if(it){
+        var grant = document.createElement('div');
+        grant.className = 'grad-grant-msg';
+        grant.style.cssText = 'margin-top:.6rem;padding:8px 12px;border-radius:8px;background:rgba(192,80,80,.08);border:0.5px solid rgba(192,80,80,.35);color:#C05050;font-weight:600;font-size:12px;text-align:center;letter-spacing:.02em';
+        grant.textContent = '🎊 4つの特典の権利が付与されました！';
+        it.parentNode.insertBefore(grant, it.nextSibling);
+      }
+    }else{
+      badge.textContent='申込可';
+    }
   }else{
     card.classList.add('locked');
     card.style.borderColor='';card.style.opacity='';card.style.filter='';
@@ -4287,6 +4547,10 @@ async function refreshSotsugyouState(){
   }else if(state==='approved'){
     html += '<button class="btn-sotsugyou available" style="background:#C9A96E;color:#fff;border:none" onclick="openSotsugyouApply()">📝 卒業鑑定プランを申し込む</button>';
     html += '<div style="font-size:10px;color:#C9A96E;text-align:center;margin-top:.4rem">✓ 運営の承認が下りました</div>';
+  }else if(state==='graduated'){
+    // 卒業認定済 → 申込ボタンを「卒業認定済み」グレーアウト表示に置換
+    html += '<button class="btn-sotsugyou" disabled style="opacity:.6;cursor:default;background:rgba(58,154,58,.12);color:#3a9a3a;border:0.5px solid rgba(58,154,58,.4)">🎓 卒業認定済み</button>';
+    html += '<div style="font-size:10px;color:#3a9a3a;text-align:center;margin-top:.4rem;line-height:1.7">✓ 卒業鑑定をお受けいただきありがとうございました<br>NOマッチングプランへ切替で「卒業生の間」へご参加いただけます</div>';
   }else if(state==='rejected'){
     html += '<div style="background:rgba(192,80,80,.06);border:0.5px solid rgba(192,80,80,.3);border-radius:8px;padding:10px 14px;margin-top:.25rem">';
     html += '<div style="font-size:12px;color:#C05050;font-weight:500;margin-bottom:4px">⚠️ 申請が却下されました</div>';
@@ -4380,6 +4644,16 @@ function openSotsugyouApply(){
   document.getElementById('sa-submit-btn').disabled = false;
   document.getElementById('sa-submit-btn').textContent = 'お申し込みを送信する';
   document.getElementById('sotsugyou-apply-modal').classList.add('show');
+  // 初回のみ案内ポップアップ（ユーザーごと・端末ごとに1回）
+  try{
+    var noticeKey = 'sotsugyou_apply_notice_v1_' + (currentUser && currentUser.id ? currentUser.id : 'anon');
+    if(!localStorage.getItem(noticeKey)){
+      setTimeout(function(){
+        alert('卒業鑑定は、基本的にお相手の方と一緒にお受け頂くことが前提のプランになります。ですが、別々に鑑定をご希望の場合も承りますので、その際は鑑定予約で「1人で受ける」をご選択ください。');
+        try{ localStorage.setItem(noticeKey, '1'); }catch(e){}
+      }, 100);
+    }
+  }catch(e){ /* localStorage 不可なら無視 */ }
 }
 
 /** 申し込みモーダルを閉じる */
@@ -5613,6 +5887,21 @@ async function loadMyCashbacks() {
   }
 }
 
+// ===== 自分の卒業認定ステータスを取得 =====
+// profiles.graduated_at が NOT NULL なら認定済み。
+// 「卒業生の間」サブメニューの可視性判定に使う。
+// 注: sotsugyou_requests.status='approved' とは別。承認は申請の通過、認定は鑑定完了。
+/** myIsGraduated を更新 */
+async function loadMyGraduationStatus(){
+  if(!currentUser){ myIsGraduated = false; return; }
+  try{
+    const { data, error } = await supa.from('profiles')
+      .select('graduated_at').eq('id', currentUser.id).single();
+    if(error){ console.log('graduation status load error:', error); return; }
+    myIsGraduated = !!(data && data.graduated_at);
+  }catch(e){ console.log('graduation status exception:', e); }
+}
+
 // ===== 公式チャットの履歴を DB から再構築 =====
 // 過去の問い合わせと管理者からの返答を officialMessages に取り込む
 /** 運営チャット履歴を DB から再構築 + 未読判定 + ベル通知 fire */
@@ -5648,43 +5937,38 @@ async function loadOfficialChatHistory() {
     items.sort((x, y) => new Date(x.timestamp) - new Date(y.timestamp));
 
     // 新しい履歴をいったん別配列に組み立て（変化判定のため）
-    const newMessages = [{ from: 'official', text: '縁の間へようこそ！ご不明な点はいつでもお気軽にお問い合わせください。' }];
+    // 各メッセージに timestamp(ISO文字列) を付ける → openOfficialChat 側で日時表示
+    const newMessages = [{ from: 'official', text: '縁の間へようこそ！ご不明な点はいつでもお気軽にお問い合わせください。', timestamp: null }];
     items.forEach(item => {
       if (item.kind === 'announcement') {
         const a = item.data;
         const titlePart = a.title ? a.title + '\n' : '';
-        newMessages.push({ from: 'official', text: '📣【運営からのお知らせ】\n' + titlePart + (a.body || '') });
+        newMessages.push({ from: 'official', text: '📣【運営からのお知らせ】\n' + titlePart + (a.body || ''), timestamp: a.created_at });
         return;
       }
       const c = item.data;
+      const ts = c.created_at;
       if (c.contact_type === '警告') {
-        // 管理者からの警告メッセージ：単独で運営側として表示
-        newMessages.push({ from: 'official', text: '⚠️【運営から警告】\n' + (c.body || '') });
+        newMessages.push({ from: 'official', text: '⚠️【運営から警告】\n' + (c.body || ''), timestamp: ts });
       } else if (c.contact_type === '通報結果通知') {
-        // 管理者からの通報結果通知：単独で運営側として表示
-        newMessages.push({ from: 'official', text: '📋【通報結果のお知らせ】\n' + (c.body || '') });
+        newMessages.push({ from: 'official', text: '📋【通報結果のお知らせ】\n' + (c.body || ''), timestamp: ts });
       } else if (c.contact_type === '運営通知') {
-        // 管理者からの一般通知（卒業承認・キャッシュバック案内など）
-        newMessages.push({ from: 'official', text: '📢【運営からのお知らせ】\n' + (c.body || '') });
+        newMessages.push({ from: 'official', text: '📢【運営からのお知らせ】\n' + (c.body || ''), timestamp: ts });
       } else if (c.contact_type === '卒業鑑定申込') {
-        // 卒業鑑定プラン申し込み：ユーザー側の発言として、種別を併記
-        newMessages.push({ from: 'user', text: c.body });
-        newMessages.push({ from: 'official', text: '卒業鑑定プランのお申し込みを受け付けました。\n運営にて入金を確認次第、鑑定の日程についてご連絡いたします。' });
+        newMessages.push({ from: 'user', text: c.body, timestamp: ts });
+        newMessages.push({ from: 'official', text: '卒業鑑定プランのお申し込みを受け付けました。\n運営にて入金を確認次第、鑑定の日程についてご連絡いたします。', timestamp: ts });
       } else if (c.contact_type === '退会申請') {
-        // 退会申請：ユーザー側の発言として、種別を併記
-        newMessages.push({ from: 'user', text: c.body });
-        newMessages.push({ from: 'official', text: '退会申請を受け付けました。\n運営にて内容を確認後、退会処理を実施いたします。' });
+        newMessages.push({ from: 'user', text: c.body, timestamp: ts });
+        newMessages.push({ from: 'official', text: '退会申請を受け付けました。\n運営にて内容を確認後、退会処理を実施いたします。', timestamp: ts });
       } else if (c.contact_type === 'メッセージ') {
-        // 運営チャット入力からの送信：素のテキストとして表示
-        newMessages.push({ from: 'user', text: c.body });
-        newMessages.push({ from: 'official', text: 'メッセージを受け取りました。確認次第、ご返答いたします。' });
+        newMessages.push({ from: 'user', text: c.body, timestamp: ts });
+        newMessages.push({ from: 'official', text: 'メッセージを受け取りました。確認次第、ご返答いたします。', timestamp: ts });
       } else {
-        // 問い合わせフォームからの送信：種別を併記
-        newMessages.push({ from: 'user', text: '【' + c.contact_type + '】\n' + c.body });
-        newMessages.push({ from: 'official', text: 'お問い合わせ（' + c.contact_type + '）を受け付けました。内容を確認次第、ご返答いたします。' });
+        newMessages.push({ from: 'user', text: '【' + c.contact_type + '】\n' + c.body, timestamp: ts });
+        newMessages.push({ from: 'official', text: 'お問い合わせ（' + c.contact_type + '）を受け付けました。内容を確認次第、ご返答いたします。', timestamp: ts });
       }
       if (c.reply_text) {
-        newMessages.push({ from: 'official', text: c.reply_text });
+        newMessages.push({ from: 'official', text: c.reply_text, timestamp: c.replied_at || ts });
       }
     });
 
@@ -5858,13 +6142,21 @@ function startRealtime() {
 
   // 2) マッチング: 自分が from でも to でも反映したい → 全行 INSERT/UPDATE を受けて
   //    ハンドラ側で自分関連かどうか判定 → 関連あれば loadEnList()
+  //    + 自分のマッチ相手が他とカップル成立した場合も検知（partnerIsCoupledWithOther 更新用）
   const matchChannel = supa
     .channel('rt-match-' + uid)
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'matches' },
       function(payload){
         const row = payload.new || payload.old || {};
-        if(row.from_user_id === uid || row.to_user_id === uid){
+        // 自分関連の変更
+        var selfInvolved = (row.from_user_id === uid || row.to_user_id === uid);
+        // 自分のマッチ相手が関与する変更（その相手が他とカップル成立したかも）
+        var partnerIds = (Array.isArray(window.enList) ? window.enList : [])
+          .map(function(e){ return e.partnerUserId; })
+          .filter(Boolean);
+        var partnerInvolved = partnerIds.indexOf(row.from_user_id) >= 0 || partnerIds.indexOf(row.to_user_id) >= 0;
+        if(selfInvolved || partnerInvolved){
           loadEnList();
           // 推しの詳細が開いていなければ推しページも更新
           var openDetail = document.querySelector('.detail-panel.open');
@@ -5889,15 +6181,27 @@ function startRealtime() {
     .subscribe();
   realtimeChannels.push(cbChannel);
 
-  // 4) ユーザー間メッセージ: 自分が関わるマッチのメッセージが届いたらチャット画面を更新
+  // 4) ユーザー間メッセージ: INSERT/UPDATE 両方拾う
+  //    - INSERT: 新着メッセージ → チャット再描画 + プレビュー更新
+  //    - UPDATE: read_at 更新 (相手が既読化) → 自分が今そのチャット開いてれば「既読」を即反映
   const dmChannel = supa
     .channel('rt-dm-' + uid)
     .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'messages' },
+      { event: '*', schema: 'public', table: 'messages' },
       function(payload){
-        var row = payload.new || {};
-        if(row.sender_id === uid) return;
+        var row = payload.new || payload.old || {};
         var isOpenChat = currentChatMatchId && row.match_id === currentChatMatchId;
+        // UPDATE: 既読化された等 → 開いてるチャットを再描画して既読マーク反映
+        if(payload.eventType === 'UPDATE'){
+          if(isOpenChat){
+            var chatNameElU = document.getElementById('chat-name');
+            var dispNameU = chatNameElU ? chatNameElU.textContent : '';
+            loadAndRenderChat(dispNameU, currentChatMatchId);
+          }
+          return;
+        }
+        // INSERT: 新着メッセージ
+        if(row.sender_id === uid) return;
         // 今開いているチャットなら既読にして再描画
         if(isOpenChat){
           markDmAsRead(row.match_id);
@@ -6050,6 +6354,7 @@ async function checkSession() {
       showAppWrap();
       await loadMyCashbacks();
       populateProfileModal(profile);
+      await loadMyGraduationStatus();
       if (typeof applyPlanUI === 'function') applyPlanUI(myPlan);
       loadOfficialChatHistory();
       loadRealUsers();
