@@ -438,6 +438,44 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </head>
 <body>
 
+<!-- 興味のあるカテゴリー 編集モーダル -->
+<div class="modal-bg" id="interest-edit-modal">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-ttl">興味のあるカテゴリー</span>
+      <button class="btn-text" onclick="closeInterestEdit()">✕</button>
+    </div>
+    <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:10px;padding:0 4px">最大10個まで選択。⭐をタップで「外せない条件」として強調表示（最大3個）。各カテゴリで自由ワードも1つ追加可（10文字以内）。</div>
+    <div class="interest-selector-body"></div>
+    <div style="text-align:center;margin-top:14px;display:flex;gap:8px">
+      <button onclick="closeInterestEdit()" style="flex:1;padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit">キャンセル</button>
+      <button id="interest-save-btn" onclick="saveInterestEdit()" style="flex:1;padding:10px;border:0;border-radius:8px;background:#C9A96E;color:#fff;cursor:pointer;font-family:inherit;font-weight:500">保存する</button>
+    </div>
+  </div>
+</div>
+
+<!-- マッチング申請者の詳細プロフィールモーダル -->
+<div class="modal-bg" id="partner-profile-modal">
+  <div class="modal-card">
+    <div class="modal-hd">
+      <span class="modal-ttl">プロフィール</span>
+      <button class="btn-text" onclick="closePartnerProfile()">✕</button>
+    </div>
+    <div id="partner-profile-body"></div>
+  </div>
+</div>
+
+<!-- 退会通知モーダル（運営から退会処分 or 退会承認が下りた時に強制表示） -->
+<div class="review-overlay" id="withdrawal-notice-overlay" style="z-index:9999">
+  <div class="review-card" style="max-width:480px">
+    <div class="review-title" id="withdrawal-notice-title">運営からのお知らせ</div>
+    <div id="withdrawal-notice-body" style="font-size:13px;line-height:1.85;color:var(--color-text-primary);white-space:pre-wrap;padding:10px 0;max-height:60vh;overflow-y:auto"></div>
+    <div style="margin-top:14px;text-align:center">
+      <button class="btn-gold" id="withdrawal-notice-close" onclick="closeWithdrawalNotice()" style="min-width:140px">閉じる</button>
+    </div>
+  </div>
+</div>
+
 <!-- レビューモーダル -->
 <div class="review-overlay" id="review-overlay">
   <div class="review-card">
@@ -605,6 +643,16 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <button class="btn-gold" style="margin-bottom:0" onclick="calcMeishiki()">命式を算出する</button>
       <div id="dbg" style="display:none"></div>
     </div>
+    <!-- 興味のあるカテゴリー（任意・スキップ可） -->
+    <div class="card" id="interest-reg-section" style="margin:0 0 1rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'Noto Serif JP',serif;font-size:14px;font-weight:500;color:var(--color-text-primary)">興味のあるカテゴリー <span style="font-size:10px;color:var(--color-text-tertiary)">(任意)</span></div>
+        <button type="button" onclick="skipInterestReg()" style="font-size:11px;padding:5px 12px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit">後で設定する</button>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:10px">最大10個まで選択。⭐をタップすると「外せない条件」として強調表示できます（最大3個）。各カテゴリで自分の好きなワードも1つ追加可（10文字以内）。</div>
+      <div class="interest-selector-body"></div>
+    </div>
+    <div id="interest-reg-skipped" style="display:none;font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.5rem 1rem;margin-bottom:.5rem">興味カテゴリーの設定は登録後マイプロフィールから設定できます</div>
     <button class="btn-gold" onclick="completeReg()">登録を完了して縁を探す →</button>
   </div>
 </div>
@@ -812,10 +860,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec">運勢カレンダー</p>
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">あなたの3柱（日柱／月柱／年柱）と暦の十二支との組み合わせから、月単位・日単位の運勢を読み解きます。</div>
       <div class="cal-nav-row">
-        <button class="cal-nav-btn" onclick="calPrev()">◀</button>
+        <button class="cal-nav-btn" id="cal-prev-btn" onclick="calPrev()">◀</button>
         <span class="cal-title" id="cal-title">—</span>
-        <button class="cal-nav-btn" onclick="calNext()">▶</button>
+        <button class="cal-nav-btn" id="cal-next-btn" onclick="calNext()">▶</button>
       </div>
+      <div id="cal-next-notice" style="display:none;font-size:10px;color:var(--color-text-tertiary);text-align:center;margin:-.4rem 0 .4rem;line-height:1.6">※ 運勢カレンダーは3ヶ月先までご覧いただけます</div>
       <div id="cal-month-summary" class="card" style="margin:0 0 .75rem;padding:.85rem 1rem"></div>
       <div class="cal-grid" id="cal-grid"></div>
       <div class="cal-legend">
@@ -858,12 +907,12 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec" style="color:#C05050">退会のお手続き</p>
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">ご利用ありがとうございました。<br>下記フォームをご記入の上、申請ください。運営にて内容を確認後、退会処理を実施いたします。</div>
       <div class="card" style="margin:0 0 .75rem">
-        <div class="fl" style="margin-bottom:10px"><label>退会理由 <span style="color:#C05050">*</span></label><select id="cancel-reason" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="">選択してください</option><option>良いお相手と出会えた（卒業）</option><option>良いお相手と出会えなかった</option><option>サービスに満足できなかった</option><option>料金面の理由</option><option>利用頻度が低くなった</option><option>その他</option></select></div>
+        <div class="fl" style="margin-bottom:10px"><label>退会理由 <span style="color:#C05050">*</span></label><select id="cancel-reason" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="">選択してください</option><option>カップル成立したため</option><option>良いお相手と出会えた（卒業）</option><option>良いお相手と出会えなかった</option><option>サービスに満足できなかった</option><option>料金面の理由</option><option>利用頻度が低くなった</option><option>その他</option></select></div>
         <div class="fl" style="margin-bottom:0"><label>詳細・改善希望<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・最大500文字</span></label><textarea id="cancel-detail" maxlength="500" oninput="updateProfileTextCount(this,'cancel-detail-count')" placeholder="サービスの改善に活かしますので、お気軽にご記入ください。" style="min-height:90px;font-size:12px;line-height:1.7"></textarea><div style="text-align:right;font-size:10px;color:var(--color-text-tertiary);margin-top:3px"><span id="cancel-detail-count">0</span> / 500</div></div>
       </div>
       <div style="background:rgba(192,80,80,.06);border:0.5px solid rgba(192,80,80,.3);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem">
         <div style="font-size:11px;color:#C05050;font-weight:500;margin-bottom:6px">⚠️ 退会前のご確認</div>
-        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:.6rem">・退会後はマッチング履歴・メッセージ等のデータが閲覧できなくなります<br>・有効期間内であってもプラン料金の返金はいたしかねます<br>・再登録される場合は新しい会員IDが発行されます</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:.6rem">・退会後はマッチング履歴・メッセージ等のデータが閲覧できなくなります<br>・有効期間内であってもプラン料金の返金はいたしかねます<br>・再登録される場合は新規登録時のメールアドレスと電話番号で問題ありません<br>・紹介プログラム（プランページ最下部に詳細）の権利はなくなります</div>
         <label style="font-size:11px;color:var(--color-text-primary);display:flex;gap:6px;align-items:flex-start;cursor:pointer"><input type="checkbox" id="cancel-confirm" style="margin-top:2px;flex-shrink:0"><span>上記事項を理解した上で退会を希望します</span></label>
       </div>
       <div id="cancel-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
@@ -2236,6 +2285,12 @@ function startReg(){
   // bot 対策: フォーム表示時刻を記録 + honeypot 挿入
   markFormShown('register');
   applyHoneypot('reg-wrap');
+  // 興味のあるカテゴリー(任意) セクションを初期化
+  if(typeof initInterestRegSection === 'function') initInterestRegSection();
+  var sec = document.getElementById('interest-reg-section');
+  if(sec) sec.style.display = '';
+  var skipNote = document.getElementById('interest-reg-skipped');
+  if(skipNote) skipNote.style.display = 'none';
 }
 
 // プランに応じて登録フォームの不要項目を非表示にする
@@ -2537,6 +2592,15 @@ async function completeReg() {
     plan: selectedPlan || 'total',
     profile_text: ((document.getElementById('r-profile-text') || {}).value || '').trim().substring(0, 500) || null,
     avatar_url: null,
+    // 興味のあるカテゴリー(任意・スキップ可)。何も選んでなければ null
+    interest_tags: (function(){
+      try{
+        if(typeof getInterestEditState !== 'function') return null;
+        var s = getInterestEditState();
+        if(!s || !s.selected || s.selected.length === 0) return null;
+        return s;
+      }catch(e){ return null; }
+    })(),
   };
 
   // 画像をアップロード（ファイル選択されていれば Storage に保存し avatar_url を埋める）
@@ -2969,7 +3033,12 @@ function renderEnList(){
     } else {
       enAvaHtml = '<div class="ava">'+item.name.charAt(0)+'</div>';
     }
-    html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div></div>';
+    // pending 状態のみ、プロフィール情報の右側に「詳細を見る」ボタンを配置
+    var detailBtnHtml = '';
+    if(s === 'pending' && item.partnerUserId){
+      detailBtnHtml = '<button onclick="event.stopPropagation();openPartnerProfile(\''+item.partnerUserId+'\',\''+s+'\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">🔍 詳細</button>';
+    }
+    html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div>'+detailBtnHtml+'</div>';
     // ロック中のボタン生成ヘルパー（見た目だけ無効化、クリックでアラート）
     // disabled 属性を付けると onclick が発火しないため、style と onclick のみで実現
     // 自分カップル中 → 自分視点アラート / 相手カップル中 → 相手視点アラート
@@ -3209,6 +3278,72 @@ async function enNG(matchId){
     loadEnList();
     loadRealUsers();
   }catch(e){console.log('enNGエラー:',e);}
+}
+
+// ===== マッチング申請者の詳細プロフィール表示 =====
+// 縁リスト の pending/approved 等の相手をタップ → プロフィールモーダル表示。
+// マッチ前(pending/sent) は avatar をぼかす、マッチ後はクリア表示。
+/** 相手の詳細プロフィールを取得して表示 @param {string} partnerUserId @param {string} [status] */
+async function openPartnerProfile(partnerUserId, status){
+  if(!partnerUserId){ alert('プロフィール取得に失敗しました'); return; }
+  try{
+    var{data:prof, error}=await supa.from('profiles')
+      .select('id, nickname, sex, birth_year, birth_month, birth_day, prefecture, marriage, children, profile_text, avatar_url, member_id, interest_tags')
+      .eq('id', partnerUserId).single();
+    if(error || !prof){ alert('プロフィールの取得に失敗しました'); return; }
+    renderPartnerProfile(prof, status || 'pending');
+    document.getElementById('partner-profile-modal').classList.add('show');
+  }catch(e){
+    console.log('openPartnerProfile error:', e);
+    alert('エラーが発生しました');
+  }
+}
+
+/** モーダルに HTML を流し込む @param {object} prof @param {string} status */
+function renderPartnerProfile(prof, status){
+  // マッチ後(approved/matched/...) は avatar クリア、それ以外(pending/sent) はぼかし
+  var clearAvatar = ['approved','approved_by_me','matched','chatting','date_set','dated','coupled'].indexOf(status) >= 0;
+  var blurStyle = clearAvatar ? '' : 'filter:blur(2px);';
+  var age = prof.birth_year ? (new Date().getFullYear() - prof.birth_year) + '歳' : '';
+  var html = '';
+  // アバター
+  if(prof.avatar_url){
+    html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-block;width:100px;height:100px;border-radius:50%;background-image:url(\''+prof.avatar_url.replace(/'/g,"\\'")+'\');background-size:cover;background-position:center;border:1px solid #C9A96E;'+blurStyle+'"></div></div>';
+  }else{
+    html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-flex;width:100px;height:100px;border-radius:50%;background:var(--color-background-secondary);align-items:center;justify-content:center;font-family:\'Noto Serif JP\',serif;font-size:32px;color:#C9A96E;border:1px solid #C9A96E">'+escapeHtml((prof.nickname||'?').charAt(0))+'</div></div>';
+  }
+  if(!clearAvatar){
+    html += '<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:10px">※ マッチング前のため写真はぼかし表示です</div>';
+  }
+  // 基本情報
+  html += '<div class="modal-info">';
+  html += '<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+escapeHtml(prof.nickname||'名無し')+'さん</span></div>';
+  if(prof.sex) html += '<div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+escapeHtml(prof.sex)+'</span></div>';
+  if(age) html += '<div class="modal-row"><span class="modal-lbl">年齢</span><span class="modal-val">'+age+'</span></div>';
+  if(prof.prefecture) html += '<div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+escapeHtml(prof.prefecture)+'</span></div>';
+  if(prof.marriage) html += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+escapeHtml(prof.marriage)+'</span></div>';
+  if(prof.children) html += '<div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+escapeHtml(prof.children)+'</span></div>';
+  html += '</div>';
+  // プロフィール文
+  if(prof.profile_text){
+    html += '<div style="margin-top:14px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">プロフィール文</div><div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;white-space:pre-wrap">'+escapeHtml(prof.profile_text)+'</div></div>';
+  }else{
+    html += '<div style="margin-top:14px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px;font-size:11px;color:var(--color-text-tertiary);text-align:center">プロフィール文の記載はありません</div>';
+  }
+  // 興味のあるカテゴリー
+  if(typeof renderInterestChipsReadonly === 'function'){
+    html += '<div style="margin-top:14px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">興味のあるカテゴリー</div>' + renderInterestChipsReadonly(prof.interest_tags || null) + '</div>';
+  }
+  // 通報リンク
+  if(prof.member_id){
+    html += '<div style="text-align:center;margin-top:14px"><button onclick="closePartnerProfile();openReportFor(\''+prof.member_id+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:inherit">⚠️ この方を通報する</button></div>';
+  }
+  document.getElementById('partner-profile-body').innerHTML = html;
+}
+
+/** モーダルを閉じる */
+function closePartnerProfile(){
+  document.getElementById('partner-profile-modal').classList.remove('show');
 }
 
 // ===== カップル成立中ガード（他相手へのアクションを制限）=====
@@ -3834,13 +3969,17 @@ async function loadEnList(){
     renderMsgList();
     // 推しページが既に描画済み(PARTNERS あり) → ロック状態を反映するため再描画
     // 起動時のレース対策: loadRealUsers が先に走って enList がまだ空のまま buildDetail されるケース
+    // ⚠️ ただし詳細パネルが開いている時は再描画しない（ユーザー操作中の閉じ防止）
     if(typeof PARTNERS !== 'undefined' && PARTNERS.length > 0 && typeof applyFilter === 'function'){
-      applyFilter();
+      var openDetail = document.querySelector('.detail-panel.open');
+      if(!openDetail){ applyFilter(); }
     }
     // 自分のマッチがcoupled状態なら卒業プランを解放（相手側が「付き合いました!」を押した時もここで検知）
     if(enList.some(function(e){return e.status==='coupled';})){
       refreshSotsugyouState();
     }
+    // プロフィールモーダルのカップル相手セクションを更新
+    if(typeof refreshProfileCoupleSection === 'function') refreshProfileCoupleSection();
   }catch(e){console.log('loadEnListエラー:',e);}
 }
 
@@ -4730,6 +4869,31 @@ function toggleNotif(){var p=document.getElementById('notif-panel');if(!p)return
 /** アプリ内通知（ベル）に追加 @param {string} title @param {string} body */
 function addNotif(title,body){var list=document.getElementById('notif-list');if(!list)return;var item=document.createElement('div');item.className='notif-item unread';item.innerHTML='<div class="notif-item-title">'+title+'</div><div class="notif-item-body">'+body+'</div><div class="notif-item-time">just now</div>';list.insertBefore(item,list.firstChild);document.getElementById('notif-dot').style.display='block';}
 // ===== 退会申請 =====
+/** 既存の open な退会申請があれば、送信ボタンを「退会申請済み」に切替 */
+async function refreshCancelButtonState(){
+  var btn = document.getElementById('cancel-submit-btn');
+  if(!btn || !currentUser) return;
+  try{
+    var{data}=await supa.from('contacts')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('contact_type', '退会申請')
+      .eq('status', 'open')
+      .limit(1);
+    if(data && data.length > 0){
+      btn.disabled = true;
+      btn.textContent = '退会申請済み';
+      btn.style.opacity = '0.55';
+      btn.style.cursor = 'not-allowed';
+    }else{
+      btn.disabled = false;
+      btn.textContent = '退会申請を送信する';
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
+  }catch(e){ console.log('refreshCancelButtonState error:', e); }
+}
+
 /** 退会申請の送信 */
 async function submitCancelRequest(){
   var reason = document.getElementById('cancel-reason').value;
@@ -4768,7 +4932,11 @@ async function submitCancelRequest(){
     document.getElementById('cancel-detail').value = '';
     document.getElementById('cancel-confirm').checked = false;
     document.getElementById('cancel-detail-count').textContent = '0';
-    btn.disabled = false; btn.textContent = '退会申請を送信する';
+    // 送信ボタンを「退会申請済み」状態に
+    btn.disabled = true;
+    btn.textContent = '退会申請済み';
+    btn.style.opacity = '0.55';
+    btn.style.cursor = 'not-allowed';
   }catch(e){
     console.log('退会申請エラー:', e);
     errEl.textContent = 'エラーが発生しました';
@@ -4909,6 +5077,8 @@ function openSubPage(page){
   var target=document.getElementById('sub-'+page);
   if(target)target.style.display='block';
   document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});
+  // 退会ページ表示時: 申請済みなら送信ボタンを「退会申請済み」に
+  if(page === 'cancel' && typeof refreshCancelButtonState === 'function') refreshCancelButtonState();
   // 「その他」は .other-tab-btn なので、.ntab はすべて非アクティブにする
   document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});
@@ -5560,7 +5730,13 @@ function openCalendar(){
     calCurrentYear = now.getFullYear();
     calCurrentMonth = now.getMonth()+1;
   }
+  // 3ヶ月先制限を超えてた場合(時間経過で limit が変わる)、上限まで戻す
+  var maxA = getCalMaxAllowed();
+  if(calCompareYM(calCurrentYear, calCurrentMonth, maxA.year, maxA.month) > 0){
+    calCurrentYear = maxA.year; calCurrentMonth = maxA.month;
+  }
   renderCalendar(calCurrentYear, calCurrentMonth);
+  updateCalNavButtons();
 }
 
 /** カレンダー本体を描画 @param {number} year @param {number} month (1-12) */
@@ -5625,18 +5801,52 @@ function renderCalendar(year, month){
   grid.innerHTML = html;
 }
 
+/** 閲覧可能な最大月（今日の月から3ヶ月先まで） @returns {{year:number,month:number}} */
+function getCalMaxAllowed(){
+  var now = new Date();
+  var y = now.getFullYear();
+  var m = now.getMonth() + 1 + 3; // 今月 +3ヶ月
+  while(m > 12){ m -= 12; y += 1; }
+  return { year: y, month: m };
+}
+
+/** year/month の前後関係を整数で比較。同じなら0、先なら正、過去なら負 */
+function calCompareYM(y1, m1, y2, m2){
+  return (y1 * 12 + m1) - (y2 * 12 + m2);
+}
+
+/** ナビボタンの活性/非活性 + 上限お知らせの表示切替 */
+function updateCalNavButtons(){
+  var nextBtn = document.getElementById('cal-next-btn');
+  var notice = document.getElementById('cal-next-notice');
+  if(!nextBtn) return;
+  var maxAllowed = getCalMaxAllowed();
+  var atMax = calCompareYM(calCurrentYear, calCurrentMonth, maxAllowed.year, maxAllowed.month) >= 0;
+  // disabled は使わない（onclick が発火しないため）→ 見た目で表現
+  nextBtn.style.opacity = atMax ? '0.35' : '';
+  nextBtn.style.cursor = atMax ? 'not-allowed' : '';
+  if(notice) notice.style.display = atMax ? 'block' : 'none';
+}
+
 /** 前月に移動 */
 function calPrev(){
   calCurrentMonth--;
   if(calCurrentMonth<1){calCurrentMonth=12;calCurrentYear--;}
   renderCalendar(calCurrentYear, calCurrentMonth);
+  updateCalNavButtons();
 }
 
-/** 翌月に移動 */
+/** 翌月に移動（今月+3ヶ月までで制限） */
 function calNext(){
+  var maxAllowed = getCalMaxAllowed();
+  if(calCompareYM(calCurrentYear, calCurrentMonth, maxAllowed.year, maxAllowed.month) >= 0){
+    // すでに上限。何もしない
+    return;
+  }
   calCurrentMonth++;
   if(calCurrentMonth>12){calCurrentMonth=1;calCurrentYear++;}
   renderCalendar(calCurrentYear, calCurrentMonth);
+  updateCalNavButtons();
 }
 
 // ===== 月次サマリー描画 =====
@@ -5720,6 +5930,7 @@ function closeCalDetail(){
 }
 
 </script>
+<script src="js/interests.js"></script>
 <script>
 // ===== アプリ初期化・タブ切替・ログイン =====
 // goTab(i) — i は意味的インデックス（0:推し / 1:縁リスト / 2:メッセージ / 3:その他）
@@ -5781,6 +5992,9 @@ function populateProfileModal(profile) {
   modalInfo += '<div class="modal-row"><span class="modal-lbl">出生地</span><span class="modal-val">'+birthLoc+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+(profile.marriage||'')+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+(profile.children||'')+'</span></div>';
+  // カップル相手欄（state.js の enList を参照、coupled マッチ相手がいれば表示）
+  // enList ロード前は空。loadEnList 後に refreshProfileCoupleSection() で更新される
+  modalInfo += '<div id="profile-couple-section"></div>';
   modalInfo += '<div style="text-align:center;margin-top:10px"><button type="button" onclick="openBirthEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">＋ 生まれの時刻・場所を編集</button></div>';
 
   // プロフィール文セクション
@@ -5792,6 +6006,9 @@ function populateProfileModal(profile) {
     modalInfo += '<div style="font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:6px;padding:8px 10px">未設定</div>';
   }
   modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openProfileTextEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">'+(profile.profile_text ? '✎ プロフィール文を編集' : '＋ プロフィール文を追加')+'</button></div></div>';
+
+  // 興味のあるカテゴリーセクション（編集ボタン付き）
+  modalInfo += '<div id="profile-interest-section" style="margin-top:14px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)"></div>';
 
   // 口座情報セクション（キャッシュバック対象 or 既に登録済み の時のみ表示）
   var cashbackKey = 'cashback_eligible_' + (currentUser ? currentUser.id : 'guest');
@@ -5833,6 +6050,11 @@ function populateProfileModal(profile) {
   }
 
   document.getElementById('modal-info').innerHTML = modalInfo;
+
+  // 興味のあるカテゴリー表示を反映（編集ボタン付き）
+  if(typeof refreshProfileInterestSection === 'function'){
+    refreshProfileInterestSection(profile.interest_tags || null);
+  }
 
   // 四柱（MY_PILLARS グローバル変数を更新 + modal-pillars 表示）
   // 時柱は null 許容（出生時刻不明）
@@ -5900,6 +6122,103 @@ async function loadMyGraduationStatus(){
     if(error){ console.log('graduation status load error:', error); return; }
     myIsGraduated = !!(data && data.graduated_at);
   }catch(e){ console.log('graduation status exception:', e); }
+}
+
+// ===== プロフィールモーダルのカップル相手セクション更新 =====
+// enList を参照、status==='coupled' があれば「カップル相手」行を表示
+/** プロフィールモーダルのカップル相手セクションを再描画 */
+function refreshProfileCoupleSection(){
+  var sec = document.getElementById('profile-couple-section');
+  if(!sec) return;
+  if(!Array.isArray(enList)){ sec.innerHTML = ''; return; }
+  var couple = enList.find(function(e){ return e.status === 'coupled'; });
+  if(!couple){ sec.innerHTML = ''; return; }
+  var partnerLabel = (couple.name || '名無し') + (couple.memberId ? '（' + couple.memberId + '）' : '');
+  sec.innerHTML = '<div class="modal-row"><span class="modal-lbl">カップル相手</span><span class="modal-val" style="color:#d6608b">💕 ' + (couple.name || '名無し').replace(/[<>&]/g, '') + '</span></div>';
+}
+
+// ===== 退会通知（処分 / 承認）モーダル =====
+// 運営が退会処分 or 退会承認を実行すると contacts に '退会処分通知' / '退会承認通知' が INSERT される。
+// Realtime sub と起動時チェックでこれを検知 → 全画面ポップアップ表示。
+//   - 退会処分通知: 閉じる → 強制ログアウト → ログイン画面（以後ログイン不可）
+//   - 退会承認通知: 閉じる → サービス継続使用可（24時間後ログイン不可）
+var __withdrawalCurrentType = null;
+
+/** 退会通知モーダルを開く @param {object} contactRow */
+function showWithdrawalNoticeModal(contactRow){
+  if(!contactRow) return;
+  var isBan = (contactRow.contact_type === '退会処分通知');
+  __withdrawalCurrentType = isBan ? 'banned' : 'approved';
+  var title = isBan ? '🚫 運営からの重要なお知らせ' : '✅ 退会承認のお知らせ';
+  var titleEl = document.getElementById('withdrawal-notice-title');
+  var bodyEl = document.getElementById('withdrawal-notice-body');
+  var overlay = document.getElementById('withdrawal-notice-overlay');
+  if(titleEl) titleEl.textContent = title;
+  if(bodyEl) bodyEl.textContent = contactRow.body || '';
+  if(overlay) overlay.classList.add('show');
+  // 表示済みフラグを localStorage に記録（次回起動時の再表示防止）
+  try{
+    if(currentUser){
+      var key = 'withdrawal_notice_shown_' + currentUser.id + '_' + contactRow.id;
+      localStorage.setItem(key, '1');
+    }
+  }catch(e){}
+}
+
+/** 退会通知モーダルを閉じる
+ *  退会処分: 強制ログアウト → ログイン画面
+ *  退会承認: そのままサービス継続使用可 */
+async function closeWithdrawalNotice(){
+  var overlay = document.getElementById('withdrawal-notice-overlay');
+  if(overlay) overlay.classList.remove('show');
+  if(__withdrawalCurrentType === 'banned'){
+    try{ await supa.auth.signOut(); }catch(e){}
+    try{ if(typeof stopRealtime === 'function') stopRealtime(); }catch(e){}
+    currentUser = null;
+    // 全画面を隠してログイン画面表示
+    var ids = ['app-wrap','orient-wrap','reg-wrap'];
+    ids.forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display='none'; });
+    var login = document.getElementById('login-wrap');
+    if(login) login.style.display = 'flex';
+  }
+  __withdrawalCurrentType = null;
+}
+
+/** 退会状態に応じてログインを許可するか判定。
+ *  - withdrawal_type='banned' → 常に拒否
+ *  - withdrawal_type='approved' かつ banned_at から24時間経過 → 拒否
+ *  - withdrawal_type='approved' かつ 24時間以内 → 許可（モーダルで通知表示）
+ *  @returns {{allow:boolean, reason:string, isBan:boolean}} */
+function evaluateWithdrawalAccess(profile){
+  if(!profile || !profile.banned_at){ return { allow: true, reason: '', isBan: false }; }
+  var wType = profile.withdrawal_type || 'banned';
+  if(wType === 'banned'){
+    return { allow: false, reason: 'このアカウントは退会処分されています。', isBan: true };
+  }
+  // approved → 24時間以内なら継続使用可
+  var elapsedMs = Date.now() - new Date(profile.banned_at).getTime();
+  var grace24h = 24 * 60 * 60 * 1000;
+  if(elapsedMs > grace24h){
+    return { allow: false, reason: '退会承認から24時間が経過したためご利用いただけません。', isBan: false };
+  }
+  return { allow: true, reason: '', isBan: false };
+}
+
+/** 起動時/ログイン後に、未表示の退会通知があれば表示 */
+async function checkPendingWithdrawalNotice(){
+  if(!currentUser) return;
+  try{
+    var{data}=await supa.from('contacts')
+      .select('id, contact_type, body, created_at')
+      .eq('user_id', currentUser.id)
+      .in('contact_type', ['退会処分通知','退会承認通知'])
+      .order('created_at', { ascending: false }).limit(1);
+    if(!data || !data[0]) return;
+    var notice = data[0];
+    var key = 'withdrawal_notice_shown_' + currentUser.id + '_' + notice.id;
+    if(localStorage.getItem(key)) return; // 表示済み
+    showWithdrawalNoticeModal(notice);
+  }catch(e){ console.log('checkPendingWithdrawalNotice error:', e); }
 }
 
 // ===== 公式チャットの履歴を DB から再構築 =====
@@ -6129,7 +6448,15 @@ function startRealtime() {
     .channel('rt-chat-' + uid)
     .on('postgres_changes',
       { event: '*', schema: 'public', table: 'contacts', filter: 'user_id=eq.' + uid },
-      function(){ loadOfficialChatHistory(); }
+      function(payload){
+        loadOfficialChatHistory();
+        // 退会処分通知 / 退会承認通知 が新着なら即時ポップアップ
+        var row = payload.new || {};
+        if(payload.eventType === 'INSERT'
+           && (row.contact_type === '退会処分通知' || row.contact_type === '退会承認通知')){
+          if(typeof showWithdrawalNoticeModal === 'function') showWithdrawalNoticeModal(row);
+        }
+      }
     )
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'announcements' },
@@ -6334,9 +6661,10 @@ async function checkSession() {
       profile = await flushPendingProfile(currentUser.id);
     }
 
-    if (profile && profile.banned_at) {
-      // BAN済みアカウントはログアウトさせる
-      alert('このアカウントは利用停止されています。\n理由：' + (profile.banned_reason || '（理由の記載なし）'));
+    // 退会状態判定（退会処分は常に拒否、退会承認は 24時間以内のみ許可）
+    var access = (profile) ? evaluateWithdrawalAccess(profile) : { allow: true };
+    if(!access.allow){
+      alert(access.reason + '\n理由：' + (profile.banned_reason || '（記載なし）'));
       try { await supa.auth.signOut(); } catch (e) {}
       window.location.href = window.location.pathname;
       return;
@@ -6359,6 +6687,8 @@ async function checkSession() {
       loadOfficialChatHistory();
       loadRealUsers();
       loadEnList();
+      // 未表示の退会通知があればポップアップ表示
+      checkPendingWithdrawalNotice();
     } else {
       document.getElementById('orient-wrap').style.display = 'none';
       document.getElementById('reg-wrap').style.display = 'block';
@@ -6397,10 +6727,11 @@ async function doLogin() {
   if (!profile) {
     profile = await flushPendingProfile(currentUser.id);
   }
-  if (profile && profile.banned_at) {
-    // BAN済みアカウント
-    errEl.textContent = 'このアカウントは利用停止されています';
-    alert('このアカウントは利用停止されています。\n理由：' + (profile.banned_reason || '（理由の記載なし）'));
+  // 退会状態判定（退会処分は常に拒否、退会承認は 24時間以内のみ許可）
+  var accessL = (profile) ? evaluateWithdrawalAccess(profile) : { allow: true };
+  if(!accessL.allow){
+    errEl.textContent = accessL.reason;
+    alert(accessL.reason + '\n理由：' + (profile.banned_reason || '（記載なし）'));
     try { await supa.auth.signOut(); } catch (e) {}
     document.getElementById('login-wrap').style.display = 'flex';
     return;
@@ -6414,10 +6745,13 @@ async function doLogin() {
     showAppWrap();
     await loadMyCashbacks();
     populateProfileModal(profile);
+    await loadMyGraduationStatus();
     if (typeof applyPlanUI === 'function') applyPlanUI(myPlan);
     loadOfficialChatHistory();
     loadRealUsers();
     loadEnList();
+    // 未表示の退会通知があればポップアップ表示
+    checkPendingWithdrawalNotice();
   } else {
     // プロフィール未登録ならオリエンテーションへ
     document.getElementById('login-wrap').style.display = 'none';
