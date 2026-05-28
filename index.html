@@ -3017,12 +3017,14 @@ function renderEnList(){
     if(s==='coupled')badgeClass='coupled';
     if(s==='approved'||s==='approved_by_me')badgeClass='matched';
     // 「付き合いました！」双方申請式の特殊バッジ（date_set のとき）
+    // 文字が長いので名前の右ではなく下に独立して表示するため、別フラグで管理
+    var badgeBelowName = '';
     if(s==='date_set' && item.myCoupleReq && !item.partnerCoupleReq){
-      badgeLabel = item.name + 'の「付き合いました！」待ち';
-      badgeClass = 'date-set';
+      badgeBelowName = item.name + 'の「付き合いました！」待ち';
+      badgeLabel = '';
     }else if(s==='date_set' && item.partnerCoupleReq && !item.myCoupleReq){
-      badgeLabel = item.name + 'から「付き合いました！」申請！✨';
-      badgeClass = 'date-set';
+      badgeBelowName = '「付き合いました！」申請✨';
+      badgeLabel = '';
     }
     var isCompact=(s==='matched'||s==='chatting'||s==='date_set'||s==='dated'||s==='coupled');
     html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
@@ -3046,7 +3048,13 @@ function renderEnList(){
     if(s === 'pending' && item.partnerUserId){
       detailBtnHtml = '<button onclick="event.stopPropagation();openPartnerProfile(\''+item.partnerUserId+'\',\''+s+'\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">🔍 詳細</button>';
     }
-    html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+'<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span></div><div class="mmeta">'+item.meta+'</div></div>'+detailBtnHtml+'</div>';
+    // 名前横バッジ（badgeLabel が空なら表示しない=下に独立表示するケース）
+    var inlineBadgeHtml = badgeLabel ? '<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span>' : '';
+    // 名前下に出すバッジ（長い文言用）
+    var belowBadgeHtml = badgeBelowName
+      ? '<div style="margin-top:4px"><span class="en-badge '+badgeClass+'" style="margin-left:0;display:inline-block">'+badgeBelowName+'</span></div>'
+      : '';
+    html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+inlineBadgeHtml+'</div>'+belowBadgeHtml+'<div class="mmeta">'+item.meta+'</div></div>'+detailBtnHtml+'</div>';
     // ロック中のボタン生成ヘルパー（見た目だけ無効化、クリックでアラート）
     // disabled 属性を付けると onclick が発火しないため、style と onclick のみで実現
     // 自分カップル中 → 自分視点アラート / 相手カップル中 → 相手視点アラート
@@ -3081,10 +3089,11 @@ function renderEnList(){
       var thanksBtn = '<button class="en-phase-btn secondary" onclick="endWithThanks(\''+item.matchId+'\')">感謝して完了</button>';
       html+='<div class="en-phase-btns">'+msgBtn+dateBtn+thanksBtn+'</div>';
     }else if(s==='date_set'){
-      // レビュー未送信なら「お相手をレビュー」、送信済みなら「レビュー済み ✓」
+      // 「感謝して終了」ボタン: 押すとレビュー入力モーダルを開く（レビュー送信後にマッチが終了する設計）
+      // 既にレビュー済みの場合は「✓」を付けて押下時に確認できるようにする
       var reviewBtnDS = item.reviewed
-        ? '<button class="en-phase-btn secondary" disabled style="opacity:.55;cursor:default">レビュー済み ✓</button>'
-        : '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">お相手をレビュー</button>';
+        ? '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">感謝して終了 ✓</button>'
+        : '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">感謝して終了</button>';
       var msgBtnD = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
       // 「付き合いました！」ボタンを 3 状態で出し分け:
       //   (A) 双方未申請  → 通常ボタン
