@@ -3016,6 +3016,14 @@ function renderEnList(){
     if(s==='dated')badgeClass='dated';
     if(s==='coupled')badgeClass='coupled';
     if(s==='approved'||s==='approved_by_me')badgeClass='matched';
+    // 「付き合いました！」双方申請式の特殊バッジ（date_set のとき）
+    if(s==='date_set' && item.myCoupleReq && !item.partnerCoupleReq){
+      badgeLabel = item.name + 'の「付き合いました！」待ち';
+      badgeClass = 'date-set';
+    }else if(s==='date_set' && item.partnerCoupleReq && !item.myCoupleReq){
+      badgeLabel = item.name + 'から「付き合いました！」申請！✨';
+      badgeClass = 'date-set';
+    }
     var isCompact=(s==='matched'||s==='chatting'||s==='date_set'||s==='dated'||s==='coupled');
     html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
     // マッチ後（matched 以降）はクリア表示、申請中(sent/pending) はぼかし
@@ -3077,11 +3085,21 @@ function renderEnList(){
       var reviewBtnDS = item.reviewed
         ? '<button class="en-phase-btn secondary" disabled style="opacity:.55;cursor:default">レビュー済み ✓</button>'
         : '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">お相手をレビュー</button>';
-      // メッセージとレビューは許可、付き合いました！はロック対象
       var msgBtnD = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
-      var coupledBtn = locked
-        ? '<button class="en-phase-btn primary"'+lockedAttr+'>付き合いました！</button>'
-        : '<button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>';
+      // 「付き合いました！」ボタンを 3 状態で出し分け:
+      //   (A) 双方未申請  → 通常ボタン
+      //   (B) 自分申請済み → 無効化「✓ 申請済み」
+      //   (C) 相手申請済み → 強調表示の通常ボタン（押せば即カップル成立）
+      var coupledBtn;
+      if(locked){
+        coupledBtn = '<button class="en-phase-btn primary"'+lockedAttr+'>付き合いました！</button>';
+      }else if(item.myCoupleReq){
+        coupledBtn = '<button class="en-phase-btn primary" disabled style="opacity:.55;cursor:default">✓ 付き合いました！(申請済)</button>';
+      }else if(item.partnerCoupleReq){
+        coupledBtn = '<button class="en-phase-btn primary" style="box-shadow:0 0 0 2px #C9A96E;font-weight:600" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>';
+      }else{
+        coupledBtn = '<button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>';
+      }
       html+='<div class="en-phase-btns">'+msgBtnD+coupledBtn+reviewBtnDS+'</div>';
     }else if(s==='dated'){
       html+='<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.3rem 0">レビュー済み・完了</div>';
@@ -3136,58 +3154,79 @@ async function endWithThanks(matchId){
   enList=enList.filter(function(e){return e.matchId!==matchId;});
   renderEnList();updateEnBadge();loadRealUsers();
 }
-/** 「付き合いました！」：status を coupled に + 相手に Push 通知 + 卒業プラン解放 @param {string} matchId */
+/** 「付き合いました！」：双方申請式
+ *  - 自分が先に押す → 相手の運営チャットに通知 INSERT(RPC側) + 相手に Push
+ *  - 相手が既に申請済み → status='coupled' に昇格 + 卒業プラン解放 + 卒業案内 + 双方通知
+ *  @param {string} matchId */
 async function setCoupled(matchId){
-  var nowIso=new Date().toISOString();
   try{
-    // 相手 user_id 取得 → push
-    var{data:m}=await supa.from('matches').select('from_user_id,to_user_id').eq('id',matchId).single();
-    var{error:updErr}=await supa.from('matches').update({status:'coupled',coupled_at:nowIso}).eq('id',matchId);
-    if(updErr){
-      // DB トリガー prevent_double_couple で弾かれた場合
-      var errMsg = String(updErr.message || '');
-      if(/already_coupled_with_another/.test(errMsg) || updErr.code === '54000'){
+    // 双方申請式 RPC: 自分側のタイムスタンプセット & 必要なら coupled 昇格
+    var rpcResp = await supa.rpc('request_couple', { p_match_id: matchId });
+    if(rpcResp && rpcResp.error){
+      var errMsg = String(rpcResp.error.message || '');
+      if(/already_coupled_with_another/.test(errMsg) || rpcResp.error.code === '54000'){
         alert('お相手は既に別の方とカップル成立されているため、カップル成立できませんでした。');
-        // 相手側の最新状態を取り込むため再読込
         await loadEnList();
         return;
       }
-      alert('カップル成立に失敗しました: ' + errMsg);
+      alert('カップル成立申請に失敗しました: ' + errMsg);
       return;
     }
-    if(m){
-      var partnerId = (m.from_user_id === currentUser.id) ? m.to_user_id : m.from_user_id;
+    var res = rpcResp && rpcResp.data;
+    var becomesCoupled = !!(res && res.is_coupled);
+
+    // 相手 user_id 取得（push 用）
+    var{data:m}=await supa.from('matches').select('from_user_id,to_user_id').eq('id',matchId).single();
+    var partnerId = m ? ((m.from_user_id === currentUser.id) ? m.to_user_id : m.from_user_id) : null;
+
+    if(becomesCoupled){
+      // === 双方申請揃い：カップル成立 ===
+      var nowIso = new Date().toISOString();
       if(partnerId){
         sendPushNotification(supa, {
           target_user_id: partnerId,
           title: '🎊 カップル成立！',
-          body: 'お相手があなたとのカップル成立を宣言しました',
+          body: 'お相手も「付き合いました！」を押し、カップルが成立しました',
           url: './#en',
           tag: 'coupled',
         });
       }
+      // 運営からの卒業案内通知を両者の運営チャットへ送る（重複は RPC 側で防止）
+      supa.rpc('send_couple_notice', { p_match_id: matchId })
+        .then(function(r){
+          if(r && r.error){ console.log('send_couple_notice error:', r.error); }
+          else {
+            if(typeof loadOfficialChatHistory === 'function') loadOfficialChatHistory();
+            if(typeof addNotif === 'function') addNotif('🎊 ご卒業の案内が届きました', '運営からの今後の流れについてご確認ください');
+          }
+        })
+        .catch(function(e){ console.log('send_couple_notice exception:', e); });
+
+      var item=enList.find(function(e){return e.matchId===matchId;});
+      if(item){item.status='coupled';item.coupledAt=nowIso;item.myCoupleReq=true;item.partnerCoupleReq=true;}
+      renderEnList();
+      renderMsgList();
+      loadRealUsers();      // 推しページのカードをグレーアウト再描画
+      refreshSotsugyouState(); // 卒業鑑定プラン解放（自分側）
+    }else{
+      // === 自分が先に申請：相手に Push（運営通知 INSERT は RPC 側で完了済み） ===
+      if(partnerId){
+        sendPushNotification(supa, {
+          target_user_id: partnerId,
+          title: '💕 「付き合いました！」申請が届きました',
+          body: 'お相手があなたと「付き合いました！」のボタンを押しました',
+          url: './#chat-official',
+          tag: 'couple-request',
+        });
+      }
+      var item2=enList.find(function(e){return e.matchId===matchId;});
+      if(item2){ item2.myCoupleReq = true; }
+      renderEnList();
     }
-    // 運営からの卒業案内通知を両者の運営チャットへ送る（重複は RPC 側で防止）
-    supa.rpc('send_couple_notice', { p_match_id: matchId })
-      .then(function(r){
-        if(r && r.error){ console.log('send_couple_notice error:', r.error); }
-        else {
-          // 自分側の運営チャットを即時更新（相手側は realtime で拾う）
-          if(typeof loadOfficialChatHistory === 'function') loadOfficialChatHistory();
-          // 通知欄にも追加
-          if(typeof addNotif === 'function') addNotif('🎊 ご卒業の案内が届きました', '運営からの今後の流れについてご確認ください');
-        }
-      })
-      .catch(function(e){ console.log('send_couple_notice exception:', e); });
-  }catch(e){ console.log('setCoupled error:', e); }
-  var item=enList.find(function(e){return e.matchId===matchId;});
-  if(item){item.status='coupled';item.coupledAt=nowIso;}
-  renderEnList();
-  renderMsgList();
-  // 推しページのカードをグレーアウト再描画
-  loadRealUsers();
-  // 卒業鑑定プラン解放（自分側）
-  refreshSotsugyouState();
+  }catch(e){
+    console.log('setCoupled error:', e);
+    alert('エラーが発生しました');
+  }
 }
 /** レビュー入力モーダルを開く @param {string} matchId */
 function openReview(matchId){
@@ -3906,7 +3945,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at});
           }
         }
       }
@@ -3952,7 +3991,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at});
           }
         }
       }
