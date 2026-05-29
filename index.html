@@ -21,7 +21,7 @@
 html,body{height:100%;height:100dvh}
 body{font-family:'Noto Sans JP',sans-serif;background:#f5f5f5;display:flex;justify-content:center;min-height:100vh;min-height:100dvh;padding:0}
 div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-serif}
-.shell{max-width:400px;width:100%;margin:0 auto;background:var(--color-background-secondary,#f9f9f9);position:relative;min-height:100vh;min-height:100dvh}
+.shell{max-width:400px;width:100%;margin:0 auto;background-color:var(--color-background-secondary,#f9f9f9);position:relative;min-height:100vh;min-height:100dvh}
 
 /* CSS変数（ライトモード） */
 :root{
@@ -434,6 +434,62 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .img-zoom-close:hover{background:rgba(255,255,255,.22)}
 @keyframes imgZoomFadeIn{from{opacity:0}to{opacity:1}}
 
+/* ===== topbar 中央のロゴ(2本のツタが優しく絡み合うイメージ) ===== */
+.topbar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0 8px;
+}
+.topbar-logo svg {
+  width: 56px;
+  height: 32px;
+  display: block;
+  /* 風に吹かれて揺れる感じの微細アニメーション(下中央を支点に振り子のように揺れる) */
+  transform-origin: 50% 70%;
+  animation: logo-vine-sway 5.5s ease-in-out infinite;
+}
+
+/* キーフレーム: 緩やかな揺れ + 微小な上下動で「風」を演出 */
+@keyframes logo-vine-sway {
+  0%   { transform: rotate(-10deg) translateY(0); }
+  25%  { transform: rotate(5deg)   translateY(-2px); }
+  50%  { transform: rotate(10deg)  translateY(0); }
+  75%  { transform: rotate(-3deg)  translateY(-1.6px); }
+  100% { transform: rotate(-10deg) translateY(0); }
+}
+
+/* アクセシビリティ: モーション抑制設定の方にはアニメーション無効 */
+@media (prefers-reduced-motion: reduce) {
+  .topbar-logo svg { animation: none; }
+}
+
+/* ===== 通知時のツタ演出オーバーレイ =====
+   ロゴから「推し」「🔔」「メッセージ」へツタが伸びてタッチするアニメーション */
+.vine-fx-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  pointer-events: none;
+  z-index: 4;
+  overflow: visible;
+}
+.vine-fx-overlay path {
+  fill: none;
+  /* 色・ストローク長・アニメーション制御はすべて JS 側で発火時に動的設定 */
+  stroke: #8FB342;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vine-fx-overlay path { transition: none !important; }
+}
+
 </style>
 </head>
 <body>
@@ -661,11 +717,33 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 <template id="app-template"><div class="app-wrap" id="app-wrap" style="display:block">
   <div class="topbar">
     <div><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
+    <div class="topbar-logo" aria-hidden="true">
+      <svg viewBox="0 0 80 36" xmlns="http://www.w3.org/2000/svg" fill="none" stroke-linejoin="round">
+        <!-- 左ツタ(黄緑): 左端で滑らかな1巻きの小さい渦(C曲線) + 3波 + 中央上向き巻きひげ -->
+        <path d="M6,30 C0,28 -2,18 6,18 C13,18 13,12 7,13 Q12,12 18,14 Q27,18 30,24 Q34,30 39,22 Q45,12 39,8 Q33,6 35,13" stroke="#8FB342" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- 右ツタ(橙): 右端で滑らかな1.5巻きの大きい渦(C曲線・2段、viewBox 内に収める) + 3波 + 中央下向き巻きひげ -->
+        <path d="M71,31 C79,29 79,15 70,16 C60,17 64,8 73,9 C78,10 74,17 68,16 Q64,16 62,22 Q53,18 50,12 Q46,6 41,14 Q35,24 41,28 Q47,30 45,23" stroke="#E29659" stroke-width="2.2" stroke-linecap="round"/>
+        <!-- 巻き終わり先端の小さなアクセント(中央の絡みは変更なし) -->
+        <circle cx="35" cy="13" r="1.6" fill="#8FB342"/>
+        <circle cx="45" cy="23" r="1.6" fill="#E29659"/>
+        <!-- 葉(対角配置・渦と被らない内側に配置) -->
+        <path d="M22,12 Q26,6 31,11 Q27,17 22,12Z" fill="#8FB342"/>
+        <path d="M55,24 Q51,17 46,22 Q50,28 55,24Z" fill="#E29659"/>
+      </svg>
+    </div>
     <div class="topbar-icons">
       <div class="notif-icon" onclick="toggleNotif()">🔔<div class="notif-dot" id="notif-dot"></div></div>
       <div class="prof-icon" onclick="toggleModal()"><img id="topbar-ava" src="" style="display:none"><span class="prof-icon-ph" id="topbar-initial">は</span></div>
     </div>
   </div>
+  <!-- ロゴから「推し」「縁リスト」「メッセージ」「🔔」へループしながら伸びるツタの演出オーバーレイ
+       (d 属性は JS で発火時に動的生成 — 色に応じてロゴ上の対応する端から始まる + 1or2回のループ) -->
+  <svg class="vine-fx-overlay" viewBox="0 0 400 100" preserveAspectRatio="xMidYMin meet" aria-hidden="true">
+    <path id="vine-fx-oshi"/>
+    <path id="vine-fx-enlist"/>
+    <path id="vine-fx-msg"/>
+    <path id="vine-fx-bell"/>
+  </svg>
   <div class="notif-panel" id="notif-panel">
     <div class="notif-hd"><span class="notif-ttl">通知</span><button class="notif-close" onclick="toggleNotif()">✕</button></div>
     <div id="notif-list"></div>
@@ -760,7 +838,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div>
   </div>
   <div class="nav">
-    <div class="ntab on" data-tab="oshi" onclick="goTab(0)">推し</div>
+    <div class="ntab on" data-tab="oshi" onclick="goTab(0)">推し<span class="tab-badge" id="oshi-badge" style="display:none"></span></div>
     <div class="ntab" data-tab="enlist" onclick="goTab(1)">縁リスト<span class="tab-badge" id="en-badge" style="display:none"></span></div>
     <div class="ntab" data-tab="msg" onclick="goTab(2)">メッセージ<span class="tab-badge" id="msg-badge" style="display:none"></span></div>
     <div class="other-tab-wrap">
@@ -918,6 +996,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div id="cancel-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
       <div id="cancel-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 退会申請を受け付けました</div>
       <button class="btn-gold" id="cancel-submit-btn" onclick="submitCancelRequest()" style="background:#C05050;margin-bottom:.5rem">退会申請を送信する</button>
+      <button id="cancel-revoke-btn" onclick="cancelWithdrawalRequest()" style="display:none;width:100%;padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:13px;margin-bottom:.5rem">退会申請を取り消す</button>
       <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;margin-top:.5rem;text-align:center">受付後の経過は「メッセージ」ページの運営チャットでご確認いただけます。</div>
     </div></div>
     <div id="sub-report" style="display:none"><div style="padding:1rem">
@@ -947,7 +1026,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div></div>
   </div>
   <div class="bnav">
-    <div class="bni on" onclick="goTab(0)"><span class="bni-icon">✦</span>推し</div>
+    <div class="bni on" onclick="goTab(0)"><span class="bni-icon">✦</span>推し<span class="bni-badge" id="bni-oshi-badge" style="display:none"></span></div>
     <div class="bni" onclick="goTab(1)" id="bni-en"><span class="bni-icon">☽</span>縁リスト<span class="bni-badge" id="bni-badge" style="display:none"></span></div>
     <div class="bni" onclick="goTab(2)"><span class="bni-icon">✉</span>メッセージ</div>
     <div class="bni" id="bni-other" onclick="toggleSubMenu(event)"><span class="bni-icon">≡</span>その他</div>
@@ -2092,7 +2171,7 @@ const SLIDE_DATA = {
     +'<div class="slide-sub">月963円から始められる、<br>マッチングに特化した軽量プランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">お試しプラン</div>'
     +'<div class="plan-box-price">¥ 963 <span class="plan-box-unit">/ 月</span></div>'
-    +'<div class="plan-box-items">✦ 命式の自動計算・登録<br>✦ 良縁率の高い方とのマッチング<br>✦ 仮マッチ後のプロフィール閲覧<br>✦ メッセージ最大30回</div></div>'
+    +'<div class="plan-box-items">✦ 命式の自動計算・登録<br>✦ 良縁率の高い方とのマッチング<br>✦ 仮マッチ後のプロフィール閲覧<br>✦ メッセージ最大100回</div></div>'
     +'<div class="slide-note">※ 相性診断・運勢カレンダーをご利用になりたい場合は、後日「NOマッチングプラン」または「トータルプラン」へ変更ください。</div>',
     // 2. 登録について
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
@@ -2177,7 +2256,7 @@ const SLIDE_DATA = {
     +'<div class="slide-sub">マッチング・相性診断・運勢カレンダー、<br>すべての機能をフル活用できる総合プランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">トータルプラン</div>'
     +'<div class="plan-box-price">¥ 2,369 <span class="plan-box-unit">/ 月</span></div>'
-    +'<div class="plan-box-items">✦ 良縁率の高い方とのマッチング<br>✦ メッセージのやり取り<br>✦ 気になる人との相性診断<br>✦ 相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー</div></div>'
+    +'<div class="plan-box-items">✦ 良縁率の高い方とのマッチング<br>✦ メッセージ最大100回<br>✦ 気になる人との相性診断<br>✦ 相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー</div></div>'
     +'<div class="slide-note">※ 他のSNSのIDやリンクの交換は規約違反。<br>発覚時点で退会処分・再入会不可となります。</div>',
     // 2. 登録について
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
@@ -2678,15 +2757,21 @@ async function completeReg() {
 function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;if(minScore<50)minScore=50;var filtered=ALL_SORTED.filter(function(item){if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
 /** フィルタ済みの推し候補リストを HTML に描画 @param {Array<{i:number,p:any,score:number,tags:string,isDemo:boolean}>} list */
 function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;
-    // 申請済みのボタンを更新
+    // 申請済みのボタンを更新 + キャンセルボタンの表示
     if(currentUser){
-      supa.from('matches').select('to_user_id').eq('from_user_id',currentUser.id).then(function(res){
+      supa.from('matches').select('id,to_user_id,status').eq('from_user_id',currentUser.id).then(function(res){
         if(res.data){
-          var sentIds=res.data.map(function(m){return m.to_user_id;});
+          // partnerUserId → {matchId, status} のマップ
+          var sentMap = {};
+          res.data.forEach(function(m){ sentMap[m.to_user_id] = { matchId: m.id, status: m.status }; });
           PARTNERS.forEach(function(p,i){
-            if(p.userId&&sentIds.indexOf(p.userId)>=0){
+            if(p.userId && sentMap[p.userId]){
               var btn=document.getElementById('hanashi-btn-'+i);
               if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');btn.disabled=true;}
+              // pending の場合はキャンセル可能なのでボタンを表示
+              if(sentMap[p.userId].status === 'pending'){
+                showHanashiCancelBtn(i, sentMap[p.userId].matchId);
+              }
             }
           });
         }
@@ -2710,9 +2795,13 @@ var avaHtml = partner.avatarUrl
 var _isLocked=isCoupledNow();
 var _cardCls=_isLocked?'match-card card-locked':'match-card';
 var _cardOnclick=_isLocked?'showOshiLockedAlert()':'toggleDetail('+idx+')';
-var card='<div class="'+_cardCls+'" id="card'+idx+'" onclick="'+_cardOnclick+'">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div><div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
+// 「🔍 詳細」ボタン: リアルユーザー(userId あり)のみ表示。デモユーザーには出さない
+var detailBtnHtml = (!isDemo && partner.userId)
+  ? '<button onclick="event.stopPropagation();openPartnerProfile(\''+partner.userId+'\',\'pending\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;align-self:flex-start">🔍 詳細</button>'
+  : '';
+var card='<div class="'+_cardCls+'" id="card'+idx+'" onclick="'+_cardOnclick+'">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div>'+detailBtnHtml+'<div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
    ? '<button class="btn-hanashi sent" id="hanashi-btn-'+idx+'" disabled style="opacity:.5;cursor:not-allowed">🎉 カップル成立中のため申請不可</button>'
-   : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
+   : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+'<button id="hanashi-cancel-btn-'+idx+'" onclick="cancelHanashi('+idx+')" style="display:none;width:100%;padding:8px 12px;margin-top:6px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:12px">キャンセル</button>'+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
 /** 自分の命式から全パートナーとの相性を計算し、ソートして表示
  * @param {Array<{k:number,s:number}|null>} myP
  */
@@ -2788,21 +2877,106 @@ async function hanashi(idx){
   try{
     // 既に申請済みか確認
     var{data:existing}=await supa.from('matches').select('*').eq('from_user_id',currentUser.id).eq('to_user_id',partner.userId);
-    if(existing&&existing.length>0){if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}return;}
+    if(existing&&existing.length>0){
+      if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}
+      // キャンセルボタンも表示
+      var existingMatchId = existing[0].id;
+      showHanashiCancelBtn(idx, existingMatchId);
+      return;
+    }
     // matchesテーブルに保存
-    var{error}=await supa.from('matches').insert({from_user_id:currentUser.id,to_user_id:partner.userId,status:'pending'});
+    var{data:inserted, error}=await supa.from('matches').insert({from_user_id:currentUser.id,to_user_id:partner.userId,status:'pending'}).select('id').single();
     if(error){alert('申請エラー：'+error.message);if(btn){btn.textContent='話してみたい';btn.disabled=false;}return;}
     if(btn){btn.textContent='申請済み ✓';btn.classList.add('sent');}
+    // 申請成功 → キャンセルボタン表示
+    if(inserted && inserted.id) showHanashiCancelBtn(idx, inserted.id);
+
+    // 自分のニックネームを取得して通知文言に使用
+    var myNickname = '';
+    try{
+      var{data:me}=await supa.from('profiles').select('nickname').eq('id',currentUser.id).single();
+      myNickname = (me && me.nickname) ? me.nickname : '';
+    }catch(_){}
+
+    // ★ 相手の運営チャットに通知（リアルタイム反映のため最初に await して確実に INSERT）
+    try{
+      var{error:noticeErr}=await supa.rpc('send_hanashi_notice', { p_partner_id: partner.userId });
+      if(noticeErr) console.log('send_hanashi_notice error:', noticeErr);
+    }catch(nx){ console.log('send_hanashi_notice exception:', nx); }
+
     // 相手にプッシュ通知（fire-and-forget）
     sendPushNotification(supa, {
       target_user_id: partner.userId,
-      title: '💝 マッチング申請が届きました',
-      body: 'お相手があなたに「話してみたい」と言っています',
+      title: '💝 ' + (myNickname || 'お相手') + 'さんからお話し申請が来ました！',
+      body: '縁リストで詳細を確認できます',
       url: './#en',
       tag: 'match-request',
     });
+
     loadEnList();
   }catch(e){console.log('hanashiエラー:',e);if(btn){btn.textContent='話してみたい';btn.disabled=false;}}
+}
+
+/** 推しページの「キャンセル」ボタンを表示する @param {number} idx @param {string} matchId */
+function showHanashiCancelBtn(idx, matchId){
+  var cancelBtn = document.getElementById('hanashi-cancel-btn-' + idx);
+  if(cancelBtn){
+    cancelBtn.style.display = 'block';
+    cancelBtn.setAttribute('data-match-id', matchId);
+  }
+}
+
+/** 推しページのキャンセルボタン押下時 @param {number} idx */
+async function cancelHanashi(idx){
+  var cancelBtn = document.getElementById('hanashi-cancel-btn-' + idx);
+  if(!cancelBtn) return;
+  var matchId = cancelBtn.getAttribute('data-match-id');
+  if(!matchId){ alert('対象の申請が見つかりません'); return; }
+  if(!confirm('お話し申請をキャンセルします。よろしいですか？')) return;
+  cancelBtn.disabled = true;
+  cancelBtn.textContent = 'キャンセル中...';
+  try{
+    var{data:res, error}=await supa.rpc('cancel_hanashi_request', { p_match_id: matchId });
+    if(error){
+      alert('キャンセルに失敗しました: ' + error.message);
+      cancelBtn.disabled = false;
+      cancelBtn.textContent = 'キャンセル';
+      return;
+    }
+    // 相手に push 通知（fire-and-forget）
+    var partnerId = res && res.partner_id;
+    if(partnerId){
+      var myNickname = '';
+      try{
+        var{data:me}=await supa.from('profiles').select('nickname').eq('id',currentUser.id).single();
+        myNickname = (me && me.nickname) ? me.nickname : '';
+      }catch(_){}
+      sendPushNotification(supa, {
+        target_user_id: partnerId,
+        title: '🕊 ' + (myNickname || 'お相手') + 'さんがお話し申請をキャンセルしました',
+        body: '運営チャットで詳細を確認できます',
+        url: './#chat-official',
+        tag: 'match-cancel',
+      });
+    }
+    // ボタン状態リセット
+    var hanashiBtn = document.getElementById('hanashi-btn-' + idx);
+    if(hanashiBtn){
+      hanashiBtn.textContent = '話してみたい';
+      hanashiBtn.disabled = false;
+      hanashiBtn.classList.remove('sent');
+    }
+    cancelBtn.style.display = 'none';
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = 'キャンセル';
+    cancelBtn.removeAttribute('data-match-id');
+    loadEnList(); // 縁リストからも 'sent' カードを消す
+  }catch(e){
+    console.log('cancelHanashi error:', e);
+    alert('エラーが発生しました');
+    cancelBtn.disabled = false;
+    cancelBtn.textContent = 'キャンセル';
+  }
 }
 
 // ===== リアルユーザー読み込み =====
@@ -2829,6 +3003,20 @@ async function loadRealUsers() {
         validUsers=validUsers.filter(function(u){return blockedIds.indexOf(u.id)<0;});
       }
     }catch(e){console.log('除外エラー:',e);}
+    // カップル成立済み(status='coupled')のユーザーを除外
+    // 自分以外のカップル成立はRLSで見えないため、SECURITY DEFINER RPC で取得
+    try{
+      var idsForCoupleCheck = validUsers.map(function(u){return u.id;});
+      if(idsForCoupleCheck.length > 0){
+        var{data:coupledRows, error:cErr}=await supa.rpc('get_coupled_user_ids', { user_ids: idsForCoupleCheck });
+        if(!cErr && coupledRows){
+          var coupledSet = new Set(coupledRows.map(function(r){return r.user_id;}));
+          if(coupledSet.size > 0){
+            validUsers = validUsers.filter(function(u){return !coupledSet.has(u.id);});
+          }
+        }
+      }
+    }catch(e){console.log('coupled除外エラー:',e);}
     // 異性のみフィルター
     if (mySex) {
       var targetSex = '';
@@ -2867,10 +3055,23 @@ async function loadRealUsers() {
       }
     }
 
+    // 新規推し検知用: 入れ替え前のリアル userId 集合を保持
+    var prevRealIds = new Set();
+    PARTNERS.forEach(function(p){ if(p && p.userId && !p.isDemo) prevRealIds.add(p.userId); });
+
     PARTNERS.splice(0, PARTNERS.length);
     if (anyDecentReal) {
       // リアルユーザーが1人でも50%以上ならデモは表示しない
       realPartners.forEach(function(p){ PARTNERS.push(p); });
+      // 新しく加わった人が居れば「推し」へツタを伸ばす + ゴールドポッチ表示
+      // 初回(prevRealIds が空)はスキップ(全員「新規」になるため)
+      if(prevRealIds.size > 0){
+        var addedAny = realPartners.some(function(p){ return p.userId && !prevRealIds.has(p.userId); });
+        if(addedAny){
+          if(typeof setOshiBadge === 'function') setOshiBadge(true);
+          if(typeof growVineFx === 'function') growVineFx('oshi');
+        }
+      }
     } else {
       // リアル0、もしくは全員50%未満ならデモを表示（異性のデモを選択）
       var demoFemale = [
@@ -2978,8 +3179,15 @@ function scrollChatToBottom(){
 })();
 
 // ===== テキスト整形：linkifyText は js/utils.js で共通定義 =====
-/** 縁リストタブの未対応バッジ（赤いドット）を更新 */
-function updateEnBadge(){var p=enList.filter(function(e){return e.status==='pending';}).length;['en-badge','bni-badge'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display=p>0?'block':'none';});}
+/** 縁リストタブのゴールドポッチ表示更新
+ *  - pending(受信した申請) または approved(自分の申請が承認された) があれば表示 */
+function updateEnBadge(){
+  var hasNotice = enList.some(function(e){return e.status==='pending' || e.status==='approved';});
+  ['en-badge','bni-badge'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el) el.style.display = hasNotice ? 'block' : 'none';
+  });
+}
 /** 縁リスト全体を描画。ステータス別に表示・アクションボタンを切替 */
 function renderEnList(){
   var el=document.getElementById('en-list'),empty=document.getElementById('en-empty');
@@ -3019,7 +3227,12 @@ function renderEnList(){
     // 「付き合いました！」双方申請式の特殊バッジ（date_set のとき）
     // 文字が長いので名前の右ではなく下に独立して表示するため、別フラグで管理
     var badgeBelowName = '';
-    if(s==='date_set' && item.myCoupleReq && !item.partnerCoupleReq){
+    // 優先: 相手がレビュー送信済み = キャンセル通知 / マッチ終了
+    if(s==='date_set' && item.partnerReviewed){
+      var hadRequest = item.myCoupleReq || item.partnerCoupleReq;
+      badgeBelowName = item.name + (hadRequest ? 'が申請をキャンセル' : 'がマッチを終了');
+      badgeLabel = '';
+    }else if(s==='date_set' && item.myCoupleReq && !item.partnerCoupleReq){
       badgeBelowName = item.name + 'の「付き合いました！」待ち';
       badgeLabel = '';
     }else if(s==='date_set' && item.partnerCoupleReq && !item.myCoupleReq){
@@ -3066,6 +3279,9 @@ function renderEnList(){
       }else{
         html+='<div class="en-actions"><button class="btn-ok" onclick="enOK(\''+item.matchId+'\')">お話しOK</button><button class="btn-ng" onclick="enNG(\''+item.matchId+'\')">ごめんなさい</button></div>';
       }
+    }else if(s==='sent'){
+      // 自分が送った申請 (pending)。キャンセル可能
+      html+='<div style="text-align:center;margin-top:.5rem"><button onclick="cancelHanashiFromEnList(\''+item.matchId+'\')" style="font-size:11px;padding:6px 16px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:var(--color-text-secondary);background:transparent;cursor:pointer;font-family:inherit">お話し申請をキャンセル</button></div>';
     }else if(s==='approved_by_me'){
       html+='<div style="font-size:12px;color:#C9A96E;text-align:center;margin-bottom:.4rem">'+item.name+'の申請を承認しました</div>';
       if(locked){
@@ -3095,12 +3311,19 @@ function renderEnList(){
         ? '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">感謝して終了 ✓</button>'
         : '<button class="en-phase-btn secondary" onclick="openReview(\''+item.matchId+'\')">感謝して終了</button>';
       var msgBtnD = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
-      // 「付き合いました！」ボタンを 3 状態で出し分け:
+      // 「付き合いました！」ボタンを date_count で出し分け:
+      //   (Z) date_count=0 → グレーアウト「付き合いました！(1回目デート完了後)」
+      //   (0) 相手レビュー済み = キャンセル → 無効化「付き合いました！」
       //   (A) 双方未申請  → 通常ボタン
       //   (B) 自分申請済み → 無効化「✓ 申請済み」
       //   (C) 相手申請済み → 強調表示の通常ボタン（押せば即カップル成立）
+      var dc = item.dateCount || 0;
       var coupledBtn;
-      if(locked){
+      if(item.partnerReviewed){
+        coupledBtn = '<button class="en-phase-btn primary" disabled style="opacity:.4;cursor:not-allowed">付き合いました！</button>';
+      }else if(dc === 0){
+        coupledBtn = '<button class="en-phase-btn primary" disabled style="opacity:.45;cursor:not-allowed">付き合いました！(1回目デート完了後)</button>';
+      }else if(locked){
         coupledBtn = '<button class="en-phase-btn primary"'+lockedAttr+'>付き合いました！</button>';
       }else if(item.myCoupleReq){
         coupledBtn = '<button class="en-phase-btn primary" disabled style="opacity:.55;cursor:default">✓ 付き合いました！(申請済)</button>';
@@ -3110,6 +3333,29 @@ function renderEnList(){
         coupledBtn = '<button class="en-phase-btn primary" onclick="setCoupled(\''+item.matchId+'\')">付き合いました！</button>';
       }
       html+='<div class="en-phase-btns">'+msgBtnD+coupledBtn+reviewBtnDS+'</div>';
+
+      // デート回数管理ボタン群（3回未満なら表示、3回完了なら非表示で「付き合うか終了か」の二択強制）
+      if(dc < 3){
+        var dateBtns = '<div style="margin-top:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-size:11px;color:var(--color-text-secondary);margin-right:4px">デート:</span>';
+        for(var rd = 1; rd <= 3; rd++){
+          var label = rd + '回目完了';
+          if(rd <= dc){
+            // 完了済み → ✓ つき、タップで「取消」確認(押し間違い対応)
+            dateBtns += '<button onclick="markDateUndo(\''+item.matchId+'\','+rd+')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;background:#C9A96E;color:#fff;border-radius:6px;cursor:pointer;font-family:inherit">✓ '+label+'</button>';
+          }else if(rd === dc + 1){
+            // 次に押せる → アクティブ
+            dateBtns += '<button onclick="markDateComplete(\''+item.matchId+'\','+rd+')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;background:transparent;color:#C9A96E;border-radius:6px;cursor:pointer;font-family:inherit">'+label+'</button>';
+          }else{
+            // まだ押せない → グレーアウト
+            dateBtns += '<button disabled style="font-size:10px;padding:5px 10px;border:0.5px solid var(--color-border-tertiary);background:transparent;color:var(--color-text-tertiary);border-radius:6px;cursor:not-allowed;font-family:inherit">'+label+'</button>';
+          }
+        }
+        dateBtns += '</div>';
+        html += dateBtns;
+      }else{
+        // 3回完了 → 二択強制中の案内
+        html += '<div style="margin-top:8px;font-size:11px;color:#C9A96E;text-align:center;line-height:1.6">✨ 3回のデートを終えました。「付き合いました！」か「感謝して終了」を選んでください。</div>';
+      }
     }else if(s==='dated'){
       html+='<div style="font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.3rem 0">レビュー済み・完了</div>';
     }else if(s==='coupled'){
@@ -3150,6 +3396,81 @@ async function startChatting(matchId){
 function dismissApproved(matchId){
   startChatting(matchId);
 }
+/** 縁リストの「お話し申請をキャンセル」ボタン押下時の処理（sent 状態のカード）
+ *  推しページの cancelHanashi(idx) と同等だが、idx が無くても matchId で動かせる版
+ *  @param {string} matchId */
+async function cancelHanashiFromEnList(matchId){
+  if(!confirm('お話し申請をキャンセルします。よろしいですか？')) return;
+  try{
+    var{data:res, error}=await supa.rpc('cancel_hanashi_request', { p_match_id: matchId });
+    if(error){
+      alert('キャンセルに失敗しました: ' + error.message);
+      return;
+    }
+    var partnerId = res && res.partner_id;
+    if(partnerId){
+      var myNickname = '';
+      try{
+        var{data:me}=await supa.from('profiles').select('nickname').eq('id',currentUser.id).single();
+        myNickname = (me && me.nickname) ? me.nickname : '';
+      }catch(_){}
+      sendPushNotification(supa, {
+        target_user_id: partnerId,
+        title: '🕊 ' + (myNickname || 'お相手') + 'さんがお話し申請をキャンセルしました',
+        body: '運営チャットで詳細を確認できます',
+        url: './#chat-official',
+        tag: 'match-cancel',
+      });
+    }
+    // enList から該当カードを除去 + 再描画
+    enList = enList.filter(function(e){return e.matchId !== matchId;});
+    renderEnList();
+    updateEnBadge();
+    // 推しページのボタンも再評価（再開可能に）
+    if(typeof loadRealUsers === 'function') loadRealUsers();
+  }catch(e){
+    console.log('cancelHanashiFromEnList error:', e);
+    alert('エラーが発生しました');
+  }
+}
+
+/** 「N回目完了」ボタン押下時: date_count を N に更新 @param {string} matchId @param {number} round */
+async function markDateComplete(matchId, round){
+  if(round < 1 || round > 3){ alert('不正な回数指定です'); return; }
+  if(!confirm(round+'回目のデートが完了しましたか？')) return;
+  try{
+    var{data, error}=await supa.rpc('set_match_date_count', { p_match_id: matchId, p_count: round });
+    if(error){ alert('更新に失敗しました: ' + error.message); return; }
+    // 即時 UI 反映（realtime でも来るが、レスポンス感を出す）
+    var item = enList.find(function(e){ return e.matchId === matchId; });
+    if(item){ item.dateCount = round; }
+    renderEnList();
+  }catch(e){
+    console.log('markDateComplete error:', e);
+    alert('エラーが発生しました');
+  }
+}
+
+/** 「✓ N回目完了」を再タップ: 1段階戻す確認(誤タップ救済)
+ *  N=現在 dateCount のときだけ「N-1 に戻す」、それ以外は何もしない @param {string} matchId @param {number} round */
+async function markDateUndo(matchId, round){
+  var item = enList.find(function(e){ return e.matchId === matchId; });
+  if(!item) return;
+  // 最も新しい完了マーク(=今のdateCount)のみ取消可能
+  if(round !== item.dateCount){ return; }
+  if(!confirm(round+'回目完了を取消しますか？(押し間違い時)')) return;
+  try{
+    var newCount = round - 1;
+    var{data, error}=await supa.rpc('set_match_date_count', { p_match_id: matchId, p_count: newCount });
+    if(error){ alert('取消に失敗しました: ' + error.message); return; }
+    item.dateCount = newCount;
+    renderEnList();
+  }catch(e){
+    console.log('markDateUndo error:', e);
+    alert('エラーが発生しました');
+  }
+}
+
 /** 「デート決定！」ボタン：status を date_set に @param {string} matchId */
 async function setDateDecided(matchId){
   try{await supa.from('matches').update({status:'date_set'}).eq('id',matchId);}catch(e){}
@@ -3268,6 +3589,32 @@ async function submitReview(){
     // レビューはユーザーごとに独立して reviews テーブルに保存
     var{error}=await supa.from('reviews').insert({user_id:currentUser.id,match_id:matchId,rating:currentReviewStar,comment:comment});
     if(error)throw error;
+
+    // === date_set 状態でのレビュー = キャンセル/終了通知 ===
+    var reviewedItem = enList.find(function(e){return e.matchId===matchId;});
+    var isDateSetCancellation = reviewedItem && reviewedItem.status === 'date_set';
+    if(isDateSetCancellation){
+      // 相手の運営チャットに通知 INSERT（RPC 側）
+      try{
+        var{data:notifyRes, error:notifyErr}=await supa.rpc('notify_match_terminated', { p_match_id: matchId });
+        if(notifyErr){ console.log('notify_match_terminated error:', notifyErr); }
+        else if(notifyRes && notifyRes.partner_id){
+          // 相手に Push 通知
+          var pushTitle = notifyRes.was_request_pending
+            ? '💔 「付き合いました！」申請がキャンセルされました'
+            : '👋 マッチが終了しました';
+          var pushBody = notifyRes.was_request_pending
+            ? 'お相手がキャンセルされました。レビューをして新しい相手を探しましょう'
+            : 'お相手がマッチを終了しました。レビューをして新しい相手を探しましょう';
+          sendPushNotification(supa, {
+            target_user_id: notifyRes.partner_id,
+            title: pushTitle, body: pushBody,
+            url: './#chat-official', tag: 'couple-cancel',
+          });
+        }
+      }catch(nx){ console.log('notify_match_terminated exception:', nx); }
+    }
+
     // 成功表示
     if(btn)btn.style.display='none';
     if(successEl)successEl.style.display='block';
@@ -3277,10 +3624,17 @@ async function submitReview(){
       // ボタン状態をリセット（次回開いたとき用）
       if(btn){btn.disabled=false;btn.textContent='レビューを送信';btn.style.opacity='';btn.style.cursor='';btn.style.display='block';}
       if(successEl)successEl.style.display='none';
-      // 自分のレビュー済みフラグだけ立てる（matches.status は触らない＝相手の表示には影響しない）
-      var item=enList.find(function(e){return e.matchId===matchId;});
-      if(item)item.reviewed=true;
+      // date_set でレビュー送信 = 自分がマッチを離脱 → enList から削除
+      // coupled でレビューしたら従来どおりフラグだけ立てる
+      if(isDateSetCancellation){
+        enList = enList.filter(function(e){return e.matchId!==matchId;});
+      }else{
+        var item=enList.find(function(e){return e.matchId===matchId;});
+        if(item)item.reviewed=true;
+      }
       renderEnList();
+      renderMsgList(); // メッセージ一覧も両者レビュー判定で再描画
+      updateEnBadge();
     },1800);
   }catch(e){
     console.log('レビュー送信エラー:',e);
@@ -3544,12 +3898,19 @@ function hasDmUnread(){
 /** メッセージタブの赤ポッチを更新（DM未読 or 運営チャット未読） */
 function updateDmBadge(){ updateMsgTabBadge(); }
 
-/** メッセージタブバッジ統合：DM未読 or 運営チャット未読 があれば表示 */
+/** メッセージタブバッジ統合：DM未読 or 運営チャット未読 があれば表示
+ *  バッジが「非表示→表示」に切り替わった瞬間にツタを発火(完全連動) */
 function updateMsgTabBadge(){
   var dmUnread = hasDmUnread();
   var officialUnread = !!(window._officialChatHasUnread);
+  var shouldShow = !!(dmUnread || officialUnread);
   var msgBadge = document.getElementById('msg-badge');
-  if(msgBadge) msgBadge.style.display = (dmUnread || officialUnread) ? 'block' : 'none';
+  var wasShown = !!(msgBadge && msgBadge.style.display === 'block');
+  if(msgBadge) msgBadge.style.display = shouldShow ? 'block' : 'none';
+  // バッジが「非表示→表示」に切り替わった瞬間にツタ発火
+  if(shouldShow && !wasShown && typeof growVineFx === 'function'){
+    growVineFx('msg');
+  }
 }
 
 /** メッセージ一覧（chat 可能なステータスの相手）を描画 */
@@ -3559,6 +3920,9 @@ function renderMsgList(){
   var matched = enList.filter(function(e){
     if(chatStatuses.indexOf(e.status) < 0) return false;
     if(e.status === 'coupled') return true;
+    // date_set: 両者がレビュー送信済みならスレッドを非表示
+    // 自分がレビュー済みのケースは enList から既に除外されているので、partnerReviewed のみ判定
+    if(e.status === 'date_set' && e.reviewed && e.partnerReviewed) return false;
     // 自分または相手がカップル中 + 過去メッセージ無し → リストから除外
     if((coupledNow || e.partnerIsCoupledWithOther) && !hasPriorMessages(e.matchId)) return false;
     return true;
@@ -3663,7 +4027,7 @@ async function openChat(name, memberId, avatarUrl, matchId){
 async function loadAndRenderChat(name, matchId){
   var body=document.getElementById('chat-body');
   if(!body) return;
-  var MAX_PER_PERSON = 30;
+  var MAX_PER_PERSON = 100;
   var messages = [];
   var mySentCount = 0;
 
@@ -3954,7 +4318,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at,dateCount:(m.date_count||0)});
           }
         }
       }
@@ -4000,13 +4364,55 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at});
+            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at,dateCount:(m.date_count||0)});
           }
         }
       }
     }
+    // 相手のレビュー済みマッチを判定（date_set でキャンセル通知バッジ切替用）
+    try{
+      var allMatchIds = tmp.map(function(t){return t.matchId;});
+      if(allMatchIds.length > 0){
+        var{data:prRows, error:prErr}=await supa.rpc('get_partner_reviewed_match_ids', { p_match_ids: allMatchIds });
+        if(!prErr){
+          var prSet = new Set((prRows||[]).map(function(r){return r.match_id;}));
+          tmp.forEach(function(it){ it.partnerReviewed = prSet.has(it.matchId); });
+        }
+      }
+    }catch(prEx){ console.log('get_partner_reviewed_match_ids exception:', prEx); }
+
+    // 自分が date_set で既にレビュー送信済みなら enList から除外（=自分が「感謝して終了」した側）
+    tmp = tmp.filter(function(it){
+      if(it.status === 'date_set' && it.reviewed) return false;
+      return true;
+    });
+
+    // 新規 検知用: 入れ替え前の pending(受信)と approved(承認された自分の申請) の matchId 集合を保持
+    var prevPendingIds = new Set();
+    var prevApprovedIds = new Set();
+    if(Array.isArray(enList)){
+      enList.forEach(function(e){
+        if(e.status === 'pending')  prevPendingIds.add(e.matchId);
+        if(e.status === 'approved') prevApprovedIds.add(e.matchId);
+      });
+    }
+
     // ★ アトミック差し替え（ここまで enList は古いデータのまま、isCoupledNow が空配列を見ることはない）
     enList = tmp;
+
+    // 縁リストに新しい「動き」があったらツタ演出 + ゴールドポッチ
+    // - 新規 pending(自分宛にお話し申請が来た)
+    // - 新規 approved(自分の申請が「お話しOK」された)
+    try{
+      var newPending  = tmp.some(function(it){ return it.status === 'pending'  && !prevPendingIds.has(it.matchId); });
+      var newApproved = tmp.some(function(it){ return it.status === 'approved' && !prevApprovedIds.has(it.matchId); });
+      // 初回ロードは発火しない(全部「新規」扱いになるのを防ぐ)
+      if((newPending || newApproved) && window._enListBootstrapped === true){
+        if(typeof growVineFx === 'function') growVineFx('enlist');
+      }
+      window._enListBootstrapped = true;
+    }catch(_){}
+
     // 相手側がこちらと無関係のマッチで coupled になっているか検知
     await markPartnerCoupledStatus();
     renderEnList();
@@ -4915,11 +5321,317 @@ async function reapplyTangSotsugyou(id){
 /** ベル通知パネルの表示切替 + 既読化 */
 function toggleNotif(){var p=document.getElementById('notif-panel');if(!p)return;p.classList.toggle('show');if(p.classList.contains('show')){document.getElementById('notif-dot').style.display='none';document.querySelectorAll('.notif-item.unread').forEach(function(el){el.classList.remove('unread');});}}
 /** アプリ内通知（ベル）に追加 @param {string} title @param {string} body */
-function addNotif(title,body){var list=document.getElementById('notif-list');if(!list)return;var item=document.createElement('div');item.className='notif-item unread';item.innerHTML='<div class="notif-item-title">'+title+'</div><div class="notif-item-body">'+body+'</div><div class="notif-item-time">just now</div>';list.insertBefore(item,list.firstChild);document.getElementById('notif-dot').style.display='block';}
+function addNotif(title,body){
+  var list=document.getElementById('notif-list');
+  if(!list)return;
+  var item=document.createElement('div');
+  item.className='notif-item unread';
+  item.innerHTML='<div class="notif-item-title">'+title+'</div><div class="notif-item-body">'+body+'</div><div class="notif-item-time">just now</div>';
+  list.insertBefore(item,list.firstChild);
+  document.getElementById('notif-dot').style.display='block';
+  // ツタ演出は msg-badge 表示と完全連動に変更したため、ここでは呼ばない
+  // (updateMsgTabBadge 内で「非表示→表示」遷移時にのみ発火)
+}
+
+/** ツタ演出のための定数群 */
+var VINE_FX_COLORS = [
+  { stroke: '#8FB342', glow: 'rgba(143,179,66,.4)', name: 'green' },   // 黄緑
+  { stroke: '#E29659', glow: 'rgba(226,150,89,.4)', name: 'orange' }   // 橙
+];
+/** ロゴ上の出発点(overlay viewBox 座標, 400x100)
+ *  - green: ロゴ左端の小さな渦 ≒ 外側端
+ *  - orange: ロゴ右端の大きな渦 ≒ 外側端 */
+var VINE_FX_LOGO_ENDS = {
+  green:  { x: 236, y: 26 },
+  orange: { x: 287, y: 22 }
+};
+/** ターゲット座標(overlay viewBox 座標) */
+var VINE_FX_TARGETS = {
+  oshi:   { x: 50,  y: 75 },
+  enlist: { x: 150, y: 75 },
+  msg:    { x: 250, y: 75 },
+  bell:   { x: 325, y: 22 }
+};
+
+/** スクリーン座標を overlay SVG の viewBox 座標に変換 */
+function _vineFxScreenToOverlay(screenX, screenY){
+  var overlay = document.querySelector('.vine-fx-overlay');
+  if(!overlay || !overlay.getScreenCTM) return null;
+  var ctm = overlay.getScreenCTM();
+  if(!ctm) return null;
+  try{
+    var pt = overlay.createSVGPoint();
+    pt.x = screenX; pt.y = screenY;
+    return pt.matrixTransform(ctm.inverse());
+  }catch(_){ return null; }
+}
+
+/** ロゴ上の指定色のツタ先端(path 開始点)の overlay 座標を動的に取得
+ *  (CSS sway transform も込みで getScreenCTM が正確に解決してくれる) */
+function _vineFxGetLogoTipPos(colorName){
+  var fallback = VINE_FX_LOGO_ENDS[colorName];
+  var logoSvg = document.querySelector('.topbar-logo svg');
+  if(!logoSvg) return fallback;
+  // 色マッチング(stroke 属性で判定)
+  var targetStroke = (colorName === 'green') ? '#8FB342' : '#E29659';
+  var paths = logoSvg.querySelectorAll('path');
+  var targetPath = null;
+  for(var i = 0; i < paths.length; i++){
+    var stroke = paths[i].getAttribute('stroke');
+    if(stroke && stroke.toUpperCase() === targetStroke.toUpperCase()){
+      targetPath = paths[i];
+      break;
+    }
+  }
+  if(!targetPath || !targetPath.getPointAtLength || !targetPath.getScreenCTM) return fallback;
+  try{
+    // パスの開始点(M)を取得
+    var localPt = targetPath.getPointAtLength(0);
+    // パスの screenCTM で screen 座標へ
+    var ctm = targetPath.getScreenCTM();
+    if(!ctm) return fallback;
+    var svgPt = logoSvg.createSVGPoint();
+    svgPt.x = localPt.x; svgPt.y = localPt.y;
+    var screenPt = svgPt.matrixTransform(ctm);
+    // overlay 座標に変換
+    var overlayPt = _vineFxScreenToOverlay(screenPt.x, screenPt.y);
+    return overlayPt ? { x: overlayPt.x, y: overlayPt.y } : fallback;
+  }catch(_){ return fallback; }
+}
+
+/** 推しタブのゴールドポッチ表示切替(縁リスト/メッセージは既存バッジを使う)
+ *  @param {boolean} show */
+function setOshiBadge(show){
+  var el = document.getElementById('oshi-badge');
+  if(el) el.style.display = show ? 'block' : 'none';
+  var bniEl = document.getElementById('bni-oshi-badge');
+  if(bniEl) bniEl.style.display = show ? 'block' : 'none';
+}
+
+/** ターゲット要素の中心の overlay 座標を動的に取得 */
+function _vineFxGetTargetPos(target){
+  var fallback = VINE_FX_TARGETS[target];
+  var sel = {
+    oshi:   '.ntab[data-tab="oshi"]',
+    enlist: '.ntab[data-tab="enlist"]',
+    msg:    '.ntab[data-tab="msg"]',
+    bell:   '.notif-icon'
+  }[target];
+  if(!sel) return fallback;
+  var el = document.querySelector(sel);
+  if(!el) return fallback;
+  var rect = el.getBoundingClientRect();
+  if(rect.width === 0 || rect.height === 0) return fallback;
+  var screenX = rect.left + rect.width / 2;
+  var screenY = rect.top + rect.height / 2;
+  var overlayPt = _vineFxScreenToOverlay(screenX, screenY);
+  return overlayPt ? { x: overlayPt.x, y: overlayPt.y } : fallback;
+}
+
+/** ターゲットごとの楕円サイズ倍率 */
+var VINE_FX_LOOP_SIZE = {
+  oshi:   3.0,  // 最も遠い → 大きい楕円
+  enlist: 1.5,
+  msg:    1.0   // 最も近い → 標準
+};
+
+/** 滑らかな曲線(ループなし)でツタ経路を構築 */
+function _buildVineFxPathSmooth(s, e){
+  var dx = e.x - s.x;
+  var dy = e.y - s.y;
+  var len = Math.max(1, Math.sqrt(dx*dx + dy*dy));
+  // 線分に垂直な単位ベクトル
+  var perpX = -dy / len;
+  var perpY = dx / len;
+  // ランダムにカーブの「曲がり方向」を決める
+  var sign = Math.random() < 0.5 ? 1 : -1;
+  // カーブ深さ(線分長に比例)
+  var depth1 = (15 + Math.random() * 10) * sign;
+  var depth2 = (10 + Math.random() * 10) * sign;
+  // C ベジェの2つの制御点
+  var c1x = s.x + dx * 0.3 + perpX * depth1;
+  var c1y = s.y + dy * 0.3 + perpY * depth1;
+  var c2x = s.x + dx * 0.7 + perpX * depth2;
+  var c2y = s.y + dy * 0.7 + perpY * depth2;
+  return 'M' + s.x.toFixed(1) + ',' + s.y.toFixed(1)
+       + ' C' + c1x.toFixed(1) + ',' + c1y.toFixed(1)
+       + ' ' + c2x.toFixed(1) + ',' + c2y.toFixed(1)
+       + ' ' + e.x.toFixed(1) + ',' + e.y.toFixed(1);
+}
+
+/** ループ(伸びる方向に細長く回転した楕円)を途中に挟むツタ経路を構築
+ *  入口/出口は pTop(進行方向の真横、楕円の「上」)に設定
+ *  → 接線が進行方向と一致 → アプローチ・ループ・脱出が一筆書きに繋がる
+ *  ループは進行方向の片側(perpendicular CCW)にぶら下がる
+ *  @param {{x:number,y:number}} s 起点
+ *  @param {{x:number,y:number}} e 終点
+ *  @param {string} target サイズ倍率算出に使う */
+function _buildVineFxPathLoopy(s, e, target){
+  // ループ回数: 1 or 2(ランダム)
+  var loops = 1 + Math.floor(Math.random() * 2);
+  // ループ中心: 起点と終点の 45% 地点
+  var midX = s.x + (e.x - s.x) * 0.45;
+  var midY = s.y + (e.y - s.y) * 0.45;
+  // ターゲットごとの倍率(遠いほど大きい)
+  var mul = VINE_FX_LOOP_SIZE[target] || 1.0;
+  // ベース楕円(長軸 rx > 短軸 ry の細長楕円)
+  var baseRx = 9 * mul * (0.9 + Math.random() * 0.2);
+  var baseRy = 4 * mul * (0.9 + Math.random() * 0.2);
+  // 進行方向 angle、 cos/sin と垂直単位ベクトル
+  var angle = Math.atan2(e.y - s.y, e.x - s.x);
+  var cos = Math.cos(angle), sin = Math.sin(angle);
+  // ループの「ぶら下がる方向」(perpendicular CCW or CW をランダムに)
+  // 進行方向に細長く + 片側にループがぶら下がる ⇒ 一筆書きの軌道
+  var perpSide = Math.random() < 0.5 ? 1 : -1;
+  /** ローカル(回転前)座標 → ワールド座標へ変換
+   *  perpSide=+1 でローカル -y 方向(上)が ぶら下がる側 */
+  function world(lx, ly){
+    var ly2 = ly * perpSide;
+    return {
+      x: midX + lx * cos - ly2 * sin,
+      y: midY + lx * sin + ly2 * cos
+    };
+  }
+  // 楕円の4端点
+  var pRight  = world( baseRx,  0);          // 進行方向 +
+  var pTop    = world( 0,      -baseRy);     // ぶら下がり方向(入口/出口)
+  var pLeft   = world(-baseRx,  0);          // 進行方向 -
+  var pBottom = world( 0,       baseRy);     // ぶら下がりの反対側
+  // 制御点(楕円のコーナー = bounding box 4隅)
+  var cTR = world( baseRx, -baseRy);
+  var cTL = world(-baseRx, -baseRy);
+  var cBL = world(-baseRx,  baseRy);
+  var cBR = world( baseRx,  baseRy);
+
+  // ===== 一筆書きの構造 =====
+  // 起点 ──進行方向──→ pTop  ◯◯ループCW360° ◯◯  pTop ──進行方向──→ 終点
+  //                            (進行接線:travel direction で連続)
+  //
+  // 入口/出口での接線 = 進行方向 ⇒ アプローチ・脱出と loop が滑らかに繋がる
+  // ループは pTop からぶら下がる(片側のみ)⇒ メインの線と別レイヤーに見える
+
+  var d = 'M' + s.x.toFixed(1) + ',' + s.y.toFixed(1);
+
+  // 1) 起点 → pTop: C ベジェで、pTop での接線 = 進行方向(cos,sin)
+  // control2 = pTop - k * (cos, sin) で接線を保証
+  var startToTopDx = pTop.x - s.x, startToTopDy = pTop.y - s.y;
+  var startToTopDist = Math.max(1, Math.sqrt(startToTopDx*startToTopDx + startToTopDy*startToTopDy));
+  var k1 = Math.min(startToTopDist * 0.45, baseRx * 1.6);
+  var ap1x = s.x + k1 * startToTopDx / startToTopDist;
+  var ap1y = s.y + k1 * startToTopDy / startToTopDist;
+  var k2 = Math.min(startToTopDist * 0.45, baseRx * 1.4);
+  var ap2x = pTop.x - k2 * cos;
+  var ap2y = pTop.y - k2 * sin;
+  d += ' C' + ap1x.toFixed(1) + ',' + ap1y.toFixed(1)
+       + ' ' + ap2x.toFixed(1) + ',' + ap2y.toFixed(1)
+       + ' ' + pTop.x.toFixed(1) + ',' + pTop.y.toFixed(1);
+
+  // 2) ループ N 回(pTop → pRight → pBottom → pLeft → pTop の順、Q ベジェで楕円近似)
+  for(var i = 0; i < loops; i++){
+    d += ' Q' + cTR.x.toFixed(1) + ',' + cTR.y.toFixed(1) + ' ' + pRight.x.toFixed(1) + ',' + pRight.y.toFixed(1);
+    d += ' Q' + cBR.x.toFixed(1) + ',' + cBR.y.toFixed(1) + ' ' + pBottom.x.toFixed(1) + ',' + pBottom.y.toFixed(1);
+    d += ' Q' + cBL.x.toFixed(1) + ',' + cBL.y.toFixed(1) + ' ' + pLeft.x.toFixed(1) + ',' + pLeft.y.toFixed(1);
+    d += ' Q' + cTL.x.toFixed(1) + ',' + cTL.y.toFixed(1) + ' ' + pTop.x.toFixed(1) + ',' + pTop.y.toFixed(1);
+  }
+
+  // 3) pTop → 終点: C ベジェで、pTop での接線 = 進行方向(cos,sin)
+  // control1 = pTop + k * (cos, sin) で接線を保証
+  var topToEndDx = e.x - pTop.x, topToEndDy = e.y - pTop.y;
+  var topToEndDist = Math.max(1, Math.sqrt(topToEndDx*topToEndDx + topToEndDy*topToEndDy));
+  var k3 = Math.min(topToEndDist * 0.45, baseRx * 1.4);
+  var ex1x = pTop.x + k3 * cos;
+  var ex1y = pTop.y + k3 * sin;
+  var k4 = Math.min(topToEndDist * 0.45, baseRx * 1.6);
+  var ex2x = e.x - k4 * topToEndDx / topToEndDist;
+  var ex2y = e.y - k4 * topToEndDy / topToEndDist;
+  d += ' C' + ex1x.toFixed(1) + ',' + ex1y.toFixed(1)
+       + ' ' + ex2x.toFixed(1) + ',' + ex2y.toFixed(1)
+       + ' ' + e.x.toFixed(1) + ',' + e.y.toFixed(1);
+
+  return d;
+}
+
+/** 経路ビルダー: 50% の確率で楕円ループ、50% で滑らか曲線 */
+function buildVineFxPath(s, e, target){
+  if(Math.random() < 0.5){
+    return _buildVineFxPathLoopy(s, e, target);
+  }
+  return _buildVineFxPathSmooth(s, e);
+}
+
+/** ===== ツタ演出キュー(同時に複数発火しても1本ずつ順番にタッチする) ===== */
+var VINE_FX_QUEUE = [];
+var VINE_FX_RUNNING = false;
+
+/** ツタ演出を発火(キュー経由・同時複数は順番に処理)
+ *  @param {'oshi'|'enlist'|'msg'} target */
+function growVineFx(target){
+  // bell は廃止(近すぎてごちゃつくため)
+  if(target === 'bell') return;
+  // キューに重複追加しない(同じターゲットが連続要求された場合のスパム防止)
+  if(VINE_FX_QUEUE.indexOf(target) >= 0) return;
+  VINE_FX_QUEUE.push(target);
+  if(!VINE_FX_RUNNING){
+    _processVineFxQueue();
+  }
+}
+
+/** キューを1本ずつ処理 */
+function _processVineFxQueue(){
+  if(VINE_FX_QUEUE.length === 0){
+    VINE_FX_RUNNING = false;
+    return;
+  }
+  VINE_FX_RUNNING = true;
+  var target = VINE_FX_QUEUE.shift();
+  _runVineFxAnimation(target);
+  // 全体時間(成長 + ホールド + フェード + バッファ)後に次を処理
+  var growMs = 1400, holdMs = 600, fadeMs = 500, buffer = 200;
+  setTimeout(_processVineFxQueue, growMs + holdMs + fadeMs + buffer);
+}
+
+/** 実際のアニメーションを実行(キュー内部から呼ばれる) */
+function _runVineFxAnimation(target){
+  var path = document.getElementById('vine-fx-' + target);
+  if(!path) return;
+  // 色をランダム選択
+  var c = VINE_FX_COLORS[Math.floor(Math.random() * VINE_FX_COLORS.length)];
+  // 動的に起点と終点を取得
+  var startPos = _vineFxGetLogoTipPos(c.name);
+  var endPos = _vineFxGetTargetPos(target);
+  var d = buildVineFxPath(startPos, endPos, target);
+  path.setAttribute('d', d);
+  path.style.stroke = c.stroke;
+  path.style.filter = 'drop-shadow(0 0 1px ' + c.glow + ')';
+
+  // パス全長を計測
+  var len;
+  try { len = path.getTotalLength(); }
+  catch(_){ len = 400; }
+
+  // 初期状態(完全に消えた線)
+  path.style.transition = 'none';
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = len;
+  path.style.opacity = '1';
+  void path.getBoundingClientRect();
+
+  // 成長アニメーション
+  var growMs = 1400, holdMs = 600, fadeMs = 500;
+  path.style.transition = 'stroke-dashoffset ' + growMs + 'ms cubic-bezier(.22,.61,.36,1)';
+  path.style.strokeDashoffset = '0';
+
+  // 一定時間後にフェードアウト
+  setTimeout(function(){
+    path.style.transition = 'opacity ' + fadeMs + 'ms ease';
+    path.style.opacity = '0';
+  }, growMs + holdMs);
+}
 // ===== 退会申請 =====
-/** 既存の open な退会申請があれば、送信ボタンを「退会申請済み」に切替 */
+/** 既存の open な退会申請があれば、送信ボタンを「退会申請済み」に切替 + 「取り消す」ボタン表示 */
 async function refreshCancelButtonState(){
   var btn = document.getElementById('cancel-submit-btn');
+  var revokeBtn = document.getElementById('cancel-revoke-btn');
   if(!btn || !currentUser) return;
   try{
     var{data}=await supa.from('contacts')
@@ -4929,17 +5641,58 @@ async function refreshCancelButtonState(){
       .eq('status', 'open')
       .limit(1);
     if(data && data.length > 0){
+      // 申請済みの状態: 送信ボタン無効化 + 取り消すボタン表示
       btn.disabled = true;
       btn.textContent = '退会申請済み';
       btn.style.opacity = '0.55';
       btn.style.cursor = 'not-allowed';
+      if(revokeBtn) revokeBtn.style.display = 'block';
     }else{
+      // 未申請の状態: 送信ボタンのみ表示
       btn.disabled = false;
       btn.textContent = '退会申請を送信する';
       btn.style.opacity = '';
       btn.style.cursor = '';
+      if(revokeBtn) revokeBtn.style.display = 'none';
     }
   }catch(e){ console.log('refreshCancelButtonState error:', e); }
+}
+
+/** 退会申請の取り消し（ユーザー側） */
+async function cancelWithdrawalRequest(){
+  if(!currentUser){ alert('ログインが必要です'); return; }
+  if(!confirm('退会申請を取り消します。よろしいですか？')) return;
+  var revokeBtn = document.getElementById('cancel-revoke-btn');
+  if(revokeBtn){ revokeBtn.disabled = true; revokeBtn.textContent = '取り消し中...'; }
+  try{
+    var{data, error}=await supa.rpc('cancel_withdrawal_request');
+    if(error){
+      alert('取り消しに失敗しました: ' + error.message);
+      if(revokeBtn){ revokeBtn.disabled = false; revokeBtn.textContent = '退会申請を取り消す'; }
+      return;
+    }
+    var cancelledCount = (data && data.cancelled_count) || 0;
+    if(cancelledCount === 0){
+      // 既に承認/取り消し済みのケース
+      alert('現在 open な退会申請が見つかりませんでした。');
+    }else{
+      // 運営チャットに通知 + ベル通知
+      if(typeof addOfficialMessage === 'function'){
+        addOfficialMessage('退会申請を取り消しました。');
+      }
+      if(typeof addNotif === 'function'){
+        addNotif('【運営】退会申請を取り消しました', '引き続き縁の間をご利用ください。');
+      }
+      alert('退会申請を取り消しました。');
+    }
+    // ボタン状態を更新
+    if(revokeBtn){ revokeBtn.disabled = false; revokeBtn.textContent = '退会申請を取り消す'; }
+    await refreshCancelButtonState();
+  }catch(e){
+    console.log('cancelWithdrawalRequest error:', e);
+    alert('エラーが発生しました');
+    if(revokeBtn){ revokeBtn.disabled = false; revokeBtn.textContent = '退会申請を取り消す'; }
+  }
 }
 
 /** 退会申請の送信 */
@@ -4980,11 +5733,13 @@ async function submitCancelRequest(){
     document.getElementById('cancel-detail').value = '';
     document.getElementById('cancel-confirm').checked = false;
     document.getElementById('cancel-detail-count').textContent = '0';
-    // 送信ボタンを「退会申請済み」状態に
+    // 送信ボタンを「退会申請済み」状態に + 取り消すボタンを表示
     btn.disabled = true;
     btn.textContent = '退会申請済み';
     btn.style.opacity = '0.55';
     btn.style.cursor = 'not-allowed';
+    var revokeBtn = document.getElementById('cancel-revoke-btn');
+    if(revokeBtn) revokeBtn.style.display = 'block';
   }catch(e){
     console.log('退会申請エラー:', e);
     errEl.textContent = 'エラーが発生しました';
@@ -6264,6 +7019,8 @@ function goTab(i){
   document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.toggle('on',i===3);});
   document.querySelectorAll('.screen').forEach(function(s,idx){s.classList.toggle('on',idx===i);});
   document.querySelectorAll('.bni').forEach(function(b,idx){b.classList.toggle('on',idx===i);});
+  // 推しタブを開いたらゴールドポッチを消す(他のタブは独自ロジックで自動更新)
+  if(i === 0 && typeof setOshiBadge === 'function') setOshiBadge(false);
 }
 /** プロフィールモーダルの表示切替 */
 function toggleModal(){document.getElementById('profile-modal').classList.toggle('show');}
