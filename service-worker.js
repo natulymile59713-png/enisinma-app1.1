@@ -9,7 +9,7 @@
 //   - notificationclick: アプリを開く / 該当タブにフォーカス
 //
 // バージョンを上げると古いキャッシュは自動削除される
-const CACHE_NAME = 'enishinoma-user-v1';
+const CACHE_NAME = 'enishinoma-user-v3';
 const APP_SHELL = [
   './',
   './index.html',
@@ -24,6 +24,11 @@ self.addEventListener('install', (event) => {
       .catch((err) => console.log('[sw] precache error:', err))
   );
   self.skipWaiting();
+});
+
+// ページからの即時有効化要求
+self.addEventListener('message', (event) => {
+  if (event.data === 'skipWaiting') self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -42,19 +47,22 @@ self.addEventListener('fetch', (event) => {
   // 外部ドメイン（Supabase, CDN）はキャッシュしない
   if (url.origin !== self.location.origin) return;
 
-  // ナビゲーション: network-first
-  if (req.mode === 'navigate' || (req.destination === 'document')) {
+  // HTML / JS / CSS: network-first（常に最新を取得。コード変更を即反映）
+  const isDoc = req.mode === 'navigate' || req.destination === 'document';
+  const isCode = req.destination === 'script' || req.destination === 'style'
+    || /\.(js|css)(\?|$)/.test(url.pathname);
+  if (isDoc || isCode) {
     event.respondWith(
       fetch(req).then((res) => {
         const copy = res.clone();
         caches.open(CACHE_NAME).then((c) => c.put(req, copy)).catch(() => {});
         return res;
-      }).catch(() => caches.match(req).then((m) => m || caches.match('./index.html')))
+      }).catch(() => caches.match(req).then((m) => m || (isDoc ? caches.match('./index.html') : undefined)))
     );
     return;
   }
 
-  // 静的アセット: cache-first
+  // その他の静的アセット（icons / manifest / 画像）: cache-first
   event.respondWith(
     caches.match(req).then((cached) => {
       if (cached) return cached;
