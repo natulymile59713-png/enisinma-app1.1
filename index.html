@@ -662,6 +662,17 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-mem-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px;display:flex;flex-wrap:wrap;gap:8px}
 .vr-mem-tag{color:#C9A96E}
 .vr-mem-msg-btn{display:block;width:100%;margin-top:14px;padding:11px;background:#C9A96E;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit}
+/* メンバーカード右端「投稿→」ボタン */
+.vr-mem-posts-btn{flex-shrink:0;align-self:center;font-size:11px;font-weight:600;padding:6px 10px;border:0.5px solid #C9A96E;border-radius:7px;background:transparent;color:#C9A96E;cursor:pointer;font-family:inherit;white-space:nowrap}
+.vr-mem-posts-btn:active{background:rgba(201,169,110,.14)}
+/* 投稿一覧モーダル：本文をスクロール可能に＆閲覧専用アクション */
+#vr-posts-modal .modal-card{display:flex;flex-direction:column;max-height:85vh}
+#vr-posts-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.vr-post-actions-ro .vr-act{color:var(--color-text-tertiary);cursor:default}
+/* アンケート一覧：絞り込みパネル */
+.vr-sl-filter{margin:10px 1rem}
+.vr-sl-clear{display:block;width:100%;margin-top:8px;padding:7px;background:transparent;color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit}
+.vr-sl-clear:active{background:var(--color-background-tertiary)}
 /* メッセージ：会話リスト */
 .vr-conv{display:flex;align-items:center;gap:10px;padding:.75rem 1rem;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);cursor:pointer}
 .vr-conv:active{background:var(--color-background-secondary)}
@@ -948,8 +959,8 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="fl"><label>ニックネーム</label><input type="text" id="r-nick" placeholder="例：はるか" value="はるか"></div>
       <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">性別</label><div class="sexrow" id="r-sex-row"><div class="sxbtn on" onclick="setSex(this)">女性</div><div class="sxbtn" onclick="setSex(this)">男性</div><div class="sxbtn" onclick="setSex(this)">その他</div></div></div>
       <div class="fl" id="reg-residence" style="margin-bottom:8px"><label>居住都道府県</label><select id="r-res"><option value="">選択してください</option></select></div>
-      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>連れ子</label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">なし</option><option value="yes">あり</option></select></div></div>
-      <div id="kodomo-row" style="display:none"><div class="fl" style="margin-bottom:0"><label>連れ子の人数</label><select id="r-kodomo-cnt"><option>1人</option><option>2人</option><option>3人</option><option>4人以上</option></select></div></div>
+      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供</label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
+      <div id="kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="r-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="r-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
       <div class="fl" style="margin-top:8px;margin-bottom:0"><label>プロフィール文<span style="font-size:10px;color:var(--color-text-tertiary)"> 最大500文字</span></label><textarea id="r-profile-text" maxlength="500" oninput="updateProfileTextCount(this,'r-profile-text-count')" placeholder="例：はじめまして！趣味は読書とカフェ巡りです。週末はゆったり過ごすのが好きです。よろしくお願いします。" style="min-height:90px;font-size:12px;line-height:1.7"></textarea><div style="text-align:right;font-size:10px;color:var(--color-text-tertiary);margin-top:3px"><span id="r-profile-text-count">0</span> / 500</div></div>
     </div>
     <p class="sec" style="margin-left:0">生まれの情報</p>
@@ -1103,6 +1114,18 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <button class="btn-gold" id="be-save-btn" onclick="saveBirthEdit()" style="margin-bottom:0">保存する</button>
     </div>
   </div>
+  <!-- 結婚歴・子供 編集モーダル -->
+  <div class="modal-bg" id="mk-edit-modal">
+    <div class="modal-card">
+      <div class="modal-hd"><span class="modal-ttl">結婚歴・子供を編集</span><button class="modal-close" onclick="closeMkEdit()">✕</button></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">結婚歴と子供の情報はあとから変更できます。</div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="mk-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供</label><select id="mk-kodomo" onchange="toggleMkKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
+      <div id="mk-kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="mk-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="mk-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
+      <div id="mk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
+      <div id="mk-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 更新しました</div>
+      <button class="btn-gold" id="mk-save-btn" onclick="saveMkEdit()" style="margin-bottom:0">保存する</button>
+    </div>
+  </div>
   <div class="nav">
     <div class="ntab on" data-tab="oshi" onclick="goTab(0)">推し<span class="tab-badge" id="oshi-badge" style="display:none"></span></div>
     <div class="ntab" data-tab="enlist" onclick="goTab(1)">縁リスト<span class="tab-badge" id="en-badge" style="display:none"></span></div>
@@ -1129,7 +1152,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="filter-body" id="filter-body">
         <div style="margin-bottom:8px;margin-top:4px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">結婚歴</label><select id="f-marriage" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option>初婚のみ</option></select></div></div>
         <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">年齢範囲</label><div class="age-chk-row"><div class="age-btn on" id="age-older" onclick="toggleAge('older')">年上OK</div><div class="age-btn on" id="age-younger" onclick="toggleAge('younger')">年下OK</div></div><div style="background:var(--color-background-secondary);border-radius:8px;padding:7px 9px"><div class="age-row" id="row-upper"><label>上は何歳まで</label><select id="age-upper" style="flex:1;font-size:12px" onchange="updateAgeSummary();applyFilter()"><option value="0">指定しない</option><option value="5">5歳上まで</option><option value="10" selected>10歳上まで</option><option value="15">15歳上まで</option><option value="20">20歳上まで</option><option value="25">25歳上まで</option><option value="30">30歳上まで</option></select></div><div class="age-row" id="row-lower"><label>下は何歳まで</label><select id="age-lower" style="flex:1;font-size:12px" onchange="updateAgeSummary();applyFilter()"><option value="0">指定しない</option><option value="5" selected>5歳下まで</option><option value="10">10歳下まで</option><option value="15">15歳下まで</option><option value="20">20歳下まで</option><option value="25">25歳下まで</option><option value="30">30歳下まで</option></select></div><div class="age-sum" id="age-sum">最大10歳上まで・最大5歳下まで</div></div></div>
-        <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">連れ子</label><select id="f-child" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option value="none">なし希望</option></select></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">良縁率（最低）</label><select id="f-score" style="font-size:12px" onchange="applyFilter()"><option value="0">指定しない</option><option value="60">60%以上</option><option value="70">70%以上</option><option value="80">80%以上</option><option value="90">90%以上</option></select></div></div>
+        <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">子供</label><select id="f-child" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option value="none">なし希望</option></select></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">良縁率（最低）</label><select id="f-score" style="font-size:12px" onchange="applyFilter()"><option value="0">指定しない</option><option value="60">60%以上</option><option value="70">70%以上</option><option value="80">80%以上</option><option value="90">90%以上</option></select></div></div>
         <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;background:var(--color-background-secondary);border-radius:6px;padding:5px 8px">判定材料：三合・支合・冲・刑・<span style="color:#C9A96E;font-weight:500">干合</span>の組み合わせで算出</div>
       </div>
     </div>
@@ -2554,7 +2577,7 @@ const SLIDE_DATA = {
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
     +'<div class="slide-sub">登録情報は後から変更できません。<br>正確に入力してください。</div>'
     +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">マッチング前のプロフィール写真はぼかし表示。マッチング後にクリアな状態で表示されます。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・連れ子の有無を入力します。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・子供の有無を入力します。</div></div></div>'
     +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生年月日・生時・出生地で命式が算出されます。時刻不明な場合は空欄でもOK。</div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」で年・月・日・時柱が表示されます。</div></div></div>',
     // 3. 推しページ
@@ -2639,7 +2662,7 @@ const SLIDE_DATA = {
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
     +'<div class="slide-sub">登録情報は後から変更できません。<br>正確に入力してください。</div>'
     +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">マッチング前のプロフィール写真はぼかし表示。マッチング後にクリアな状態で表示されます。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・連れ子の有無を入力します。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・子供の有無を入力します。</div></div></div>'
     +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生年月日・生時・出生地で命式が算出されます。時刻不明な場合は空欄でもOK。</div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」で年・月・日・時柱が表示されます。</div></div></div>',
     // 3. 推しページ
@@ -2796,7 +2819,22 @@ function generateMemberID(){var n='';for(var i=0;i<8;i++)n+=Math.floor(Math.rand
 /** 登録画面のファイル選択をプレビューに反映（DBには未保存、savedImgSrc に Base64） @param {Event} e */
 function previewImg(e){var file=e.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(ev){savedImgSrc=ev.target.result;document.getElementById('preview-img').src=savedImgSrc;document.getElementById('preview-img').style.display='block';document.getElementById('img-ph').style.display='none';};reader.readAsDataURL(file);}
 /** 連れ子有無で子供人数の欄を表示切替 */
-function toggleKodomo(){document.getElementById('kodomo-row').style.display=document.getElementById('r-kodomo').value==='yes'?'block':'none';}
+function toggleKodomo(){document.getElementById('kodomo-row').style.display=document.getElementById('r-kodomo').value==='yes'?'flex':'none';}
+/** 子供欄(有無＋男女人数)から保存用テキストを組み立てる。
+ *  指定IDから読み取る汎用版（登録フォームと編集モーダルで共用）。
+ *  例: 「男の子1人・女の子2人」/ 片方のみ「女の子1人」/ 両方0なら「あり」/ 無なら「なし」 */
+function buildKodomoText(selId, boysId, girlsId){
+  var sel = document.getElementById(selId);
+  if(!sel || sel.value !== 'yes') return 'なし';
+  var b = (document.getElementById(boysId) || {}).value || '0人';
+  var g = (document.getElementById(girlsId) || {}).value || '0人';
+  var parts = [];
+  if(b !== '0人') parts.push('男の子' + b);
+  if(g !== '0人') parts.push('女の子' + g);
+  return parts.length ? parts.join('・') : 'あり';
+}
+/** 登録フォームの子供欄テキストを取得 */
+function getKodomoText(){ return buildKodomoText('r-kodomo', 'r-kodomo-boys', 'r-kodomo-girls'); }
 // プロフィール文入力時の文字数カウンター（500文字制限）
 /** プロフィール文字数カウンタを更新 @param {HTMLTextAreaElement} el @param {string} counterId */
 function updateProfileTextCount(el, counterId){
@@ -2854,7 +2892,7 @@ function calcMeishiki(){
   }
   dbgEl.innerHTML=dbgHtml;
 }
-function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=document.getElementById('r-kodomo').value==='yes'?document.getElementById('r-kodomo-cnt').value:'なし';var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('orient-wrap').style.display='none';document.getElementById('login-wrap').style.display='none';showAppWrap();renderMatchList(MY_PILLARS);}
+function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=getKodomoText();var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('orient-wrap').style.display='none';document.getElementById('login-wrap').style.display='none';showAppWrap();renderMatchList(MY_PILLARS);}
 /** 都道府県・出生地のセレクトボックスを初期化 */
 function initPrefs(){
   var rp=document.getElementById('r-res');
@@ -2999,7 +3037,7 @@ async function completeReg() {
   const sex = sexEl ? sexEl.textContent : '不明';
   const res = document.getElementById('r-res').value || '';
   const marriage = document.getElementById('r-marriage').value;
-  const kodomo = document.getElementById('r-kodomo').value === 'yes' ? document.getElementById('r-kodomo-cnt').value : 'なし';
+  const kodomo = getKodomoText();
   const yr = parseInt(document.getElementById('yr').value) || 1996;
   const mo = parseInt(document.getElementById('mo').value) || 1;
   const dy = parseInt(document.getElementById('dy').value) || 1;
@@ -4127,7 +4165,7 @@ function renderPartnerProfile(prof, status, rating){
   if(age) html += '<div class="modal-row"><span class="modal-lbl">年齢</span><span class="modal-val">'+age+'</span></div>';
   if(prof.prefecture) html += '<div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+escapeHtml(prof.prefecture)+'</span></div>';
   if(prof.marriage) html += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+escapeHtml(prof.marriage)+'</span></div>';
-  if(prof.children) html += '<div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+escapeHtml(prof.children)+'</span></div>';
+  if(prof.children) html += '<div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+escapeHtml(prof.children)+'</span></div>';
   html += '</div>';
   // プロフィール文
   if(prof.profile_text){
@@ -5472,6 +5510,74 @@ async function saveBirthEdit(){
   }catch(e){
     console.log('生まれの情報保存エラー:',e);
     errEl.textContent='エラーが発生しました';
+    if(btn){btn.disabled=false;btn.textContent='保存する';}
+  }
+}
+
+// ===== 結婚歴・子供の編集（登録後に変更できるのはこの2項目のみ） =====
+/** 子供「有」で男女人数の欄を表示切替（編集モーダル） */
+function toggleMkKodomo(){
+  var row=document.getElementById('mk-kodomo-row');
+  if(row) row.style.display=(document.getElementById('mk-kodomo').value==='yes')?'flex':'none';
+}
+/** 選択肢の値に合わせて select を選択状態にするヘルパー */
+function _setSelectByText(el, text){
+  if(!el) return;
+  for(var i=0;i<el.options.length;i++){ if(el.options[i].textContent===text){ el.selectedIndex=i; return; } }
+  el.selectedIndex=0;
+}
+/** 結婚歴・子供の編集モーダルを開く（現在値を反映） */
+async function openMkEdit(){
+  if(!currentUser)return;
+  var errEl=document.getElementById('mk-error'),okEl=document.getElementById('mk-success');
+  if(errEl)errEl.textContent='';if(okEl)okEl.style.display='none';
+  try{
+    const{data:profile}=await supa.from('profiles').select('marriage,children').eq('id',currentUser.id).single();
+    var marriage=(profile&&profile.marriage)?profile.marriage:'未婚';
+    var children=(profile&&profile.children)?profile.children:'なし';
+    _setSelectByText(document.getElementById('mk-marriage'), marriage);
+    // 子供：有無＋男女人数を反映
+    var sel=document.getElementById('mk-kodomo');
+    var has=!!(children && children!=='なし');
+    if(sel) sel.value=has?'yes':'none';
+    var bm=children?children.match(/男の子(\d+人|それ以上)/):null;
+    var gm=children?children.match(/女の子(\d+人|それ以上)/):null;
+    _setSelectByText(document.getElementById('mk-kodomo-boys'), bm?bm[1]:'0人');
+    _setSelectByText(document.getElementById('mk-kodomo-girls'), gm?gm[1]:'0人');
+    toggleMkKodomo();
+  }catch(e){console.log('結婚歴・子供 取得エラー:',e);}
+  document.getElementById('profile-modal').classList.remove('show');
+  document.getElementById('mk-edit-modal').classList.add('show');
+}
+/** 編集モーダルを閉じる */
+function closeMkEdit(){
+  document.getElementById('mk-edit-modal').classList.remove('show');
+}
+/** 結婚歴・子供を保存 → DB更新 → 画面再描画 */
+async function saveMkEdit(){
+  if(!currentUser)return;
+  var errEl=document.getElementById('mk-error'),okEl=document.getElementById('mk-success');
+  if(errEl)errEl.textContent='';if(okEl)okEl.style.display='none';
+  var btn=document.getElementById('mk-save-btn');
+  var marriage=document.getElementById('mk-marriage').value;
+  var children=(typeof buildKodomoText==='function')
+    ? buildKodomoText('mk-kodomo','mk-kodomo-boys','mk-kodomo-girls')
+    : (document.getElementById('mk-kodomo').value==='yes'?'あり':'なし');
+  if(btn){btn.disabled=true;btn.textContent='保存中...';}
+  try{
+    const{data:profile}=await supa.from('profiles').select('*').eq('id',currentUser.id).single();
+    var updateData={marriage:marriage,children:children};
+    const{error}=await supa.from('profiles').update(updateData).eq('id',currentUser.id);
+    if(error){if(errEl)errEl.textContent='保存に失敗しました：'+error.message;if(btn){btn.disabled=false;btn.textContent='保存する';}return;}
+    var merged=Object.assign({},profile||{},updateData);
+    if(typeof populateProfileModal==='function')populateProfileModal(merged);
+    if(typeof loadRealUsers==='function')loadRealUsers();
+    if(okEl)okEl.style.display='block';
+    if(btn){btn.disabled=false;btn.textContent='保存する';}
+    setTimeout(function(){closeMkEdit();document.getElementById('profile-modal').classList.add('show');},900);
+  }catch(e){
+    console.log('結婚歴・子供 保存エラー:',e);
+    if(errEl)errEl.textContent='エラーが発生しました';
     if(btn){btn.disabled=false;btn.textContent='保存する';}
   }
 }
@@ -8158,7 +8264,7 @@ async function upgradeAffiliateToNormal(){
   // 任意項目（プランにより非表示の場合あり）
   var res=(document.getElementById('r-res')&&document.getElementById('r-res').value)||'';
   var marriage=(document.getElementById('r-marriage')&&document.getElementById('r-marriage').value)||'';
-  var kodomo=(document.getElementById('r-kodomo')&&document.getElementById('r-kodomo').value==='yes')?((document.getElementById('r-kodomo-cnt')||{}).value||'1'):'なし';
+  var kodomo=(typeof getKodomoText==='function')?getKodomoText():((document.getElementById('r-kodomo')&&document.getElementById('r-kodomo').value==='yes')?'あり':'なし');
   var profileText=((document.getElementById('r-profile-text')||{}).value||'').trim().substring(0,500)||null;
   var interestTags=(function(){ try{ if(typeof getInterestEditState!=='function')return null; var s=getInterestEditState(); if(!s||!s.selected||s.selected.length===0)return null; return s; }catch(e){return null;} })();
 
@@ -9311,7 +9417,9 @@ function vrMemberCardHtml(m){
        + '<div class="vr-mem-info">'
        + '<div class="vr-mem-name">' + esc(m.nick) + badges + '</div>'
        + '<div class="vr-mem-sub">' + sub.join('') + '</div>'
-       + '</div></div>';
+       + '</div>'
+       + '<button class="vr-mem-posts-btn" onclick="event.stopPropagation();vrOpenMemberPosts(\'' + m.id + '\')">投稿→</button>'
+       + '</div>';
 }
 
 // ============================================
@@ -9413,6 +9521,87 @@ function vrStartChatFromProfile(){
   vrCloseMemberProfile();
   vrGoTab('messages');
   vrOpenChat(m.id, m.nick, m.avatar);
+}
+
+// ============================================
+// メンバーの投稿一覧（近況での過去投稿を閲覧）
+// ============================================
+
+/** 指定メンバーの近況投稿一覧を開く（閲覧専用） */
+async function vrOpenMemberPosts(memberId){
+  if(!memberId) return;
+  var modal = document.getElementById('vr-posts-modal');
+  var body = document.getElementById('vr-posts-body');
+  var ttl = document.getElementById('vr-posts-ttl');
+  if(!modal || !body) return;
+  // 名前はメンバーキャッシュから取得
+  var nick = '';
+  if(_vrMembers){ var mm = _vrMembers.find(function(x){ return x.id === memberId; }); if(mm) nick = mm.nick; }
+  if(ttl) ttl.textContent = nick ? (nick + ' さんの投稿') : '投稿一覧';
+  body.innerHTML = '<div class="vr-empty">読み込み中…</div>';
+  modal.classList.add('show');
+  try{
+    var hidden = await loadHiddenUserIds();
+    if(hidden.has(memberId)){ body.innerHTML = '<div class="vr-empty">この相手の投稿は表示できません。</div>'; return; }
+    var res = await supa.from('graduate_posts')
+      .select('*')
+      .eq('user_id', memberId)
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if(res.error){ body.innerHTML = '<div class="vr-empty">読み込みに失敗しました。</div>'; return; }
+    var posts = res.data || [];
+    if(!posts.length){ body.innerHTML = '<div class="vr-empty">✦<br>まだ投稿がありません。</div>'; return; }
+    var meta = await vrLoadPostMeta(posts.map(function(p){ return p.id; }));
+    body.innerHTML = posts.map(function(p){ return vrMemberPostHtml(p, meta); }).join('');
+  }catch(e){
+    console.log('vrOpenMemberPosts error:', e);
+    body.innerHTML = '<div class="vr-empty">読み込みエラー</div>';
+  }
+}
+
+/** 投稿一覧モーダルを閉じる */
+function vrCloseMemberPosts(){
+  var modal = document.getElementById('vr-posts-modal');
+  if(modal) modal.classList.remove('show');
+}
+
+/** 投稿1件の HTML（メンバー投稿一覧用・閲覧専用：いいね/コメントは件数表示のみ）
+ *  ※フィードと同じ投稿が同時にDOMに存在しうるため、id衝突する操作系は持たせない */
+function vrMemberPostHtml(post, meta, surveyViewOpts){
+  var esc = (typeof escapeHtml === 'function') ? escapeHtml : function(s){ return String(s==null?'':s); };
+  var nick = post.nickname || '名無し';
+  var init = nick.charAt(0);
+  var when = (typeof formatRelative === 'function') ? formatRelative(post.created_at) : '';
+  var avaHtml = post.avatar_url
+    ? '<img src="' + esc(post.avatar_url) + '" alt="">'
+    : '<span>' + esc(init) + '</span>';
+  var bodyHtml = '';
+  if(post.body){
+    bodyHtml = '<div class="vr-post-body">' + ((typeof linkifyText === 'function') ? linkifyText(post.body) : esc(post.body)) + '</div>';
+  }
+  var mediaHtml = '';
+  if(post.media_url){
+    if(post.media_type === 'video'){
+      mediaHtml = '<div class="vr-post-media"><video src="' + esc(post.media_url) + '" controls playsinline preload="metadata"></video></div>';
+    }else{
+      mediaHtml = '<div class="vr-post-media"><img src="' + esc(post.media_url) + '" alt="" loading="lazy"></div>';
+    }
+  }
+  var lc = (meta && meta.likeCount[post.id]) || 0;
+  var cc = (meta && meta.cmtCount[post.id]) || 0;
+  var actions = '<div class="vr-post-actions vr-post-actions-ro">'
+    + '<span class="vr-act"><span class="vr-act-ico">♡</span><span class="vr-like-count">' + lc + '</span></span>'
+    + '<span class="vr-act"><span class="vr-act-ico">💬</span><span class="vr-cmt-count">' + cc + '</span></span>'
+    + '</div>';
+  var contentHtml = (post.post_type === 'survey' && post.survey)
+    ? vrSurveyBlockHtml(post, meta, surveyViewOpts)
+    : (bodyHtml + mediaHtml);
+  return '<div class="vr-post">'
+       + '<div class="vr-post-ava">' + avaHtml + '</div>'
+       + '<div class="vr-post-main">'
+       + '<div class="vr-post-head"><span class="vr-post-name">' + esc(nick) + '</span><span class="vr-post-meta">' + esc(when) + '</span></div>'
+       + contentHtml + actions
+       + '</div></div>';
 }
 
 // ============================================
@@ -9633,7 +9822,7 @@ var VR_ROOMS = {
     feature: '効率、メリットデメリット、損得を重視',
     points: [
       '話し方は「結論が最初でその後に理由と過程を最小限」(過程より結論が大事)',
-      'ゆえに「で？」が口癖(結論を聞きたい)',
+      'ゆえに「で？」「だから？」が口癖(結論を聞きたい)',
       '絵文字は少なめ(文字、文脈で気持ちも伝わると思う)'
     ]
   },
@@ -9682,6 +9871,7 @@ async function vrOpenRoom(room){
   vrCloseOtherMenu();
   _vrCurrentRoom = room;
   vrGoTab('other'); // 間ページを表示＋「その他」タブをアクティブに
+  vrShowOtherView('room');
   var nameEl = document.getElementById('vr-room-name');
   if(nameEl) nameEl.textContent = VR_ROOMS[room].name;
   var descEl = document.getElementById('vr-room-desc');
@@ -9894,6 +10084,158 @@ function vrSurveyTargetChanged(){
   if(btn) btn.textContent = '🎯 対象：' + vrSurveyTargetLabel(vrGetSurveyTarget());
 }
 
+// ============================================
+// アンケート一覧（その他 → 過去アンケートを対象絞り込みで閲覧）
+// ============================================
+
+var _vrSurveys = null;     // 取得済みアンケート投稿のキャッシュ
+var _vrSurveyMeta = null;  // 上記の集計メタ（回答数など）
+
+/** 「その他」ページ内のビュー切替（room=種族別の間 / survey=アンケート一覧） */
+function vrShowOtherView(which){
+  var room = document.getElementById('vr-room-view');
+  var sl = document.getElementById('vr-survey-list-view');
+  if(room) room.style.display = (which === 'room') ? '' : 'none';
+  if(sl) sl.style.display = (which === 'survey') ? '' : 'none';
+}
+
+/** アンケート一覧を開く（全メンバーの過去アンケートを取得） */
+async function vrOpenSurveyList(){
+  vrCloseOtherMenu();
+  vrGoTab('other');
+  vrShowOtherView('survey');
+  // 絞り込みUIを初期化（毎回フィルタなしで開く）
+  vrBuildSurveyListTypes();
+  vrClearSurveyListFilter(true);
+  var fp = document.getElementById('vr-sl-filter'); if(fp) fp.style.display = 'none';
+  var listEl = document.getElementById('vr-sl-list');
+  if(listEl) listEl.innerHTML = '<div class="vr-empty">読み込み中…</div>';
+  try{
+    var hidden = await loadHiddenUserIds();
+    var res = await supa.from('graduate_posts')
+      .select('*')
+      .eq('post_type', 'survey')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if(res.error){ if(listEl) listEl.innerHTML = '<div class="vr-empty">読み込みに失敗しました。</div>'; return; }
+    _vrSurveys = (res.data || []).filter(function(p){ return p.survey && !hidden.has(p.user_id); });
+    _vrSurveyMeta = await vrLoadPostMeta(_vrSurveys.map(function(p){ return p.id; }));
+    vrRenderSurveyList();
+  }catch(e){
+    console.log('vrOpenSurveyList error:', e);
+    if(listEl) listEl.innerHTML = '<div class="vr-empty">読み込みエラー</div>';
+  }
+}
+
+/** 絞り込みパネルの開閉 */
+function vrToggleSurveyListFilter(){
+  var p = document.getElementById('vr-sl-filter');
+  if(p) p.style.display = (p.style.display === 'none') ? 'block' : 'none';
+}
+
+/** タイプ×十二運チェックボックスを生成（アンケート一覧用） */
+function vrBuildSurveyListTypes(){
+  var cont = document.getElementById('vr-sl-types');
+  if(!cont) return;
+  var names = { humanity:'人間味タイプ', efficiency:'効率族タイプ', mood:'気分屋タイプ' };
+  var html = '';
+  ['humanity','efficiency','mood'].forEach(function(t){
+    var juns = (VR_ROOMS[t] && VR_ROOMS[t].juns) ? VR_ROOMS[t].juns : [];
+    html += '<div class="vr-stp-type">';
+    html += '<label class="vr-stp-type-hd"><input type="checkbox" class="vr-stp-type-all" data-type="' + t + '" onchange="vrSurveyListToggleType(this)"> ' + names[t] + '</label>';
+    html += '<div class="vr-stp-juniun">';
+    juns.forEach(function(j){
+      html += '<label><input type="checkbox" class="vr-stp-jun" value="' + j + '" onchange="vrRenderSurveyList()">' + j + '</label>';
+    });
+    html += '</div></div>';
+  });
+  cont.innerHTML = html;
+}
+/** タイプ見出しで十二運を一括ON/OFF（アンケート一覧用） */
+function vrSurveyListToggleType(cb){
+  var t = cb.getAttribute('data-type');
+  var juns = (VR_ROOMS[t] && VR_ROOMS[t].juns) ? VR_ROOMS[t].juns : [];
+  document.querySelectorAll('#vr-sl-types .vr-stp-jun').forEach(function(j){
+    if(juns.indexOf(j.value) >= 0) j.checked = cb.checked;
+  });
+  vrRenderSurveyList();
+}
+
+/** 現在の絞り込み条件を取得 */
+function vrGetSurveyListFilter(){
+  var sexEl = document.querySelector('#vr-survey-list-view input[name="vr-sl-sex"]:checked');
+  var sex = sexEl ? sexEl.value : '';
+  var aMin = (document.getElementById('vr-sl-agemin') || {}).value || '';
+  var aMax = (document.getElementById('vr-sl-agemax') || {}).value || '';
+  var juniun = [];
+  document.querySelectorAll('#vr-sl-types .vr-stp-jun:checked').forEach(function(j){ juniun.push(j.value); });
+  return {
+    sex: sex || null,
+    ageMin: aMin !== '' ? parseInt(aMin, 10) : null,
+    ageMax: aMax !== '' ? parseInt(aMax, 10) : null,
+    juniun: juniun
+  };
+}
+
+/** 絞り込みをクリア @param {boolean} [silent] true なら再描画しない */
+function vrClearSurveyListFilter(silent){
+  var sexAll = document.querySelector('#vr-survey-list-view input[name="vr-sl-sex"][value=""]');
+  if(sexAll) sexAll.checked = true;
+  var amin = document.getElementById('vr-sl-agemin'); if(amin) amin.value = '';
+  var amax = document.getElementById('vr-sl-agemax'); if(amax) amax.value = '';
+  document.querySelectorAll('#vr-sl-types .vr-stp-jun, #vr-sl-types .vr-stp-type-all').forEach(function(c){ c.checked = false; });
+  if(!silent) vrRenderSurveyList();
+}
+
+/** アンケートの対象が絞り込み条件に該当するか
+ *  「全員/全年齢/全タイプ」のアンケートはどの絞り込みにも該当（誰にでも関係するため）。
+ *  対象が限定されている場合は、選択した条件と重なれば該当。 */
+function vrSurveyTargetPasses(t, f){
+  t = t || {};
+  // 性別：絞り込み指定あり → アンケートが「全員(null)」か同性別なら該当
+  if(f.sex && t.sex && t.sex !== f.sex) return false;
+  // 年齢：両方の範囲が重なれば該当（アンケートが全年齢なら常に該当）
+  if(f.ageMin != null || f.ageMax != null){
+    if(t.ageMin != null || t.ageMax != null){
+      var tMin = (t.ageMin != null) ? t.ageMin : 0;
+      var tMax = (t.ageMax != null) ? t.ageMax : 200;
+      var fMin = (f.ageMin != null) ? f.ageMin : 0;
+      var fMax = (f.ageMax != null) ? f.ageMax : 200;
+      if(tMax < fMin || tMin > fMax) return false;
+    }
+  }
+  // 十二運：絞り込み指定あり → アンケートが全タイプ(空)か、交差すれば該当
+  if(f.juniun && f.juniun.length){
+    if(t.juniun && t.juniun.length){
+      var hit = t.juniun.some(function(j){ return f.juniun.indexOf(j) >= 0; });
+      if(!hit) return false;
+    }
+  }
+  return true;
+}
+
+/** キャッシュから絞り込んでアンケート一覧を描画 */
+function vrRenderSurveyList(){
+  var listEl = document.getElementById('vr-sl-list');
+  if(!listEl) return;
+  if(!_vrSurveys){ return; }
+  var f = vrGetSurveyListFilter();
+  var rows = _vrSurveys.filter(function(p){ return vrSurveyTargetPasses(p.survey && p.survey.target, f); });
+  if(!rows.length){
+    listEl.innerHTML = '<div class="vr-empty">✦<br>該当するアンケートがありません。</div>';
+    return;
+  }
+  listEl.innerHTML = rows.map(function(p){ return vrMemberPostHtml(p, _vrSurveyMeta, { forceAnswerable: true }); }).join('');
+}
+
+/** 回答後などにアンケート一覧の集計を取り直して再描画 */
+async function vrReloadSurveyListMeta(){
+  if(!_vrSurveys) return;
+  try{ _vrSurveyMeta = await vrLoadPostMeta(_vrSurveys.map(function(p){ return p.id; })); }
+  catch(e){ console.log('vrReloadSurveyListMeta error:', e); }
+  vrRenderSurveyList();
+}
+
 /** 選択肢入力時：＋ボタンの表示制御 */
 function _vrSurveyOptVal(i){ var o = document.getElementById('vr-survey-opt-' + i); return o ? o.value.trim() : ''; }
 function vrSurveyOptInput(){
@@ -9939,7 +10281,8 @@ async function vrSubmitSurvey(){
 }
 
 /** アンケート投稿のHTML（フィード内） */
-function vrSurveyBlockHtml(post, meta){
+function vrSurveyBlockHtml(post, meta, viewOpts){
+  viewOpts = viewOpts || {};
   var esc = (typeof escapeHtml === 'function') ? escapeHtml : function(s){ return String(s==null?'':s); };
   var s = post.survey || {};
   var opts = s.options || [];
@@ -9948,7 +10291,8 @@ function vrSurveyBlockHtml(post, meta){
   var mine = (meta && (post.id in meta.surveyMine)) ? meta.surveyMine[post.id] : null;
   var answered = (mine !== null && mine !== undefined);
   var isCreator = (currentUser && post.user_id === currentUser.id);
-  var eligible = vrSurveyMatches(s.target);              // プロフィールから対象か自動判定
+  // forceAnswerable（アンケート一覧）：返答期限なし＝対象外でも未回答なら回答可にする
+  var eligible = viewOpts.forceAnswerable ? true : vrSurveyMatches(s.target);
   // 結果(%バー)を出すのは：回答済 / 作成者 / 対象外（対象外は最初から結果のみ）
   var showResults = answered || isCreator || !eligible;
   var h = '<div class="vr-survey-target-tag">📊 対象：' + esc(vrSurveyTargetLabel(s.target)) + '</div>';
@@ -9980,6 +10324,7 @@ async function vrAnswerSurvey(postId, idx){
     var res = await supa.from('graduate_survey_answers').insert({ post_id: postId, user_id: currentUser.id, choice_index: idx });
     if(res.error && res.error.code !== '23505'){ alert('回答に失敗しました：' + (res.error.message || '')); return; }
     vrRenderFeed();
+    if(_vrSurveys && typeof vrReloadSurveyListMeta === 'function'){ vrReloadSurveyListMeta(); }
   }catch(e){ console.log('vrAnswerSurvey error:', e); }
 }
 
@@ -10063,7 +10408,8 @@ function populateProfileModal(profile) {
   modalInfo += '<div class="modal-row"><span class="modal-lbl">生まれた時刻</span><span class="modal-val">'+birthTime+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">出生地</span><span class="modal-val">'+birthLoc+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+(profile.marriage||'')+'</span></div>';
-  modalInfo += '<div class="modal-row"><span class="modal-lbl">連れ子</span><span class="modal-val">'+(profile.children||'')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+(profile.children||'')+'</span></div>';
+  modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openMkEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">✎ 結婚歴・子供を編集</button></div>';
   // カップル相手欄（state.js の enList を参照、coupled マッチ相手がいれば表示）
   // enList ロード前は空。loadEnList 後に refreshProfileCoupleSection() で更新される
   modalInfo += '<div id="profile-couple-section"></div>';
@@ -10951,6 +11297,7 @@ checkSession();
         <div class="sub-item" onclick="event.stopPropagation();vrOpenRoom('humanity')">人間味の間</div>
         <div class="sub-item" onclick="event.stopPropagation();vrOpenRoom('efficiency')">効率族の間</div>
         <div class="sub-item" onclick="event.stopPropagation();vrOpenRoom('mood')">気分屋の間</div>
+        <div class="sub-item" onclick="event.stopPropagation();vrOpenSurveyList()">アンケート一覧</div>
         <div class="sub-item" onclick="event.stopPropagation();vrCloseOtherMenu();exitVoiceRoom()">縁の間に戻る</div>
       </div>
     </div>
@@ -11041,6 +11388,29 @@ checkSession();
           <button class="vr-cmt-send" onclick="vrSendRoomMessage()">送信</button>
         </div>
       </div>
+      <!-- アンケート一覧（メンバーが近況で実施した過去アンケートを対象絞り込みで閲覧） -->
+      <div id="vr-survey-list-view" style="display:none">
+        <div class="vr-chat-header">
+          <button class="vr-chat-back" onclick="vrCloseRoom()">‹</button>
+          <div class="vr-chat-name">アンケート一覧</div>
+          <button class="vr-mem-filter-btn" onclick="vrToggleSurveyListFilter()" style="margin-left:auto">対象で絞り込み ▾</button>
+        </div>
+        <div class="vr-survey-target-panel vr-sl-filter" id="vr-sl-filter" style="display:none">
+          <div class="vr-stp-row"><label>性別</label>
+            <span class="vr-stp-opts">
+              <label><input type="radio" name="vr-sl-sex" value="" checked onchange="vrRenderSurveyList()">全員</label>
+              <label><input type="radio" name="vr-sl-sex" value="女性" onchange="vrRenderSurveyList()">女性</label>
+              <label><input type="radio" name="vr-sl-sex" value="男性" onchange="vrRenderSurveyList()">男性</label>
+            </span>
+          </div>
+          <div class="vr-stp-row"><label>年齢</label>
+            <span class="vr-age-range"><input type="number" id="vr-sl-agemin" min="18" max="120" placeholder="下限" oninput="vrRenderSurveyList()"><span>〜</span><input type="number" id="vr-sl-agemax" min="18" max="120" placeholder="上限" oninput="vrRenderSurveyList()"><span>歳</span></span>
+          </div>
+          <div class="vr-stp-types" id="vr-sl-types"><!-- タイプ×十二運 はJSで生成 --></div>
+          <button type="button" class="vr-sl-clear" onclick="vrClearSurveyListFilter()">絞り込みをクリア</button>
+        </div>
+        <div id="vr-sl-list" class="vr-feed-list"></div>
+      </div>
     </div>
   </div>
 
@@ -11057,6 +11427,14 @@ checkSession();
     <div class="modal-card">
       <div class="modal-hd"><span class="modal-ttl">プロフィール</span><button class="modal-close" onclick="vrCloseMemberProfile()">✕</button></div>
       <div id="vr-member-body"></div>
+    </div>
+  </div>
+
+  <!-- メンバーの投稿一覧モーダル（近況での過去投稿を閲覧） -->
+  <div class="modal-bg" id="vr-posts-modal">
+    <div class="modal-card">
+      <div class="modal-hd"><span class="modal-ttl" id="vr-posts-ttl">投稿一覧</span><button class="modal-close" onclick="vrCloseMemberPosts()">✕</button></div>
+      <div id="vr-posts-body" class="vr-feed-list"></div>
     </div>
   </div>
 
