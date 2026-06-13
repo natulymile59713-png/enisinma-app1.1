@@ -187,7 +187,10 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .age-chk-row{display:flex;gap:6px;margin-bottom:6px}
 .age-btn{flex:1;padding:6px 0;font-size:11px;border:0.5px solid var(--color-border-tertiary);border-radius:7px;background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;text-align:center;transition:all .15s}
 .age-btn.on{border-color:#C9A96E;color:#C9A96E}
-.match-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:.75rem 1rem;margin:0 1rem .6rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s}
+.match-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:.75rem 1rem;margin:0 1rem .6rem;display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:border-color .2s}
+/* 上段：アバター・名前・年齢居住地・ボタン / 下段：タグ＋良縁率バー（全幅） */
+.match-card .mc-top{display:flex;align-items:center;gap:10px}
+.match-card .mc-bottom{margin-left:54px}
 .match-card:hover{border-color:#C9A96E}
 /* 展開時：カード＋詳細パネルを1つの連続したゴールド枠で囲う（下を開いて詳細とつなぐ） */
 .match-card.open{border-color:#C9A96E;border-width:1.5px;border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
@@ -207,6 +210,10 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .afill{height:100%;background:#C9A96E;border-radius:2px}
 .albl{font-size:9px;color:var(--color-text-tertiary);margin-top:2px}
 .ndot{width:7px;height:7px;border-radius:50%;background:#C9A96E;flex-shrink:0}
+/* 推しカード右側のアクション（相性確認/閉じる ＋ 🔍詳細） */
+.card-actions{display:flex;align-items:flex-start;gap:6px;flex-shrink:0;align-self:flex-start;margin-top:1px}
+.cmp-btn{font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;font-family:inherit;align-self:flex-start}
+.cmp-btn:active{background:rgba(201,169,110,.14)}
 .detail-panel{display:none;margin:0 1rem .75rem}
 .detail-panel.open{display:block;background:var(--color-background-primary);border:1.5px solid #C9A96E;border-top:none;border-radius:0 0 12px 12px;padding:0}
 /* ゴールド枠内では内側カードの枠・背景をなくし、1枠に見せる */
@@ -908,6 +915,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     <div id="aff-dash-summary" style="margin-bottom:.75rem"></div>
     <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.4rem">紹介した方</div>
     <div id="aff-dash-list" style="max-height:220px;overflow-y:auto;margin-bottom:1rem"></div>
+    <button id="aff-bank-btn" data-hasbank="0" onclick="onAffiliateBankBtn()" style="display:block;width:100%;margin-bottom:.6rem;font-size:12px;padding:9px;border:0.5px solid #C9A96E;border-radius:8px;color:#C9A96E;background:transparent;cursor:pointer;font-family:'Noto Sans JP',sans-serif">キャッシュバック用口座を登録</button>
     <button class="btn-register" onclick="startNormalRegFromAffiliate()">通常登録してサービスも使う →</button>
     <button onclick="affiliateLogout()" style="display:block;width:100%;margin-top:.6rem;font-size:11px;padding:7px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;color:var(--color-text-secondary);background:transparent;cursor:pointer;font-family:'Noto Sans JP',sans-serif">ログアウト</button>
   </div>
@@ -1075,7 +1083,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div class="modal-ava-edit-badge" aria-hidden="true">📷</div>
       </div>
       <input type="file" id="avatar-edit-input" accept="image/*" style="display:none" onchange="changeAvatar(event)">
-      <div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:-4px;margin-bottom:12px">📷 クリックでプロフィール画像を変更<br><span style="font-size:10px;color:var(--color-text-tertiary)">※ マッチング前のお相手にはぼかして表示されます</span></div>
+      <div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:-4px;margin-bottom:12px">📷 クリックでプロフィール画像を変更</div>
       <div id="modal-rating"></div>
       <div id="modal-info"></div>
       <div style="margin-top:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px">命式</div><div class="pillars-mini" id="modal-pillars"></div></div>
@@ -1143,6 +1151,14 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div id="bk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
       <div id="bk-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 保存しました</div>
       <button class="btn-gold" id="bk-save-btn" onclick="saveBankEdit()" style="margin-bottom:0">保存する</button>
+    </div>
+  </div>
+  <!-- アフィリエイター：登録口座情報の確認モーダル -->
+  <div class="modal-bg" id="aff-bank-view-modal">
+    <div class="modal-card">
+      <div class="modal-hd"><span class="modal-ttl">登録口座情報</span><button class="modal-close" onclick="closeAffiliateBankView()">✕</button></div>
+      <div id="aff-bank-view-body"></div>
+      <button class="btn-gold" onclick="closeAffiliateBankView();openBankEdit(true)" style="margin-bottom:0;margin-top:12px">口座情報を変更</button>
     </div>
   </div>
   <div class="modal-bg" id="birth-edit-modal">
@@ -3264,7 +3280,18 @@ var _cardOnclick=_isLocked?'showOshiLockedAlert()':'toggleDetail('+idx+')';
 var detailBtnHtml = (!isDemo && partner.userId)
   ? '<button onclick="event.stopPropagation();openPartnerProfile(\''+partner.userId+'\',\'pending\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;align-self:flex-start">🔍 詳細</button>'
   : '';
-var card='<div class="'+_cardCls+'" id="card'+idx+'" onclick="'+_cardOnclick+'">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div>'+detailBtnHtml+'<div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
+// 「相性確認/閉じる」トグルボタン（カードと同じ開閉動作）。詳細ボタンの左横に配置
+var compatBtnHtml = '<button class="cmp-btn" id="cmpbtn'+idx+'" data-idx="'+idx+'" onclick="event.stopPropagation();'+_cardOnclick+'">相性確認</button>';
+var actionsHtml = '<div class="card-actions">'+compatBtnHtml+detailBtnHtml+'</div>';
+// 新着マーク：未タップの実ユーザーのみ表示。タップで既読化するため data-oshi を付与
+var _seenOshi = (typeof getOshiSeen==='function') ? getOshiSeen() : [];
+var _isNewOshi = (!isDemo && partner.userId && _seenOshi.indexOf(partner.userId) < 0);
+var ndotHtml = _isNewOshi ? '<div class="ndot"></div>' : '';
+var dataOshi = (!isDemo && partner.userId) ? ' data-oshi="'+partner.userId+'"' : '';
+var card='<div class="'+_cardCls+'" id="card'+idx+'"'+dataOshi+' onclick="'+_cardOnclick+'">'
+  +'<div class="mc-top">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div></div>'+actionsHtml+ndotHtml+'</div>'
+  +'<div class="mc-bottom"><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div>'
+  +'</div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
    ? '<button class="btn-hanashi sent" id="hanashi-btn-'+idx+'" disabled style="opacity:.5;cursor:not-allowed">🎉 カップル成立中のため申請不可</button>'
    : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+'<button id="hanashi-cancel-btn-'+idx+'" onclick="cancelHanashi('+idx+')" style="display:none;width:100%;padding:8px 12px;margin-top:6px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:12px">キャンセル</button>'+'</div></div>';}
 /** 自分の命式から全パートナーとの相性を計算し、ソートして表示
@@ -3285,8 +3312,34 @@ function toggleFilter(){var b=document.getElementById('filter-body'),ic=document
 function toggleAge(type){ageState[type]=!ageState[type];document.getElementById('age-'+type).classList.toggle('on',ageState[type]);document.getElementById('row-upper').style.display=ageState.older?'flex':'none';document.getElementById('row-lower').style.display=ageState.younger?'flex':'none';updateAgeSummary();applyFilter();}
 /** 年齢フィルタの現在値をサマリ表示に反映 */
 function updateAgeSummary(){if(!document.getElementById('age-upper'))return;var u=parseInt(document.getElementById('age-upper').value),l=parseInt(document.getElementById('age-lower').value),p=[];p.push(ageState.older?(u===0?'年上：指定しない':'最大'+u+'歳上まで'):'年上：なし');p.push(ageState.younger?(l===0?'年下：指定しない':'最大'+l+'歳下まで'):'年下：なし');document.getElementById('age-sum').textContent=p.join('・');}
+/** 新着推しの既読管理（localStorage） */
+function oshiSeenKey(){ return 'oshi_seen_' + ((typeof currentUser!=='undefined' && currentUser) ? currentUser.id : 'guest'); }
+function getOshiSeen(){ try{ var v=JSON.parse(localStorage.getItem(oshiSeenKey())||'[]'); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+function markOshiSeen(userId){ if(!userId) return; var s=getOshiSeen(); if(s.indexOf(userId)<0){ s.push(userId); try{ localStorage.setItem(oshiSeenKey(), JSON.stringify(s)); }catch(e){} } }
+/** 「相性確認/閉じる」ボタンのラベルを開閉状態に合わせて更新 */
+function refreshCmpButtons(){
+  document.querySelectorAll('.cmp-btn').forEach(function(b){
+    var bi=b.getAttribute('data-idx');
+    var card=document.getElementById('card'+bi);
+    b.textContent=(card && card.classList.contains('open')) ? '閉じる' : '相性確認';
+  });
+}
 /** 推しカードの詳細パネル展開/折りたたみ @param {number} idx */
-function toggleDetail(idx){var d=document.getElementById('detail'+idx),c=document.getElementById('card'+idx);var isOpen=d.classList.contains('open');document.querySelectorAll('.detail-panel').forEach(function(p){p.classList.remove('open');});document.querySelectorAll('.match-card').forEach(function(c2){c2.classList.remove('open');});clearAllSvg();if(!isOpen){d.classList.add('open');c.classList.add('open');}}
+function toggleDetail(idx){
+  var d=document.getElementById('detail'+idx),c=document.getElementById('card'+idx);
+  if(!d) return;
+  var isOpen=d.classList.contains('open');
+  document.querySelectorAll('.detail-panel').forEach(function(p){p.classList.remove('open');});
+  document.querySelectorAll('.match-card').forEach(function(c2){c2.classList.remove('open');});
+  clearAllSvg();
+  if(!isOpen){d.classList.add('open');if(c)c.classList.add('open');}
+  // タップで新着マークを既読化（ゴールドの「・」を消す）
+  if(c){
+    var oid=c.getAttribute('data-oshi');
+    if(oid){ markOshiSeen(oid); var dot=c.querySelector('.ndot'); if(dot&&dot.parentNode) dot.parentNode.removeChild(dot); }
+  }
+  refreshCmpButtons();
+}
 /** すべての SVG オーバーレイをクリア */
 function clearAllSvg(){document.querySelectorAll('.svg-ov').forEach(function(s){s.innerHTML='';}); }
 /** 指定インデックスの SVG オーバーレイをクリア @param {number} idx */
@@ -6701,12 +6754,13 @@ function demoTriggerCashback(){
 }
 
 // ===== 銀行口座情報の編集モーダル =====
-/** 銀行口座編集モーダルを開く */
-function openBankEdit(){
+/** 銀行口座編集モーダルを開く @param {boolean} [fromAffiliate] アフィリダッシュボードから開いたか */
+function openBankEdit(fromAffiliate){
   if(!currentUser)return;
+  window._affBankEdit = !!fromAffiliate; // 保存後の戻り先を決める
   document.getElementById('bk-error').textContent='';
   document.getElementById('bk-success').style.display='none';
-  // 現在値を埋める
+  // 現在値を埋める＋保存ボタン文言（新規=登録する / 既存=保存する）
   supa.from('profiles').select('bank_name,bank_branch,bank_account_type,bank_account_number,bank_account_holder').eq('id',currentUser.id).single().then(function(res){
     if(res.data){
       document.getElementById('bk-name').value=res.data.bank_name||'';
@@ -6715,6 +6769,8 @@ function openBankEdit(){
       document.getElementById('bk-number').value=res.data.bank_account_number||'';
       document.getElementById('bk-holder').value=res.data.bank_account_holder||'';
     }
+    var saveBtn=document.getElementById('bk-save-btn');
+    if(saveBtn) saveBtn.textContent=(res.data && res.data.bank_name) ? '保存する' : '登録する';
   });
   document.getElementById('profile-modal').classList.remove('show');
   document.getElementById('bank-edit-modal').classList.add('show');
@@ -6745,10 +6801,16 @@ async function saveBankEdit(){
     if(error){errEl.textContent='保存に失敗しました：'+error.message;if(btn){btn.disabled=false;btn.textContent='保存する';}return;}
     okEl.style.display='block';
     if(btn){btn.disabled=false;btn.textContent='保存する';}
-    // プロフィールモーダルを再描画
+    // 最新プロフィール取得
     const{data:profile}=await supa.from('profiles').select('*').eq('id',currentUser.id).single();
     if(profile)populateProfileModal(profile);
-    setTimeout(function(){closeBankEdit();document.getElementById('profile-modal').classList.add('show');},900);
+    if(window._affBankEdit){
+      // アフィリダッシュボードから開いた場合：保存後はダッシュボードへ戻る（ボタンが「確認」に変わる）
+      window._affBankEdit=false;
+      setTimeout(function(){ closeBankEdit(); if(profile && typeof showAffiliateDashboard==='function') showAffiliateDashboard(profile); },900);
+    }else{
+      setTimeout(function(){closeBankEdit();document.getElementById('profile-modal').classList.add('show');},900);
+    }
   }catch(e){
     console.log('口座情報保存エラー:',e);
     errEl.textContent='エラーが発生しました';
@@ -8289,8 +8351,47 @@ async function showAffiliateDashboard(profile){
       catch(e){ qrBox.textContent='QR生成に失敗しました'; }
     }
   }
+  // キャッシュバック用口座ボタンの状態（未登録=登録 / 登録済=確認）
+  var bankBtn=document.getElementById('aff-bank-btn');
+  if(bankBtn){
+    var src = profile || window._affiliateProfile || {};
+    var hasBank = !!src.bank_name;
+    bankBtn.textContent = hasBank ? '口座情報を確認' : 'キャッシュバック用口座を登録';
+    bankBtn.setAttribute('data-hasbank', hasBank ? '1' : '0');
+  }
   loadAffiliateReferList();
 }
+
+/** ダッシュボードの口座ボタン：未登録なら登録、登録済なら確認 */
+function onAffiliateBankBtn(){
+  var btn=document.getElementById('aff-bank-btn');
+  if(btn && btn.getAttribute('data-hasbank')==='1'){ openAffiliateBankView(); }
+  else{ openAffiliateBankEdit(); }
+}
+/** 口座登録（既存の口座編集モーダルをアフィリ文脈で開く） */
+function openAffiliateBankEdit(){ if(typeof openBankEdit==='function') openBankEdit(true); }
+/** 登録済み口座情報を表示 */
+async function openAffiliateBankView(){
+  if(!currentUser) return;
+  var modal=document.getElementById('aff-bank-view-modal');
+  var body=document.getElementById('aff-bank-view-body');
+  if(body) body.innerHTML='<div style="text-align:center;color:var(--color-text-tertiary);font-size:12px;padding:1rem">読み込み中…</div>';
+  if(modal) modal.classList.add('show');
+  try{
+    var res=await supa.from('profiles').select('bank_name,bank_branch,bank_account_type,bank_account_number,bank_account_holder').eq('id',currentUser.id).single();
+    var p=res.data||{};
+    var esc=(typeof escapeHtml==='function')?escapeHtml:function(s){return String(s==null?'':s);};
+    var html='';
+    html+='<div class="modal-row"><span class="modal-lbl">銀行名</span><span class="modal-val">'+esc(p.bank_name||'—')+'</span></div>';
+    html+='<div class="modal-row"><span class="modal-lbl">支店名</span><span class="modal-val">'+esc(p.bank_branch||'—')+'</span></div>';
+    html+='<div class="modal-row"><span class="modal-lbl">口座種別</span><span class="modal-val">'+esc(p.bank_account_type||'普通')+'</span></div>';
+    html+='<div class="modal-row"><span class="modal-lbl">口座番号</span><span class="modal-val mono">'+esc(p.bank_account_number||'—')+'</span></div>';
+    html+='<div class="modal-row"><span class="modal-lbl">名義人</span><span class="modal-val">'+esc(p.bank_account_holder||'—')+'</span></div>';
+    if(body) body.innerHTML=html;
+  }catch(e){ if(body) body.innerHTML='<div style="text-align:center;color:#C05050;font-size:12px;padding:1rem">読み込みエラー</div>'; }
+}
+/** 口座確認モーダルを閉じる */
+function closeAffiliateBankView(){ var m=document.getElementById('aff-bank-view-modal'); if(m) m.classList.remove('show'); }
 
 /** 紹介リンクをコピー */
 function copyAffiliateLink(){
@@ -8685,6 +8786,36 @@ function vrToggleVisibility(kind){
   renderVoiceProfile();
 }
 
+/** 卒業生の間プロフィールからアバター画像を変更（縁の間と同じ Storage アップロード） */
+async function vrChangeAvatar(e){
+  var file = e && e.target && e.target.files ? e.target.files[0] : null;
+  if(!file) return;
+  if(!currentUser){ alert('ログインが必要です'); return; }
+  if(file.size > 5 * 1024 * 1024){ alert('画像サイズは 5MB 以内にしてください'); if(e.target) e.target.value = ''; return; }
+  var img = document.getElementById('vr-modal-ava-img');
+  if(img) img.style.opacity = '0.4';
+  try{
+    if(typeof uploadAvatar !== 'function'){ alert('アップロード機能が読み込まれていません'); return; }
+    var res = await uploadAvatar(supa, currentUser.id, file);
+    if(res.error || !res.url){ alert('画像のアップロードに失敗しました：' + ((res.error && res.error.message) || '不明なエラー')); return; }
+    var up = await supa.from('profiles').update({ avatar_url: res.url }).eq('id', currentUser.id);
+    if(up.error){ alert('プロフィール更新エラー：' + up.error.message); return; }
+    // 共有データ更新 → 縁の間本体の表示にも反映 → 卒業生の間を再描画
+    if(window._profileModalData) window._profileModalData.avatar_url = res.url;
+    try{
+      var d = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+      if(d.data && typeof populateProfileModal === 'function') populateProfileModal(d.data);
+    }catch(_){}
+    renderVoiceProfile();
+    vrSyncTopbarAvatar();
+  }catch(err){
+    console.log('vrChangeAvatar error:', err);
+    alert('画像変更中にエラーが発生しました');
+  }finally{
+    if(e.target) e.target.value = '';
+  }
+}
+
 /** 卒業生の間のプロフィール内容を描画 */
 function renderVoiceProfile(){
   var body = document.getElementById('vr-profile-body');
@@ -8707,11 +8838,15 @@ function renderVoiceProfile(){
   var esc = (typeof escapeHtml === 'function') ? escapeHtml : function(s){ return String(s == null ? '' : s); };
 
   var html = '';
-  // アバター
-  html += '<div class="modal-ava">';
-  if(p.avatar_url){ html += '<img src="' + esc(p.avatar_url) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; }
+  // アバター（クリックで画像変更：縁の間と同じ）
+  html += '<div class="modal-ava modal-ava-editable" onclick="document.getElementById(\'vr-avatar-input\').click()" title="クリックで画像を変更">';
+  if(p.avatar_url){ html += '<img id="vr-modal-ava-img" src="' + esc(p.avatar_url) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; }
   else { html += '<span class="modal-ava-ph">' + esc(nickInit) + '</span>'; }
+  html += '<div class="modal-ava-edit-badge" aria-hidden="true">📷</div>';
   html += '</div>';
+  html += '<input type="file" id="vr-avatar-input" accept="image/*" style="display:none" onchange="vrChangeAvatar(event)">';
+  // アバター下の案内文
+  html += '<div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:6px">📸 タップでプロフィール画像を変更</div>';
 
   // ♡（画像とニックネームの間）
   html += '<div class="vr-heart-row" id="vr-heart-self"></div>';
@@ -8738,14 +8873,6 @@ function renderVoiceProfile(){
         + '</div>';
   if(showPartner){
     html += '<div class="modal-row"><span class="modal-lbl">　</span><span class="modal-val" style="color:#d6608b">' + (partnerName ? '💕 ' + esc(partnerName) : '—') + '</span></div>';
-  }
-  html += '</div>';
-
-  // 興味のあるカテゴリー（縁の間と共通レンダラー）
-  html += '<div style="margin-top:14px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">';
-  html += '<div class="vr-sec-title">興味のあるカテゴリー</div>';
-  if(typeof renderInterestChipsReadonly === 'function'){
-    html += renderInterestChipsReadonly(p.interest_tags || null);
   }
   html += '</div>';
 
