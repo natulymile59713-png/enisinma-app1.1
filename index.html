@@ -189,7 +189,8 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .age-btn.on{border-color:#C9A96E;color:#C9A96E}
 .match-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:.75rem 1rem;margin:0 1rem .6rem;display:flex;align-items:center;gap:10px;cursor:pointer;transition:border-color .2s}
 .match-card:hover{border-color:#C9A96E}
-.match-card.open{border-color:#C9A96E;border-width:1.5px}
+/* 展開時：カード＋詳細パネルを1つの連続したゴールド枠で囲う（下を開いて詳細とつなぐ） */
+.match-card.open{border-color:#C9A96E;border-width:1.5px;border-bottom:none;border-bottom-left-radius:0;border-bottom-right-radius:0;margin-bottom:0}
 /* カップル成立中ロック表示：推しページのカードをグレーアウト */
 .match-card.card-locked{filter:grayscale(.9) opacity(.55);cursor:not-allowed}
 .match-card.card-locked:hover{border-color:var(--color-border-tertiary)}
@@ -207,7 +208,9 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .albl{font-size:9px;color:var(--color-text-tertiary);margin-top:2px}
 .ndot{width:7px;height:7px;border-radius:50%;background:#C9A96E;flex-shrink:0}
 .detail-panel{display:none;margin:0 1rem .75rem}
-.detail-panel.open{display:block}
+.detail-panel.open{display:block;background:var(--color-background-primary);border:1.5px solid #C9A96E;border-top:none;border-radius:0 0 12px 12px;padding:0}
+/* ゴールド枠内では内側カードの枠・背景をなくし、1枠に見せる */
+.detail-panel.open>.card{border:none;border-radius:0;background:transparent;padding:.85rem 1rem}
 .compare-wrap{position:relative;margin-bottom:.75rem}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .pcol{display:flex;flex-direction:column;gap:5px}
@@ -418,6 +421,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .cal-mk.shigo{color:#C9A96E}
 .cal-mk.chu{color:#E08040}
 .cal-mk.kei{color:#C05050}
+/* 節入り日（干支の月の境目）：背景は他と同じ。緑の線＋赤のマークのみ */
+.cal-cell.cal-sekki{position:relative;border-top:2px solid #3a9a3a}
+.cal-sekki-tag{position:absolute;top:0;right:2px;font-size:13px;line-height:1.1;pointer-events:none;color:#D63A3A}
+.cal-sekki-note{font-size:11px;line-height:1.7;color:var(--color-text-primary);background:rgba(201,169,110,.1);border:0.5px solid rgba(201,169,110,.4);border-radius:8px;padding:.5rem .7rem;margin-bottom:.7rem}
+.cal-sekki-note strong{color:#C9A96E;font-weight:600}
 .cal-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:.75rem;padding:.5rem .75rem;background:var(--color-background-secondary);border-radius:6px;font-size:10px;color:var(--color-text-secondary);line-height:1.6}
 .cal-legend>span{display:inline-flex;align-items:center;gap:3px}
 .cal-section{padding:.75rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
@@ -429,6 +437,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .cal-section-text strong{font-weight:500;color:#C9A96E}
 .cal-section-text strong.bad{color:#C05050}
 .cal-no-rel{font-size:11px;color:var(--color-text-tertiary)}
+/* 五行の地合い（合冲刑が無い日も必ず出る読み） */
+.cal-gogyo{background:var(--color-background-secondary);border-radius:8px;padding:.55rem .7rem;border-left:2px solid var(--color-border-tertiary)}
+.cal-gogyo.good{border-left-color:#C9A96E}
+.cal-gogyo.caution{border-left-color:#C05050}
+.cal-gogyo .cal-kotowaza{font-size:11px;color:var(--color-text-tertiary);font-style:italic}
 
 /* ===== 画像拡大表示（マッチ後アバタータップ用） ===== */
 .ava-zoomable{cursor:zoom-in}
@@ -532,6 +545,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-juniun{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
 .vr-juniun-cell{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:6px;padding:5px 2px;text-align:center}
 .vr-juniun-cell.day{border-color:rgba(201,169,110,.5);background:rgba(201,169,110,.08)}
+/* 日柱十二運セルの強調（「詳しく🔎」から飛んできた時） */
+.vr-juniun-cell.vr-juniun-point{position:relative;animation:vrJunPulse 1s ease-in-out 0s 4}
+@keyframes vrJunPulse{0%,100%{box-shadow:0 0 0 0 rgba(214,58,58,0)}50%{box-shadow:0 0 0 3px rgba(214,58,58,.65)}}
+.vr-juniun-cell.vr-juniun-point::after{content:'あなたの日柱の十二運';position:absolute;left:50%;bottom:calc(100% + 7px);transform:translateX(-50%);white-space:nowrap;font-size:10px;font-weight:600;color:#fff;background:#D63A3A;padding:3px 8px;border-radius:8px;z-index:5;box-shadow:0 2px 6px rgba(0,0,0,.22)}
+.vr-juniun-cell.vr-juniun-point::before{content:'';position:absolute;left:50%;bottom:calc(100% + 2px);transform:translateX(-50%);border:5px solid transparent;border-top-color:#D63A3A;z-index:5}
 .vr-juniun-lbl{font-size:9px;color:var(--color-text-tertiary)}
 .vr-juniun-val{font-size:13px;color:var(--color-text-primary);font-family:'Noto Serif JP',serif;margin-top:2px}
 .vr-vis-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -616,6 +634,8 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-cmt-input{flex:1;min-width:0;font-size:12px;padding:7px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:16px;background:var(--color-background-secondary);color:var(--color-text-primary);font-family:inherit}
 .vr-cmt-input:focus{outline:none;border-color:#C9A96E}
 .vr-cmt-send{background:#C9A96E;color:#fff;border:none;border-radius:16px;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;flex-shrink:0}
+.vr-cmt-send:disabled{background:var(--color-border-tertiary);color:var(--color-text-tertiary);cursor:not-allowed;opacity:.6}
+.vr-cmt-input:disabled{background:var(--color-background-secondary);color:var(--color-text-tertiary);cursor:not-allowed;opacity:.7}
 .vr-cmt-reply-btn{font-size:10px;color:#C9A96E;background:none;border:none;cursor:pointer;font-family:inherit;padding:2px 0;margin-top:1px}
 .vr-cmt-children{margin-left:16px;border-left:0.5px solid var(--color-border-tertiary);padding-left:8px}
 .vr-cmt-reply{display:flex;gap:6px;margin:6px 0 2px}
@@ -702,6 +722,8 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-chat-composer{display:flex;gap:6px;padding:.6rem 1rem;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);position:sticky;bottom:0}
 /* 種族別の間（グループチャット） */
 .vr-room-desc{font-size:11px;color:var(--color-text-secondary);line-height:1.7;padding:.7rem 1rem;background:var(--color-background-secondary);border-bottom:0.5px solid var(--color-border-tertiary)}
+.vr-room-desc .vr-jun-help-btn{margin-left:8px;font-size:10px;font-weight:600;padding:3px 9px;border:0.5px solid #C9A96E;border-radius:7px;background:transparent;color:#C9A96E;cursor:pointer;font-family:inherit;white-space:nowrap;vertical-align:middle}
+.vr-room-desc .vr-jun-help-btn:active{background:rgba(201,169,110,.14)}
 .vr-room-desc .vr-room-feature{margin-top:7px;color:var(--color-text-primary)}
 .vr-room-desc .vr-room-points{margin-top:3px;line-height:1.8}
 .vr-room-desc .vr-room-note{display:block;margin-top:7px;color:var(--color-text-tertiary);font-size:10px}
@@ -716,6 +738,26 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-rmsg-bubble{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;word-break:break-word;white-space:pre-wrap;background:var(--color-background-primary);color:var(--color-text-primary);border:0.5px solid var(--color-border-tertiary);border-bottom-left-radius:4px}
 .vr-rmsg.me .vr-rmsg-bubble{background:#C9A96E;color:#fff;border:none;border-bottom-left-radius:14px;border-bottom-right-radius:4px}
 .vr-rmsg-time{font-size:9px;color:var(--color-text-tertiary);margin:2px 3px 0}
+/* 既読人数（自分のメッセージ下・LINEグループ風） */
+.vr-rmsg-read{font-size:9px;color:#C9A96E;margin:2px 3px 0}
+.vr-rmsg.me .vr-rmsg-read{text-align:right}
+/* 種族別の間タイトル右のメンバー数 */
+.vr-room-count{margin-left:8px;font-size:11px;font-weight:500;color:#C9A96E;background:rgba(201,169,110,.14);border:0.5px solid rgba(201,169,110,.4);border-radius:10px;padding:1px 8px;vertical-align:middle}
+/* 返信の引用（LINE風） */
+.vr-rmsg-quote{max-width:100%;font-size:11px;line-height:1.5;color:var(--color-text-secondary);background:var(--color-background-secondary);border-left:2px solid #C9A96E;border-radius:6px;padding:4px 8px;margin:0 2px 3px;word-break:break-word}
+.vr-rmsg.me .vr-rmsg-quote{border-left-color:#fff;border-left:0;border-right:2px solid #C9A96E;text-align:left}
+.vr-rmsg-quote-nm{display:block;font-size:9px;font-weight:600;color:#C9A96E;margin-bottom:1px}
+/* メッセージのアクション（返信・削除） */
+.vr-rmsg-acts{display:flex;gap:10px;margin:2px 3px 0}
+.vr-rmsg.me .vr-rmsg-acts{justify-content:flex-end}
+.vr-rmsg-act{background:none;border:none;padding:0;font-size:10px;color:var(--color-text-tertiary);cursor:pointer;font-family:inherit}
+.vr-rmsg-act:active{opacity:.6}
+.vr-rmsg-act.del{color:#C05050}
+/* 返信プレビューバー（コンポーザー上） */
+.vr-reply-bar{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--color-background-secondary);border-top:0.5px solid var(--color-border-tertiary)}
+.vr-reply-bar-text{flex:1;min-width:0;font-size:11px;color:var(--color-text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vr-reply-bar-mark{color:#C9A96E;font-weight:600;margin-right:5px}
+.vr-reply-bar-x{flex-shrink:0;background:none;border:none;font-size:13px;color:var(--color-text-tertiary);cursor:pointer;padding:2px 4px}
 
 </style>
 </head>
@@ -3224,7 +3266,7 @@ var detailBtnHtml = (!isDemo && partner.userId)
   : '';
 var card='<div class="'+_cardCls+'" id="card'+idx+'" onclick="'+_cardOnclick+'">'+avaHtml+'<div class="minfo"><div class="mname">'+partner.name+(isDemo?'<span class="demo-badge">デモ</span>':'')+'</div><div class="mmeta">'+partner.meta+'</div><div class="tags">'+tagsHtml+'</div><div class="abar"><div class="afill" style="width:'+score+'%"></div></div><div class="albl">良縁率：'+score+'%</div></div>'+detailBtnHtml+'<div class="ndot"></div></div>';var cmp='<div class="compare-wrap" id="cwrap'+idx+'"><div class="compare-grid"><div class="pcol"><div class="col-lbl">あなた</div>';for(var pi=0;pi<4;pi++){var mp=myP[pi];var mkan=mp?KAN[mp.k]:'—',mshi=mp?SHI[mp.s]:'—';cmp+='<div class="pce mine" id="mypc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="mykan_'+idx+'_'+pi+'">'+mkan+'</div><div class="pce-s" id="myshi_'+idx+'_'+pi+'">'+mshi+'</div></div>';}cmp+='</div><div class="pcol"><div class="col-lbl">'+partner.name+'</div>';for(var pi=0;pi<4;pi++){var tp=partner.pillars[pi];var tkan=tp?KAN[tp.k]:'—',tshi=tp?SHI[tp.s]:'—';cmp+='<div class="pce" id="thpc_'+idx+'_'+pi+'"><div class="pce-lbl">'+PL[pi]+'</div><div class="pce-k" id="thkan_'+idx+'_'+pi+'">'+tkan+'</div><div class="pce-s" id="thshi_'+idx+'_'+pi+'">'+tshi+'</div></div>';}cmp+='</div></div><svg class="svg-ov" id="svg'+idx+'"></svg></div>';function rSec(title,items,desc){var isBad=(title==='冲'||title==='刑'),cnt=items.length>0?items.length+'組':'なし',cntCls=items.length>0?(isBad?'r':''):'none';var h='<div class="rel-sec"><div class="rel-hd"><span class="rel-nm">'+title+'</span><span class="rel-cnt '+cntCls+'">'+cnt+'</span></div>';if(items.length>0){h+='<div class="rel-pairs">';items.forEach(function(item,ii){var cls=item.type==='both'?'both':(isBad?'r':'g');h+='<span class="rel-pair '+cls+'" data-ridx="'+idx+'" data-type="'+title+'" data-ii="'+ii+'">'+item.label+' '+PL[item.mi]+'↔'+PL[item.ti]+'</span>';});h+='</div>';}return h+'<div class="rel-desc">'+desc+'</div></div>';}return card+'<div class="detail-panel" id="detail'+idx+'"><div class="card" style="margin:0 0 .75rem"><div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem">四柱の比較（ペアをタップで干支を強調）</div>'+cmp+'<div class="comment-box">'+generateComment(rel)+'</div><div class="rel-div"></div>'+rSec('干合',rel.kango,'多ければ多いほど一目で惹かれる')+rSec('三合',rel.sango,'価値観や考え方が似ていて安定した関係')+rSec('支合',rel.shigo,'互いに助け合い調和を象徴する良き関係')+rSec('冲',rel.chu,'反発や衝突が起きやすい関係')+rSec('刑',rel.kei,'トラブルや泥沼化になりやすい関係')+(isCoupledNow()
    ? '<button class="btn-hanashi sent" id="hanashi-btn-'+idx+'" disabled style="opacity:.5;cursor:not-allowed">🎉 カップル成立中のため申請不可</button>'
-   : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+'<button id="hanashi-cancel-btn-'+idx+'" onclick="cancelHanashi('+idx+')" style="display:none;width:100%;padding:8px 12px;margin-top:6px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:12px">キャンセル</button>'+(!isDemo&&partner.memberId?'<div style="text-align:center;margin-top:.6rem"><button onclick="event.stopPropagation();openReportFor(\''+partner.memberId+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">⚠️ この方を通報する</button></div>':'')+'</div></div>';}
+   : '<button class="btn-hanashi" id="hanashi-btn-'+idx+'" onclick="hanashi('+idx+')">話してみたい</button>')+'<button id="hanashi-cancel-btn-'+idx+'" onclick="cancelHanashi('+idx+')" style="display:none;width:100%;padding:8px 12px;margin-top:6px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:12px">キャンセル</button>'+'</div></div>';}
 /** 自分の命式から全パートナーとの相性を計算し、ソートして表示
  * @param {Array<{k:number,s:number}|null>} myP
  */
@@ -7316,6 +7358,112 @@ var DOMAIN_INFO = {
 };
 var DOMAIN_KEYS = ['priv','fam','soc']; // 表示順
 
+// ===== 五行リーディング・エンジン（三合/支合/冲/刑が無い日も必ず読み解く） =====
+// 地支の五行(0木 1火 2土 3金 4水) と 陰陽(true=陽)。並びは SHI=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']
+var SHI_GOGYO = [4,2,0,0,2,1,1,2,3,3,2,4];
+var SHI_YANG  = [true,false,true,false,true,false,true,false,true,false,true,false];
+var GOGYO_NAME = ['木','火','土','金','水'];
+// 五行の相生＝(e+1)%5 が e の生む先。相剋＝(e+2)%5 が e の剋す先。
+/** 自分の支×暦の支から、五行関係・陰陽から通変（10種）を判定 */
+function gogyoTsuben(selfBranch, calBranch){
+  var es = SHI_GOGYO[selfBranch], eo = SHI_GOGYO[calBranch];
+  var sameYy = (SHI_YANG[selfBranch] === SHI_YANG[calBranch]);
+  var rel;
+  if(es === eo) rel = 'hiwa';                 // 比和
+  else if(eo === (es+1)%5) rel = 'iku';       // 我が生む（漏）
+  else if(es === (eo+1)%5) rel = 'inj';       // 我を生む（印）
+  else if(eo === (es+2)%5) rel = 'zai';       // 我が剋す（財）
+  else rel = 'kan';                           // 我を剋す（官殺）
+  var map = {
+    hiwa: sameYy ? 'hiken'   : 'gozai',
+    iku:  sameYy ? 'shokujin': 'shokan',
+    inj:  sameYy ? 'henin'   : 'seiin',
+    zai:  sameYy ? 'henzai'  : 'seizai',
+    kan:  sameYy ? 'henkan'  : 'seikan'
+  };
+  return { tsuben: map[rel], es: es, eo: eo, sameYy: sameYy };
+}
+// 通変メタ（名称・五行関係ラベル・吉凶トーン g=吉 c=注意 n=中庸）
+var TSUBEN_INFO = {
+  hiken:   { nm:'比肩', el:'比和',         tone:'n' },
+  gozai:   { nm:'劫財', el:'比和',         tone:'c' },
+  shokujin:{ nm:'食神', el:'我が生む(漏)', tone:'g' },
+  shokan:  { nm:'傷官', el:'我が生む(漏)', tone:'c' },
+  henin:   { nm:'偏印', el:'我を生む(印)', tone:'n' },
+  seiin:   { nm:'正印', el:'我を生む(印)', tone:'g' },
+  henzai:  { nm:'偏財', el:'我が剋す(財)', tone:'g' },
+  seizai:  { nm:'正財', el:'我が剋す(財)', tone:'g' },
+  henkan:  { nm:'偏官', el:'我を剋す(官)', tone:'c' },
+  seikan:  { nm:'正官', el:'我を剋す(官)', tone:'n' }
+};
+// 通変ごとの言い伝え（格言）
+var GOGYO_KOTOWAZA = {
+  hiken:   '我が道を行く日。されど和を忘れず',
+  gozai:   '得るも失うも人の縁。財布と口は固く',
+  shokujin:'衣食足りて楽しみ生ず。福を呼ぶ笑顔の日',
+  shokan:  '才は諸刃の剣。光らせて、傷つけず',
+  henin:   'ひらめきは天からの便り。学びは身を助く',
+  seiin:   '実るほど頭を垂れる稲穂かな。徳を受け取る日',
+  henzai:  '動けば集まる、人も縁も。気前は巡る',
+  seizai:  '塵も積もれば山となる。地道こそ金運',
+  henkan:  '鉄は熱いうちに打て、されど猪突は禁物',
+  seikan:  '信は万事の本。けじめが運を呼ぶ'
+};
+// ドメイン×通変の読み（30通り）。{p}=「月/日」へ置換
+var GOGYO_TEXT = {
+  priv: {
+    hiken:   '自分らしさが自然とにじむ{p}。人に合わせなくても大丈夫、心がしたいことを大切にしてあげてね。ちょっと頑固になりやすいので、肩の力はふっと抜いて',
+    gozai:   '人とのつながりが増えて、にぎやかな{p}。楽しい反面ついお財布もゆるみがち。気持ちよく使いたい日こそ、ほどほどを意識すると安心だよ',
+    shokujin:'ごきげんな気持ちが広がる{p}。おいしいもの、笑うこと、好きなことに素直になると、運気もふんわり上向いていきます',
+    shokan:  '感性がすごく冴える{p}。その繊細さは創作やおしゃれにぴったり。ただ言葉が鋭くなりやすいので、ひと呼吸おいて伝えると◎',
+    henin:   'ふとした"ひらめき"が降りてくる{p}。気になることを調べたり学んでみると、思いがけない発見があるかも',
+    seiin:   'ゆっくり過ごすのが似合う{p}。休む・甘える・受け取る、ぜんぶOK。無理せず、自分をやさしく充電してあげてね',
+    henzai:  'フットワーク軽く動けるアクティブな{p}。出会いやおでかけ、ちょっとした冒険が、うれしい実りにつながりそう',
+    seizai:  'コツコツが報われる{p}。あせらず一歩ずつで大丈夫。小さな積み重ねが、ちゃんと未来の宝物になりますよ',
+    henkan:  '少し気が張りやすい{p}。無理して頑張りすぎなくていいからね。今日はマイペースに、自分を守ることを優先して',
+    seikan:  'なんだか背筋を正したくなる{p}。生活リズムを整えたり、やることをひとつ片づけると、気持ちまでスッと軽くなります'
+  },
+  fam: {
+    hiken:   'お互いのちょうどいい距離感が心地よい{p}。べったりしすぎず、それぞれの時間も大切にすると、かえって仲が深まります',
+    gozai:   '身内とのお金や貸し借りが、ちょっとこじれやすい{p}。きっちりさせるより、やさしくひと呼吸おく余裕が、家の空気を守ってくれます',
+    shokujin:'食卓がほっこり弾む{p}。一緒にごはんを食べたり笑ったりするだけで、家族の空気があたたかくなりますよ',
+    shokan:  'よかれと思った一言が、ちょっと刺さりやすい{p}。家族にこそ、言葉はやわらかく包んで伝えてあげてね',
+    henin:   '親や年上の人から、思いがけない知恵や助けがもらえる{p}。素直に頼ってみると、それがうれしい縁になります',
+    seiin:   'おうちが癒やしの場所になる{p}。気づかいやお世話、看病…そのやさしさは、めぐりめぐってちゃんと返ってきます',
+    henzai:  '大切な人とのおでかけや買い物が楽しい{p}。気前よく楽しそうにしていると、ふたりの縁があったかく深まります',
+    seizai:  '暮らしの土台をととのえるのにぴったりな{p}。地道な毎日の積み重ねが、家庭運をじっくり育ててくれます',
+    henkan:  '家の中で板挟みになったり、責任を感じやすい{p}。ぜんぶ一人で抱えこまないでね。まわりに頼って、荷物は分け合って',
+    seikan:  '約束や役割をていねいに果たすほど、信頼がつもる{p}。きちんとした姿が、家族にあんしんを届けます'
+  },
+  soc: {
+    hiken:   '自分のペースで進められる仕事が向いている{p}。自立心が認められそう。ただ抱え込みすぎず、まわりの力も借りてね',
+    gozai:   'ライバルや横やりが入りやすい{p}。協力する相手とは、役割や分け前を最初にやさしく確認しておくと安心です',
+    shokujin:'"出す"ことで運がひらく{p}。企画や発信、おもてなしが好調。あなたの笑顔が、今日いちばんの強みになりますよ',
+    shokan:  '才能がキラッと光る{p}。実力で見せれば味方が増えるけど、とがりすぎると衝突のもと。鋭さは静かに磨いておこう',
+    henin:   '専門知識や資格、裏方の準備が活きる{p}。表に立つより、コツコツ情報を集める人に運が味方します',
+    seiin:   '目上の人やお客さんに引き立ててもらえる{p}。"信用"という心強い味方が、そっと背中を押してくれます',
+    henzai:  '人脈や商売に追い風が吹く{p}。営業も、ちょっとした臨時収入も期待大。動けば動くほど、運がまわってきますよ',
+    seizai:  '地道な実務がしっかり報われる{p}。数字や契約、段取りごとがはかどります。信用と蓄えを育てる、いいチャンス',
+    henkan:  'プレッシャーや、ちょっと厳しい場面がありそうな{p}。ここぞの頑張りどころだけど、無理は禁物。引く勇気も立派な力だよ',
+    seikan:  '評価や昇進、公的な手続きに恵まれる{p}。筋を通してていねいにこなせば、信頼も評価も自然と上がっていきます'
+  }
+};
+/** 五行リーディングの HTML（関係の有無に関わらず常に出す地合いの読み） */
+function gogyoReadingHtml(domain, userBranch, calBranch, periodType){
+  var t = gogyoTsuben(userBranch, calBranch);
+  var info = TSUBEN_INFO[t.tsuben];
+  var pw = (periodType === 'month') ? '月' : '日';
+  var body = (GOGYO_TEXT[domain] && GOGYO_TEXT[domain][t.tsuben]) ? GOGYO_TEXT[domain][t.tsuben].replace('{p}', pw) : '';
+  var elLine = GOGYO_NAME[t.es] + '（自分）→ ' + GOGYO_NAME[t.eo] + '（暦）：' + info.el + '・' + info.nm;
+  var toneCls = info.tone === 'g' ? ' good' : (info.tone === 'c' ? ' caution' : '');
+  var h = '<div class="cal-section-text cal-gogyo' + toneCls + '">';
+  h += '<strong>五行の地合い：' + elLine + '</strong>';
+  if(body) h += '<br>' + body + '。';
+  h += '<br><span class="cal-kotowaza">— ' + GOGYO_KOTOWAZA[t.tsuben] + '</span>';
+  h += '</div>';
+  return h;
+}
+
 // ===== ペアごとの解釈データ（変わらず） =====
 var BRANCH_PAIR_DETAILS = {
   sango: {
@@ -7492,10 +7640,14 @@ function renderCalendar(year, month){
   var today = new Date();
   var isCurMonth = (year===today.getFullYear() && month===today.getMonth()+1);
 
+  // 節入り日（この日から干支の月＝月支が変わる）
+  var sekkiDay = getSekki(year, month).d;
+
   for(var d=1; d<=daysInMonth; d++){
     var dow = new Date(year, month-1, d).getDay();
     var weekCls = dow===0?'sun':(dow===6?'sat':'');
     var todayCls = (isCurMonth && d===today.getDate())?'today':'';
+    var sekkiCls = (d===sekkiDay)?' cal-sekki':'';
 
     var marks = computeDayMarks(year, month, d);
     var marksHtml = '';
@@ -7508,7 +7660,8 @@ function renderCalendar(year, month){
       });
     }
 
-    html += '<div class="cal-cell '+weekCls+' '+todayCls+'" onclick="showCalDetail('+year+','+month+','+d+')">';
+    html += '<div class="cal-cell '+weekCls+' '+todayCls+sekkiCls+'" onclick="showCalDetail('+year+','+month+','+d+')">';
+    if(d===sekkiDay) html += '<div class="cal-sekki-tag" title="節入り">⛩︎</div>';
     html += '<div class="cal-day">'+d+'</div>';
     html += '<div class="cal-marks">'+marksHtml+'</div>';
     html += '</div>';
@@ -7571,6 +7724,11 @@ function renderMonthSummary(year, month, marks){
   if(!marks) return '';
   var html = '<div style="font-family:\'Noto Serif JP\',serif;font-size:15px;font-weight:500;margin-bottom:.4rem;color:var(--color-text-primary);text-align:center;letter-spacing:.05em">今月（'+year+'年'+month+'月 = '+SHI[marks.calBranch]+'月）の運勢傾向</div>';
   html += '<div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem;text-align:center">3面の傾向（自分の3柱と今月の月支との関係）</div>';
+  // 節入りの説明（干支の暦では「月」は1日ではなく節入りから始まる）
+  var sk = getSekki(year, month);
+  var curB = marks.calBranch;
+  var prevB = (curB + 11) % 12;
+  html += '<div class="cal-sekki-note">⛩ 干支の暦では、<strong>'+SHI[curB]+'月</strong>は <strong>'+month+'月'+sk.d+'日</strong>（'+sk.h+'時'+(sk.m<10?'0':'')+sk.m+'分ごろ・節入り）から始まります。<br>'+month+'月'+sk.d+'日より前は、まだ前月の<strong>'+SHI[prevB]+'月</strong>の運気です（カレンダーの ⛩ が境目）。</div>';
   DOMAIN_KEYS.forEach(function(domain){
     var info = DOMAIN_INFO[domain];
     var userBranch = marks[domain+'Branch'];
@@ -7589,8 +7747,8 @@ function renderDomainSection(domain, userBranch, calBranch, rels, periodType){
   html += '<div class="cal-section-hd">【'+info.label+'】 '+info.sourceLabel+'「'+SHI[userBranch]+'」 × '+calBranchLabel+'「'+SHI[calBranch]+'」</div>';
 
   if(rels.length===0){
-    var periodWord = periodType==='month' ? '月' : '日';
-    html += '<div class="cal-section-text cal-no-rel">特段の組み合わせなし。'+info.label+'は穏やかな'+periodWord+'。ルーティンを丁寧に過ごすのが吉。</div>';
+    // 三合/支合/冲/刑が無くても、五行の地合いで必ず読み解く
+    html += gogyoReadingHtml(domain, userBranch, calBranch, periodType);
   } else {
     var marksLine = rels.map(function(r){return '<span class="cal-mk '+r+'">'+REL_MARKS[r]+'</span>';}).join(' ');
     html += '<div class="cal-section-marks">'+marksLine+'</div>';
@@ -7608,6 +7766,8 @@ function renderDomainSection(domain, userBranch, calBranch, rels, periodType){
       if(adviceText) html += '<br>' + adviceText + '。';
       html += '</div>';
     });
+    // 合冲刑がある日も、土台となる五行の地合いを併記
+    html += gogyoReadingHtml(domain, userBranch, calBranch, periodType);
   }
   html += '</div>';
   return html;
@@ -8476,6 +8636,24 @@ function vrToggleProfile(){
   m.classList.toggle('show');
 }
 
+/** 「詳しく🔎」：自分のプロフィールを開き、日柱の十二運セルを差して強調表示 */
+function vrShowMyJuniun(){
+  var m = document.getElementById('vr-profile-modal');
+  if(!m) return;
+  if(typeof vrCloseOtherMenu === 'function') vrCloseOtherMenu();
+  renderVoiceProfile();
+  m.classList.add('show');
+  // 描画後に日柱の十二運セルへスクロール＋強調
+  setTimeout(function(){
+    var body = document.getElementById('vr-profile-body');
+    var cell = body ? body.querySelector('.vr-juniun-cell.day') : null;
+    if(!cell) return;
+    cell.classList.add('vr-juniun-point');
+    if(cell.scrollIntoView) cell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(function(){ cell.classList.remove('vr-juniun-point'); }, 4500);
+  }, 90);
+}
+
 /** 卒業生の間トップバーのアバター/イニシャルを同期 */
 function vrSyncTopbarAvatar(){
   var p = window._profileModalData || {};
@@ -9144,6 +9322,7 @@ function vrStartRealtime(){
       .on('postgres_changes', { event:'*', schema:'public', table:'graduate_comment_likes' }, function(p){ vrOnSocialEvent('comment_like', p); })
       .on('postgres_changes', { event:'*', schema:'public', table:'graduate_messages' }, function(p){ vrOnDmEvent(p); })
       .on('postgres_changes', { event:'*', schema:'public', table:'graduate_room_messages' }, function(p){ vrOnRoomEvent(p); })
+      .on('postgres_changes', { event:'*', schema:'public', table:'graduate_room_reads' }, function(p){ vrOnRoomReadEvent(p); })
       .on('postgres_changes', { event:'*', schema:'public', table:'graduate_survey_answers' }, function(){ vrScheduleFeedRefresh(); })
       .subscribe();
   }catch(e){ console.log('vrStartRealtime error:', e); }
@@ -9844,6 +10023,9 @@ var VR_TRIBE_BY_JUN = {
 };
 
 var _vrCurrentRoom = null; // 表示中の間（room key）
+var _vrRoomMsgs = null;    // 表示中の間のメッセージ配列（返信元の参照用）
+var _vrReplyTo = null;     // 返信対象 {id, nickname, body}
+var _vrRoomReads = null;   // 表示中の間の既読 [{user_id, last_read_at}]
 
 /** 自分の種族（日柱の十二運から判定） @returns {string|null} */
 function vrMyTribe(){
@@ -9873,24 +10055,70 @@ async function vrOpenRoom(room){
   vrGoTab('other'); // 間ページを表示＋「その他」タブをアクティブに
   vrShowOtherView('room');
   var nameEl = document.getElementById('vr-room-name');
-  if(nameEl) nameEl.textContent = VR_ROOMS[room].name;
+  if(nameEl){
+    var escn = (typeof escapeHtml === 'function') ? escapeHtml : function(s){ return String(s==null?'':s); };
+    nameEl.innerHTML = escn(VR_ROOMS[room].name) + '<span class="vr-room-count" id="vr-room-count">…</span>';
+  }
+  vrUpdateRoomCount(room);
   var descEl = document.getElementById('vr-room-desc');
   if(descEl){
     var esc = (typeof escapeHtml === 'function') ? escapeHtml : function(s){ return String(s==null?'':s); };
     var r = VR_ROOMS[room];
     var mine = (vrMyTribe() === room);
     var pts = (r.points || []).map(function(p){ return '・' + esc(p); }).join('<br>');
-    descEl.innerHTML = '十二運が <strong>' + r.juns.join('・') + '</strong> の方の間です。'
+    descEl.innerHTML = '日柱の十二運が <strong>' + r.juns.join('・') + '</strong> の方の間です。'
+      + '<button type="button" class="vr-jun-help-btn" onclick="event.stopPropagation();vrShowMyJuniun()">詳しく🔎</button>'
       + '<div class="vr-room-feature"><strong>特徴 : ' + esc(r.feature || '') + '</strong></div>'
       + (pts ? '<div class="vr-room-points">' + pts + '</div>' : '')
       + '<span class="vr-room-note">どなたでも閲覧できます。発言できるのは' + (mine ? '<strong>あなたも含むこの間の方</strong>です。' : 'この間に属する方のみです。') + '</span>';
   }
+  // 種族が違う間では発言不可：入力欄をロック＋送信ボタンをグレーアウト
+  vrSetRoomComposerEnabled(vrMyTribe() === room);
+  vrCancelRoomReply();
   await vrLoadRoom(room);
+}
+
+/** その間のメンバー数（卒業生の間 在籍者でその種族の人）を集計してタイトル右に表示 */
+async function vrUpdateRoomCount(room){
+  try{
+    var res = await supa.from('profiles')
+      .select('pillar_day_k, pillar_day_s, graduated_at, voice_transfer_at')
+      .or('graduated_at.not.is.null,voice_transfer_at.not.is.null');
+    if(res.error) return;
+    var cnt = 0;
+    (res.data || []).forEach(function(p){
+      if(p.pillar_day_k == null || p.pillar_day_s == null) return;
+      if(typeof juniun !== 'function') return;
+      var jun = juniun(p.pillar_day_k, p.pillar_day_s);
+      if(VR_TRIBE_BY_JUN[jun] === room) cnt++;
+    });
+    // タイトルが別の間に切り替わっていなければ反映
+    if(_vrCurrentRoom === room){
+      var el = document.getElementById('vr-room-count');
+      if(el) el.textContent = cnt + '人';
+    }
+  }catch(e){ console.log('vrUpdateRoomCount error:', e); }
+}
+
+/** 種族別の間の入力欄・送信ボタンの有効/無効を切り替える
+ *  @param {boolean} enabled true=自分の間（発言可） / false=種族違い（発言不可） */
+function vrSetRoomComposerEnabled(enabled){
+  var input = document.getElementById('vr-room-input');
+  var send = document.getElementById('vr-room-send');
+  if(input){
+    input.disabled = !enabled;
+    input.placeholder = enabled ? 'メッセージを入力...' : 'この間では発言できません（種族が異なります）';
+    if(!enabled) input.value = '';
+  }
+  if(send){
+    send.disabled = !enabled;
+  }
 }
 
 /** 間を閉じて近況へ戻る */
 function vrCloseRoom(){
   _vrCurrentRoom = null;
+  vrCancelRoomReply();
   vrGoTab('feed');
 }
 
@@ -9904,6 +10132,15 @@ async function vrLoadRoom(room){
       .select('*').eq('room', room).order('created_at', { ascending: true }).limit(300);
     if(res.error){ bodyEl.innerHTML = '<div class="vr-empty">読み込みに失敗しました。</div>'; return; }
     var msgs = (res.data || []).filter(function(m){ return !hidden.has(m.user_id); });
+    _vrRoomMsgs = msgs;
+    // 自分の既読時刻を更新 → 既読一覧を取得（既読人数の集計用）
+    if(currentUser){
+      try{ await supa.from('graduate_room_reads').upsert({ room: room, user_id: currentUser.id, last_read_at: new Date().toISOString() }, { onConflict: 'room,user_id' }); }catch(e){}
+    }
+    try{
+      var rr = await supa.from('graduate_room_reads').select('user_id, last_read_at').eq('room', room);
+      _vrRoomReads = rr.error ? [] : (rr.data || []);
+    }catch(e){ _vrRoomReads = []; }
     if(!msgs.length){
       bodyEl.innerHTML = '<div class="vr-empty">✦<br>まだ発言がありません。</div>';
     }else{
@@ -9925,13 +10162,107 @@ function vrRoomMsgHtml(m){
   var when = (typeof formatRelative === 'function') ? formatRelative(m.created_at) : '';
   var ava = m.avatar_url ? '<img src="' + esc(m.avatar_url) + '" alt="">' : '<span>' + esc(nick.charAt(0)) + '</span>';
   var bodyHtml = (typeof linkifyText === 'function') ? linkifyText(m.body) : esc(m.body);
+  // 返信の引用（LINE風）：元メッセージのスナップショットを表示
+  var quoteHtml = '';
+  if(m.reply_to_id && (m.reply_to_nickname || m.reply_to_body)){
+    var qRaw = m.reply_to_body || '';
+    var qBody = esc(qRaw.slice(0, 60)) + (qRaw.length > 60 ? '…' : '');
+    quoteHtml = '<div class="vr-rmsg-quote"><span class="vr-rmsg-quote-nm">' + esc(m.reply_to_nickname || '名無し') + '</span>' + qBody + '</div>';
+  }
+  // アクション（返信は同じ種族のみ／削除は自分の発言のみ）
+  var canPost = (typeof vrMyTribe === 'function' && vrMyTribe() === _vrCurrentRoom);
+  var acts = '<div class="vr-rmsg-acts">';
+  if(canPost) acts += '<button class="vr-rmsg-act" onclick="vrReplyRoomMsg(\'' + m.id + '\')">返信</button>';
+  if(mine) acts += '<button class="vr-rmsg-act del" onclick="vrDeleteRoomMsg(\'' + m.id + '\')">削除</button>';
+  acts += '</div>';
   return '<div class="vr-rmsg' + (mine ? ' me' : '') + '">'
        + '<div class="vr-rmsg-ava">' + ava + '</div>'
        + '<div class="vr-rmsg-main">'
        + (mine ? '' : '<div class="vr-rmsg-name">' + esc(nick) + '</div>')
+       + quoteHtml
        + '<div class="vr-rmsg-bubble">' + bodyHtml + '</div>'
+       + (mine ? '<div class="vr-rmsg-read" id="vr-read-' + m.id + '">' + vrReadLabel(m.created_at) + '</div>' : '')
        + '<div class="vr-rmsg-time">' + esc(when) + '</div>'
+       + acts
        + '</div></div>';
+}
+
+/** あるメッセージ作成時刻に対する既読人数（自分を除く）を数える */
+function vrReadCount(createdAt){
+  if(!_vrRoomReads || !createdAt) return 0;
+  var t = new Date(createdAt).getTime();
+  var me = currentUser ? currentUser.id : null;
+  var n = 0;
+  _vrRoomReads.forEach(function(r){
+    if(r.user_id === me) return;
+    if(new Date(r.last_read_at).getTime() >= t) n++;
+  });
+  return n;
+}
+/** 既読ラベル文字列（0人なら空） */
+function vrReadLabel(createdAt){
+  var n = vrReadCount(createdAt);
+  return n > 0 ? '既読 ' + n : '';
+}
+/** 既読の Realtime 反映：表示中の間の既読ラベルだけ更新（全体再描画しない＝スクロール維持） */
+function vrOnRoomReadEvent(payload){
+  if(!_vrCurrentRoom || !currentUser) return;
+  var row = (payload && (payload.new || payload.old)) || null;
+  if(row && row.room && row.room !== _vrCurrentRoom) return;
+  vrRefreshRoomReads();
+}
+/** 既読一覧を取り直して、自分のメッセージの既読ラベルだけ更新 */
+async function vrRefreshRoomReads(){
+  if(!_vrCurrentRoom || !currentUser) return;
+  try{
+    var rr = await supa.from('graduate_room_reads').select('user_id, last_read_at').eq('room', _vrCurrentRoom);
+    if(rr.error) return;
+    _vrRoomReads = rr.data || [];
+  }catch(e){ return; }
+  (_vrRoomMsgs || []).forEach(function(m){
+    if(m.user_id !== currentUser.id) return;
+    var span = document.getElementById('vr-read-' + m.id);
+    if(span) span.textContent = vrReadLabel(m.created_at);
+  });
+}
+
+/** 間のメッセージに返信する（返信対象をセットしてプレビュー表示） */
+function vrReplyRoomMsg(id){
+  if(!_vrRoomMsgs) return;
+  if(typeof vrMyTribe === 'function' && vrMyTribe() !== _vrCurrentRoom){
+    alert('この間では発言できません（種族が異なります）');
+    return;
+  }
+  var m = null;
+  for(var i = 0; i < _vrRoomMsgs.length; i++){ if(_vrRoomMsgs[i].id === id){ m = _vrRoomMsgs[i]; break; } }
+  if(!m) return;
+  _vrReplyTo = { id: m.id, nickname: m.nickname || '名無し', body: m.body || '' };
+  var bar = document.getElementById('vr-room-reply-bar');
+  var label = document.getElementById('vr-room-reply-label');
+  var snip = (m.body || '').slice(0, 30) + ((m.body || '').length > 30 ? '…' : '');
+  if(label) label.textContent = (m.nickname || '名無し') + ' さんに返信：' + snip;
+  if(bar) bar.style.display = 'flex';
+  var input = document.getElementById('vr-room-input');
+  if(input) input.focus();
+}
+
+/** 返信をキャンセル */
+function vrCancelRoomReply(){
+  _vrReplyTo = null;
+  var bar = document.getElementById('vr-room-reply-bar');
+  if(bar) bar.style.display = 'none';
+}
+
+/** 自分の間メッセージを削除 */
+async function vrDeleteRoomMsg(id){
+  if(!id) return;
+  if(!confirm('このメッセージを削除しますか？')) return;
+  try{
+    var res = await supa.from('graduate_room_messages').delete().eq('id', id);
+    if(res.error){ alert('削除に失敗しました：' + (res.error.message || '')); return; }
+    if(_vrReplyTo && _vrReplyTo.id === id) vrCancelRoomReply();
+    if(_vrCurrentRoom) vrLoadRoom(_vrCurrentRoom);
+  }catch(e){ console.log('vrDeleteRoomMsg error:', e); }
 }
 
 /** 間で発言（自分の種族の間のみ） */
@@ -9948,26 +10279,36 @@ async function vrSendRoomMessage(){
   if(!body) return;
   try{
     var p = window._profileModalData || {};
-    var res = await supa.from('graduate_room_messages').insert({
+    var insertData = {
       room: _vrCurrentRoom, user_id: currentUser.id,
       member_id: p.member_id || null, nickname: p.nickname || null, avatar_url: p.avatar_url || null,
       body: body
-    });
+    };
+    if(_vrReplyTo){
+      insertData.reply_to_id = _vrReplyTo.id;
+      insertData.reply_to_nickname = _vrReplyTo.nickname;
+      insertData.reply_to_body = (_vrReplyTo.body || '').slice(0, 200);
+    }
+    var res = await supa.from('graduate_room_messages').insert(insertData);
     if(res.error){
       // RLS で弾かれた場合（種族違い等）も同じ案内
       alert('種族が違うため、この間での発言はできません');
       return;
     }
     if(input) input.value = '';
+    vrCancelRoomReply();
     await vrLoadRoom(_vrCurrentRoom);
   }catch(e){ console.log('vrSendRoomMessage error:', e); }
 }
 
-/** 間メッセージの Realtime 反映 */
+/** 間メッセージの Realtime 反映（追加・削除・更新） */
 function vrOnRoomEvent(payload){
-  if(!(payload && payload.eventType === 'INSERT' && payload.new)) return;
-  // 表示中の間と一致すれば再描画
-  if(_vrCurrentRoom && payload.new.room === _vrCurrentRoom){
+  if(!payload || !_vrCurrentRoom) return;
+  var et = payload.eventType;
+  if(et === 'INSERT' || et === 'UPDATE'){
+    if(payload.new && payload.new.room === _vrCurrentRoom) vrLoadRoom(_vrCurrentRoom);
+  }else if(et === 'DELETE'){
+    // DELETE は old に room が含まれないことがあるため、表示中の間を再読込
     vrLoadRoom(_vrCurrentRoom);
   }
 }
@@ -11383,9 +11724,13 @@ checkSession();
         </div>
         <div class="vr-room-desc" id="vr-room-desc"></div>
         <div id="vr-room-body" class="vr-chat-body"></div>
+        <div id="vr-room-reply-bar" class="vr-reply-bar" style="display:none">
+          <div class="vr-reply-bar-text"><span class="vr-reply-bar-mark">↩</span><span id="vr-room-reply-label"></span></div>
+          <button type="button" class="vr-reply-bar-x" onclick="vrCancelRoomReply()">✕</button>
+        </div>
         <div class="vr-chat-composer">
           <input id="vr-room-input" class="vr-cmt-input" maxlength="1000" placeholder="メッセージを入力...">
-          <button class="vr-cmt-send" onclick="vrSendRoomMessage()">送信</button>
+          <button id="vr-room-send" class="vr-cmt-send" onclick="vrSendRoomMessage()">送信</button>
         </div>
       </div>
       <!-- アンケート一覧（メンバーが近況で実施した過去アンケートを対象絞り込みで閲覧） -->
