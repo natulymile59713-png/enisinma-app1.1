@@ -921,6 +921,32 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   </div>
 </div>
 
+<!-- ===== 口座編集モーダル（テンプレート外：通常ユーザーも純アフィリエイターも使用） ===== -->
+<div class="modal-bg" id="bank-edit-modal">
+  <div class="modal-card">
+    <div class="modal-hd"><span class="modal-ttl">口座情報の登録</span><button class="modal-close" onclick="closeBankEdit()">✕</button></div>
+    <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">キャッシュバックの入金先となる口座情報をご登録ください。後から変更できます。</div>
+    <div class="fl" style="margin-bottom:8px"><label>銀行名</label><input type="text" id="bk-name" placeholder="例：三菱UFJ銀行" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+    <div class="fl" style="margin-bottom:8px"><label>支店名</label><input type="text" id="bk-branch" placeholder="例：渋谷支店" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+    <div class="g2" style="margin-bottom:8px">
+      <div class="fl" style="margin-bottom:0"><label>口座種別</label><select id="bk-type" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="普通">普通</option><option value="当座">当座</option></select></div>
+      <div class="fl" style="margin-bottom:0"><label>口座番号</label><input type="text" id="bk-number" placeholder="例：1234567" inputmode="numeric" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+    </div>
+    <div class="fl" style="margin-bottom:8px"><label>口座名義人（カナ）</label><input type="text" id="bk-holder" placeholder="例：エニシ ハナコ" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+    <div id="bk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
+    <div id="bk-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 保存しました</div>
+    <button class="btn-gold" id="bk-save-btn" onclick="saveBankEdit()" style="margin-bottom:0">保存する</button>
+  </div>
+</div>
+<!-- アフィリエイター：登録口座情報の確認モーダル -->
+<div class="modal-bg" id="aff-bank-view-modal">
+  <div class="modal-card">
+    <div class="modal-hd"><span class="modal-ttl">登録口座情報</span><button class="modal-close" onclick="closeAffiliateBankView()">✕</button></div>
+    <div id="aff-bank-view-body"></div>
+    <button class="btn-gold" onclick="closeAffiliateBankView();openBankEdit(true)" style="margin-bottom:0;margin-top:12px">口座情報を変更</button>
+  </div>
+</div>
+
 <!-- ===== プラン選択画面 ===== -->
 <div id="plan-select-wrap" class="plan-select-wrap" style="display:none;flex-direction:column;align-items:center">
   <div class="ps-header">
@@ -1137,30 +1163,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <button class="btn-gold" id="pt-save-btn" onclick="saveProfileTextEdit()" style="margin-bottom:0">保存する</button>
     </div>
   </div>
-  <div class="modal-bg" id="bank-edit-modal">
-    <div class="modal-card">
-      <div class="modal-hd"><span class="modal-ttl">口座情報の登録</span><button class="modal-close" onclick="closeBankEdit()">✕</button></div>
-      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">キャッシュバックの入金先となる口座情報をご登録ください。後から変更できます。</div>
-      <div class="fl" style="margin-bottom:8px"><label>銀行名</label><input type="text" id="bk-name" placeholder="例：三菱UFJ銀行" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      <div class="fl" style="margin-bottom:8px"><label>支店名</label><input type="text" id="bk-branch" placeholder="例：渋谷支店" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      <div class="g2" style="margin-bottom:8px">
-        <div class="fl" style="margin-bottom:0"><label>口座種別</label><select id="bk-type" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="普通">普通</option><option value="当座">当座</option></select></div>
-        <div class="fl" style="margin-bottom:0"><label>口座番号</label><input type="text" id="bk-number" placeholder="例：1234567" inputmode="numeric" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      </div>
-      <div class="fl" style="margin-bottom:8px"><label>口座名義人（カナ）</label><input type="text" id="bk-holder" placeholder="例：エニシ ハナコ" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      <div id="bk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
-      <div id="bk-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 保存しました</div>
-      <button class="btn-gold" id="bk-save-btn" onclick="saveBankEdit()" style="margin-bottom:0">保存する</button>
-    </div>
-  </div>
-  <!-- アフィリエイター：登録口座情報の確認モーダル -->
-  <div class="modal-bg" id="aff-bank-view-modal">
-    <div class="modal-card">
-      <div class="modal-hd"><span class="modal-ttl">登録口座情報</span><button class="modal-close" onclick="closeAffiliateBankView()">✕</button></div>
-      <div id="aff-bank-view-body"></div>
-      <button class="btn-gold" onclick="closeAffiliateBankView();openBankEdit(true)" style="margin-bottom:0;margin-top:12px">口座情報を変更</button>
-    </div>
-  </div>
+  <!-- 口座編集／確認モーダルはテンプレート外（純アフィリエイターでも開けるよう）に移動しました -->
   <div class="modal-bg" id="birth-edit-modal">
     <div class="modal-card">
       <div class="modal-hd"><span class="modal-ttl">生まれの情報を編集</span><button class="modal-close" onclick="closeBirthEdit()">✕</button></div>
@@ -6772,8 +6775,8 @@ function openBankEdit(fromAffiliate){
     var saveBtn=document.getElementById('bk-save-btn');
     if(saveBtn) saveBtn.textContent=(res.data && res.data.bank_name) ? '保存する' : '登録する';
   });
-  document.getElementById('profile-modal').classList.remove('show');
-  document.getElementById('bank-edit-modal').classList.add('show');
+  var pm=document.getElementById('profile-modal'); if(pm) pm.classList.remove('show'); // 純アフィリエイターではテンプレ未展開でnull
+  var bem=document.getElementById('bank-edit-modal'); if(bem) bem.classList.add('show');
 }
 /** 銀行口座編集モーダルを閉じる */
 function closeBankEdit(){
@@ -6803,13 +6806,13 @@ async function saveBankEdit(){
     if(btn){btn.disabled=false;btn.textContent='保存する';}
     // 最新プロフィール取得
     const{data:profile}=await supa.from('profiles').select('*').eq('id',currentUser.id).single();
-    if(profile)populateProfileModal(profile);
     if(window._affBankEdit){
       // アフィリダッシュボードから開いた場合：保存後はダッシュボードへ戻る（ボタンが「確認」に変わる）
       window._affBankEdit=false;
       setTimeout(function(){ closeBankEdit(); if(profile && typeof showAffiliateDashboard==='function') showAffiliateDashboard(profile); },900);
     }else{
-      setTimeout(function(){closeBankEdit();document.getElementById('profile-modal').classList.add('show');},900);
+      if(profile && typeof populateProfileModal==='function') populateProfileModal(profile);
+      setTimeout(function(){closeBankEdit();var pm=document.getElementById('profile-modal');if(pm)pm.classList.add('show');},900);
     }
   }catch(e){
     console.log('口座情報保存エラー:',e);
