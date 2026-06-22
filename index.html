@@ -6766,6 +6766,8 @@ function openSubPage(page){
   if(page==='shindan'){
     var sp=document.getElementById('sh-pref');
     if(sp&&sp.options.length===0)initShPrefs();
+    // 「自分との相性／自分以外の相性」モードバーを表示（通常ナビ経由でも出す）
+    if(typeof initShindanOthers === 'function') initShindanOthers();
   }
   // 相性結果メモページを開いた時はリストを再描画
   if(page==='memo'){
