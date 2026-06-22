@@ -1019,11 +1019,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   <div class="topbar" style="justify-content:center;flex-direction:column;text-align:center"><div class="tlogo">縁の間 ― えにしのま ―</div><div class="tsub">必然的良縁を、あなたに</div></div>
   <div style="padding:1rem">
     <div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:1rem">はじめに登録してください（登録後は変更できません）</div>
-    <p class="sec" style="margin-left:0">ログイン情報</p>
+    <p class="sec" style="margin-left:0">ログイン情報 <span style="font-size:10px;color:#C05050;font-weight:normal">「*」は入力必須</span></p>
     <div class="card" style="margin:0 0 .75rem">
-      <div class="fl" style="margin-bottom:8px"><label>メールアドレス</label><input type="email" id="r-email" placeholder="例：example@mail.com" oninput="normalizeAsciiInput(this)" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      <div class="fl" style="margin-bottom:8px"><label>パスワード（6文字以上）</label><input type="password" id="r-password" placeholder="パスワードを入力" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
-      <div class="fl" style="margin-bottom:8px"><label>電話番号<span style="font-size:10px;color:#C05050"> 必須</span></label><input type="tel" id="r-phone" placeholder="例：09012345678（ハイフンなし）" inputmode="tel" autocomplete="tel" oninput="normalizeAsciiInput(this)" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+      <div class="fl" style="margin-bottom:8px"><label>メールアドレス <span style="color:#C05050">*</span></label><input type="email" id="r-email" placeholder="例：example@mail.com" oninput="normalizeAsciiInput(this)" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+      <div class="fl" style="margin-bottom:8px"><label>パスワード（6文字以上） <span style="color:#C05050">*</span></label><input type="password" id="r-password" placeholder="パスワードを入力" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
+      <div class="fl" style="margin-bottom:8px"><label>電話番号 <span style="color:#C05050">*</span></label><input type="tel" id="r-phone" placeholder="例：09012345678（ハイフンなし）" inputmode="tel" autocomplete="tel" oninput="normalizeAsciiInput(this)" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div>
       <div class="fl" style="margin-bottom:0"><label>紹介者ID<span style="font-size:10px;color:#C05050"> 紹介者がいる場合は必須、いない場合は空欄</span></label><input type="text" id="r-referrer" placeholder="例：EN-12345678" oninput="normalizeAsciiInput(this)" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary);letter-spacing:.05em"></div>
     </div>
     <div id="reg-photo-section">
@@ -1032,16 +1032,16 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div>
     <p class="sec" style="margin-left:0">プロフィール</p>
     <div class="card" style="margin:0 0 .75rem">
-      <div class="fl"><label>ニックネーム</label><input type="text" id="r-nick" placeholder="例：はるか" value="はるか"></div>
-      <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">性別</label><div class="sexrow" id="r-sex-row"><div class="sxbtn on" onclick="setSex(this)">女性</div><div class="sxbtn" onclick="setSex(this)">男性</div><div class="sxbtn" onclick="setSex(this)">その他</div></div></div>
-      <div class="fl" id="reg-residence" style="margin-bottom:8px"><label>居住都道府県</label><select id="r-res"><option value="">選択してください</option></select></div>
-      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供</label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
+      <div class="fl"><label>ニックネーム <span style="color:#C05050">*</span></label><input type="text" id="r-nick" placeholder="例：はるか"></div>
+      <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">性別 <span style="color:#C05050">*</span></label><div class="sexrow" id="r-sex-row"><div class="sxbtn on" onclick="setSex(this)">女性</div><div class="sxbtn" onclick="setSex(this)">男性</div><div class="sxbtn" onclick="setSex(this)">その他</div></div></div>
+      <div class="fl" id="reg-residence" style="margin-bottom:8px"><label>居住都道府県 <span style="color:#C05050">*</span></label><select id="r-res"><option value="">選択してください</option></select></div>
+      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴 <span style="color:#C05050">*</span></label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供 <span style="color:#C05050">*</span></label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
       <div id="kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="r-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="r-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
       <div class="fl" style="margin-top:8px;margin-bottom:0"><label>プロフィール文<span style="font-size:10px;color:var(--color-text-tertiary)"> 最大500文字</span></label><textarea id="r-profile-text" maxlength="500" oninput="updateProfileTextCount(this,'r-profile-text-count')" placeholder="例：はじめまして！趣味は読書とカフェ巡りです。週末はゆったり過ごすのが好きです。よろしくお願いします。" style="min-height:90px;font-size:12px;line-height:1.7"></textarea><div style="text-align:right;font-size:10px;color:var(--color-text-tertiary);margin-top:3px"><span id="r-profile-text-count">0</span> / 500</div></div>
     </div>
     <p class="sec" style="margin-left:0">生まれの情報</p>
     <div class="card" style="margin:0 0 .75rem">
-      <div class="g3" style="margin-bottom:8px"><div class="fl"><label>生年</label><input id="yr" type="number" value="1996"></div><div class="fl"><label>生月</label><input id="mo" type="number" value="1" min="1" max="12"></div><div class="fl"><label>生日</label><input id="dy" type="number" value="28" min="1" max="31"></div></div>
+      <div class="g3" style="margin-bottom:8px"><div class="fl"><label>生年 <span style="color:#C05050">*</span></label><input id="yr" type="number" value="1990"></div><div class="fl"><label>生月 <span style="color:#C05050">*</span></label><input id="mo" type="number" value="6" min="1" max="12"></div><div class="fl"><label>生日 <span style="color:#C05050">*</span></label><input id="dy" type="number" value="15" min="1" max="31"></div></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl"><label>生時（24h）<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・不明なら空欄</span></label><input id="hr" type="number" placeholder="—" min="0" max="23"></div><div class="fl"><label>生分<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><input id="mn" type="number" placeholder="—" min="0" max="59"></div></div>
       <div class="g2" style="margin-bottom:0"><div class="fl"><label>出生都道府県<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><select id="pref" onchange="updCity()"></select></div><div class="fl"><label>市区町村</label><select id="city"></select></div></div>
     </div>
@@ -1178,8 +1178,9 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   <!-- 結婚歴・子供 編集モーダル -->
   <div class="modal-bg" id="mk-edit-modal">
     <div class="modal-card">
-      <div class="modal-hd"><span class="modal-ttl">結婚歴・子供を編集</span><button class="modal-close" onclick="closeMkEdit()">✕</button></div>
-      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">結婚歴と子供の情報はあとから変更できます。</div>
+      <div class="modal-hd"><span class="modal-ttl">居住地・結婚歴・子供を編集</span><button class="modal-close" onclick="closeMkEdit()">✕</button></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">居住都道府県・結婚歴・子供の情報はあとから変更できます。</div>
+      <div class="fl" style="margin-bottom:8px"><label>居住都道府県</label><select id="mk-pref" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></select></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="mk-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供</label><select id="mk-kodomo" onchange="toggleMkKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
       <div id="mk-kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="mk-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="mk-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
       <div id="mk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
@@ -1262,6 +1263,13 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         卒業生の間に転入を希望される方は、こちらから申請してください。運営が承認後、卒業生の間へ参加できるようになります。<br>
         <span style="color:#C05050">※ 転入手数料として <strong>3,690円</strong> ご負担頂きます。予めご了承ください。</span>
       </div>
+      <div style="font-size:12px;color:var(--color-text-primary);line-height:1.9;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:11px 13px;margin-bottom:12px">
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">お振込先（仮）</div>
+        ◯◯銀行 ◯◯支店<br>
+        普通　0000000<br>
+        名義：エニシ ノマ ウンエイ
+        <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:6px;line-height:1.6">※ 振込先は今後正式情報に更新されます。<br>※ 振込手数料はお客様ご負担でお願いいたします。</div>
+      </div>
       <div class="fl" style="margin-bottom:10px"><label>婚姻状態 <span style="color:#C05050">*</span></label>
         <select id="vt-marital" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="">選択してください</option><option>未婚</option><option>既婚</option><option>離婚</option></select>
       </div>
@@ -1278,7 +1286,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <textarea id="vt-note" rows="2" maxlength="300" placeholder="運営へのメッセージがあれば" style="font-size:12px;padding:8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></textarea>
       </div>
       <div id="vt-error" style="font-size:11px;color:#C05050;min-height:16px;margin-bottom:4px"></div>
-      <div id="vt-success" style="display:none;font-size:12px;color:#3a9a3a;text-align:center;padding:10px;background:rgba(58,154,58,.08);border-radius:8px;margin-bottom:8px">✓ 転入申請を受け付けました。運営の承認をお待ちください。</div>
+      <div id="vt-success" style="display:none;font-size:12px;color:#3a9a3a;text-align:center;padding:10px;background:rgba(58,154,58,.08);border-radius:8px;margin-bottom:8px">✓ 転入申請を受け付けました。上記口座への入金を確認次第、承認となります。お待ちください。</div>
       <button class="btn-gold" id="vt-submit-btn" onclick="submitVoiceTransfer()">転入申請を送信する</button>
     </div></div>
     <div id="sub-shindan" style="display:none"><div style="padding:1rem">
@@ -1423,7 +1431,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec" style="color:#C05050">退会のお手続き</p>
       <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">ご利用ありがとうございました。<br>下記フォームをご記入の上、申請ください。運営にて内容を確認後、退会処理を実施いたします。</div>
       <div class="card" style="margin:0 0 .75rem">
-        <div class="fl" style="margin-bottom:10px"><label>退会理由 <span style="color:#C05050">*</span></label><select id="cancel-reason" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="">選択してください</option><option>カップル成立したため</option><option>良いお相手と出会えた（卒業）</option><option>良いお相手と出会えなかった</option><option>サービスに満足できなかった</option><option>料金面の理由</option><option>利用頻度が低くなった</option><option>その他</option></select></div>
+        <div class="fl" style="margin-bottom:10px"><label>退会理由 <span style="color:#C05050">*</span></label><select id="cancel-reason" style="font-size:12px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"><option value="">選択してください</option><option>カップル成立したため（卒業）</option><option>良いお相手と出会えなかった</option><option>サービスに満足できなかった</option><option>料金面の理由</option><option>利用頻度が低くなった</option><option>その他</option></select></div>
         <div class="fl" style="margin-bottom:0"><label>詳細・改善希望<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・最大500文字</span></label><textarea id="cancel-detail" maxlength="500" oninput="updateProfileTextCount(this,'cancel-detail-count')" placeholder="サービスの改善に活かしますので、お気軽にご記入ください。" style="min-height:90px;font-size:12px;line-height:1.7"></textarea><div style="text-align:right;font-size:10px;color:var(--color-text-tertiary);margin-top:3px"><span id="cancel-detail-count">0</span> / 500</div></div>
       </div>
       <div style="background:rgba(192,80,80,.06);border:0.5px solid rgba(192,80,80,.3);border-radius:8px;padding:.75rem .9rem;margin-bottom:.75rem">
@@ -3788,12 +3796,30 @@ function renderEnList(){
       }
     }else if(s==='matched'||s==='chatting'){
       // メッセージと感謝して完了は許可、デート決定！はロック対象
+      // 「デート決定！」は両者承認式＋双方メッセージ必須：
+      //   未やり取り→グレー(押すとポップアップ) / 自分申請済→「✓申請済」/ 相手申請済→強調 / それ以外→通常
       var msgBtn = '<button class="en-phase-btn primary" onclick="openChat(\''+item.name+'\''+midArg+')">メッセージ</button>';
-      var dateBtn = locked
-        ? '<button class="en-phase-btn primary"'+lockedAttrFor('デート決定！ボタン')+'>デート決定！</button>'
-        : '<button class="en-phase-btn primary" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button>';
+      var dateBtn;
+      if(locked){
+        dateBtn = '<button class="en-phase-btn primary"'+lockedAttrFor('デート決定！ボタン')+'>デート決定！</button>';
+      }else if(!item.mutualMsg){
+        dateBtn = '<button class="en-phase-btn primary" style="opacity:.45;cursor:not-allowed" onclick="alert(\'メッセージでのやり取りが無い状態ではタップできません\')">デート決定！</button>';
+      }else if(item.myDateReq){
+        dateBtn = '<button class="en-phase-btn primary" disabled style="opacity:.55;cursor:default">✓ デート決定！(申請済)</button>';
+      }else if(item.partnerDateReq){
+        dateBtn = '<button class="en-phase-btn primary" style="box-shadow:0 0 0 2px #C9A96E;font-weight:600" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button>';
+      }else{
+        dateBtn = '<button class="en-phase-btn primary" onclick="setDateDecided(\''+item.matchId+'\')">デート決定！</button>';
+      }
       var thanksBtn = '<button class="en-phase-btn secondary" onclick="endWithThanks(\''+item.matchId+'\')">感謝して完了</button>';
       html+='<div class="en-phase-btns">'+msgBtn+dateBtn+thanksBtn+'</div>';
+      if(!locked && !item.mutualMsg){
+        html += '<div style="margin-top:6px;font-size:10px;color:var(--color-text-tertiary);text-align:center;line-height:1.6">※ お互いに1通以上メッセージを送ると「デート決定！」が押せます</div>';
+      }else if(!locked && item.myDateReq && !item.partnerDateReq){
+        html += '<div style="margin-top:6px;font-size:10px;color:#C9A96E;text-align:center;line-height:1.6">お相手の「デート決定！」を待っています…</div>';
+      }else if(!locked && !item.myDateReq && item.partnerDateReq){
+        html += '<div style="margin-top:6px;font-size:10px;color:#C9A96E;text-align:center;line-height:1.6">お相手が「デート決定！」を押しました。あなたも押すと確定します</div>';
+      }
     }else if(s==='date_set'){
       // 「感謝して終了」ボタン: 押すとレビュー入力モーダルを開く（レビュー送信後にマッチが終了する設計）
       // 既にレビュー済みの場合は「✓」を付けて押下時に確認できるようにする
@@ -3962,11 +3988,38 @@ async function markDateUndo(matchId, round){
 }
 
 /** 「デート決定！」ボタン：status を date_set に @param {string} matchId */
+/** 「デート決定！」両者承認式：自分が押す→自分側をセット。双方揃ったら date_set へ。
+ *  双方メッセージが無ければ no_mutual_messages でポップアップ。 @param {string} matchId */
 async function setDateDecided(matchId){
-  try{await supa.from('matches').update({status:'date_set'}).eq('id',matchId);}catch(e){}
-  var item=enList.find(function(e){return e.matchId===matchId;});
-  if(item)item.status='date_set';
-  renderEnList();
+  try{
+    var resp = await supa.rpc('request_date', { p_match_id: matchId });
+    if(resp && resp.error){
+      var em = String(resp.error.message || '');
+      if(/no_mutual_messages/.test(em)){
+        alert('メッセージでのやり取りが無い状態ではタップできません');
+      }else{
+        alert('デート決定に失敗しました: ' + em);
+      }
+      return;
+    }
+    var res = resp && resp.data;
+    var becomes = !!(res && res.is_date_set);
+    var item = enList.find(function(e){ return e.matchId === matchId; });
+    // 相手の user_id（Push用）
+    var partnerId = item ? item.partnerUserId : null;
+    if(becomes){
+      if(item){ item.status='date_set'; item.myDateReq=true; item.partnerDateReq=true; }
+      if(partnerId && typeof sendPushNotification==='function'){
+        sendPushNotification(supa, { target_user_id: partnerId, title:'💞 デート決定！', body:'お二人とも「デート決定！」を押しました', url:'./#en', tag:'date_set' });
+      }
+    }else{
+      if(item){ item.myDateReq=true; }
+      if(partnerId && typeof sendPushNotification==='function'){
+        sendPushNotification(supa, { target_user_id: partnerId, title:'デート決定！の申請', body:(item?item.name:'お相手')+'… お相手が「デート決定！」を押しました', url:'./#en', tag:'date_req' });
+      }
+    }
+    renderEnList();
+  }catch(e){ console.log('setDateDecided error:', e); alert('エラーが発生しました'); }
 }
 /** 「感謝して完了」ボタン：マッチを終了 @param {string} matchId */
 async function endWithThanks(matchId){
@@ -4903,7 +4956,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at,dateCount:(m.date_count||0)});
+            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.from_user_date_at,partnerDateReq:!!m.to_user_date_at});
           }
         }
       }
@@ -4949,7 +5002,7 @@ async function loadEnList(){
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at,dateCount:(m.date_count||0)});
+            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.to_user_date_at,partnerDateReq:!!m.from_user_date_at});
           }
         }
       }
@@ -4965,6 +5018,26 @@ async function loadEnList(){
         }
       }
     }catch(prEx){ console.log('get_partner_reviewed_match_ids exception:', prEx); }
+
+    // 双方が最低1通ずつメッセージを送ったか（デート決定！ボタンの解放判定用）
+    try{
+      var chatIds = tmp.filter(function(t){ return t.status==='chatting'; }).map(function(t){ return t.matchId; });
+      if(chatIds.length > 0){
+        var{data:msgRows, error:msgErr}=await supa.from('messages').select('match_id,sender_id').in('match_id', chatIds);
+        if(!msgErr){
+          var senderMap = {}; // matchId -> Set(sender_id)
+          (msgRows||[]).forEach(function(r){
+            if(!senderMap[r.match_id]) senderMap[r.match_id] = {};
+            senderMap[r.match_id][r.sender_id] = true;
+          });
+          tmp.forEach(function(it){
+            if(it.status!=='chatting') return;
+            var s = senderMap[it.matchId] || {};
+            it.mutualMsg = !!(s[currentUser.id] && it.partnerUserId && s[it.partnerUserId]);
+          });
+        }
+      }
+    }catch(mmEx){ console.log('mutualMsg calc exception:', mmEx); }
 
     // 自分が date_set で既にレビュー送信済みなら enList から除外（=自分が「感謝して終了」した側）
     tmp = tmp.filter(function(it){
@@ -5630,9 +5703,16 @@ async function openMkEdit(){
   var errEl=document.getElementById('mk-error'),okEl=document.getElementById('mk-success');
   if(errEl)errEl.textContent='';if(okEl)okEl.style.display='none';
   try{
-    const{data:profile}=await supa.from('profiles').select('marriage,children').eq('id',currentUser.id).single();
+    const{data:profile}=await supa.from('profiles').select('marriage,children,prefecture').eq('id',currentUser.id).single();
     var marriage=(profile&&profile.marriage)?profile.marriage:'未婚';
     var children=(profile&&profile.children)?profile.children:'なし';
+    // 居住都道府県のセレクトを生成（PREF_NAMES）＋現在値を選択
+    var prefSel=document.getElementById('mk-pref');
+    if(prefSel && typeof PREF_NAMES!=='undefined'){
+      prefSel.innerHTML='<option value="">選択してください</option>';
+      PREF_NAMES.forEach(function(n){ var o=document.createElement('option'); o.value=n; o.textContent=n; prefSel.appendChild(o); });
+      prefSel.value=(profile&&profile.prefecture)?profile.prefecture:'';
+    }
     _setSelectByText(document.getElementById('mk-marriage'), marriage);
     // 子供：有無＋男女人数を反映
     var sel=document.getElementById('mk-kodomo');
@@ -5661,10 +5741,13 @@ async function saveMkEdit(){
   var children=(typeof buildKodomoText==='function')
     ? buildKodomoText('mk-kodomo','mk-kodomo-boys','mk-kodomo-girls')
     : (document.getElementById('mk-kodomo').value==='yes'?'あり':'なし');
+  var prefEl=document.getElementById('mk-pref');
+  var prefecture=prefEl?prefEl.value:'';
   if(btn){btn.disabled=true;btn.textContent='保存中...';}
   try{
     const{data:profile}=await supa.from('profiles').select('*').eq('id',currentUser.id).single();
     var updateData={marriage:marriage,children:children};
+    if(prefecture) updateData.prefecture=prefecture;
     const{error}=await supa.from('profiles').update(updateData).eq('id',currentUser.id);
     if(error){if(errEl)errEl.textContent='保存に失敗しました：'+error.message;if(btn){btn.disabled=false;btn.textContent='保存する';}return;}
     var merged=Object.assign({},profile||{},updateData);
@@ -6017,7 +6100,8 @@ async function submitVoiceTransfer(){
     if(okEl) okEl.style.display='block';
     if(typeof addOfficialMessage==='function') addOfficialMessage('卒業生の間への転入申請を受け付けました。\n運営にて確認・承認後、ご連絡いたします。');
     if(typeof addNotif==='function') addNotif('【運営】卒業生の間 転入申請を受け付けました','承認後、卒業生の間へ参加できるようになります。');
-    btn.textContent='転入申請を送信する';
+    // 申請済みに切替（再申請防止）
+    btn.disabled=true; btn.textContent='転入申請済み'; btn.style.opacity='0.55'; btn.style.cursor='not-allowed';
   }catch(e){
     console.log('転入申請エラー:',e);
     errEl.textContent='エラーが発生しました';
@@ -6395,6 +6479,30 @@ async function refreshCancelButtonState(){
   }catch(e){ console.log('refreshCancelButtonState error:', e); }
 }
 
+/** 転入申請ページ：申請済みなら送信ボタンを「転入申請済み」に */
+async function refreshVoiceTransferButtonState(){
+  var btn = document.getElementById('vt-submit-btn');
+  if(!btn || !currentUser) return;
+  try{
+    var{data}=await supa.from('contacts')
+      .select('id')
+      .eq('user_id', currentUser.id)
+      .eq('contact_type', '卒業生の間転入申請')
+      .limit(1);
+    if(data && data.length > 0){
+      btn.disabled = true;
+      btn.textContent = '転入申請済み';
+      btn.style.opacity = '0.55';
+      btn.style.cursor = 'not-allowed';
+    }else{
+      btn.disabled = false;
+      btn.textContent = '転入申請を送信する';
+      btn.style.opacity = '';
+      btn.style.cursor = '';
+    }
+  }catch(e){ console.log('refreshVoiceTransferButtonState error:', e); }
+}
+
 /** 退会申請の取り消し（ユーザー側） */
 async function cancelWithdrawalRequest(){
   if(!currentUser){ alert('ログインが必要です'); return; }
@@ -6643,6 +6751,8 @@ function openSubPage(page){
   document.querySelectorAll('.screen').forEach(function(s,i){s.classList.toggle('on',i===3);});
   // 退会ページ表示時: 申請済みなら送信ボタンを「退会申請済み」に
   if(page === 'cancel' && typeof refreshCancelButtonState === 'function') refreshCancelButtonState();
+  // 転入申請ページ表示時: 申請済みなら送信ボタンを「転入申請済み」に
+  if(page === 'voicetransfer' && typeof refreshVoiceTransferButtonState === 'function') refreshVoiceTransferButtonState();
   // 「その他」は .other-tab-btn なので、.ntab はすべて非アクティブにする
   document.querySelectorAll('.ntab').forEach(function(t){t.classList.remove('on');});
   document.querySelectorAll('.other-tab-btn').forEach(function(b){b.classList.add('on');});
@@ -7929,10 +8039,19 @@ var _interestEditState = null;
 /** state を初期化（既存値 or 空） @param {object|null} existing */
 function initInterestEditState(existing){
   var src = existing && typeof existing === 'object' ? existing : {};
+  // custom はカテゴリ別の「配列」に正規化（旧フォーマットの文字列も配列化）
+  var custom = {};
+  if(src.custom && typeof src.custom === 'object'){
+    Object.keys(src.custom).forEach(function(k){
+      var v = src.custom[k];
+      if(Array.isArray(v)) custom[k] = v.slice();
+      else if(v) custom[k] = [v];
+    });
+  }
   _interestEditState = {
     selected: Array.isArray(src.selected) ? src.selected.slice() : [],
     highlighted: Array.isArray(src.highlighted) ? src.highlighted.slice() : [],
-    custom: (src.custom && typeof src.custom === 'object') ? Object.assign({}, src.custom) : {}
+    custom: custom
   };
 }
 
@@ -7980,32 +8099,43 @@ function toggleInterestHighlight(tag, ev){
   renderInterestSelector();
 }
 
-/** カスタム入力を反映（カテゴリkey別、10文字制限） */
-function applyInterestCustomInput(catName, input){
+/** カスタム入力を「追加」（カテゴリ別・複数可・10文字制限）。合計30個まで */
+function addInterestCustom(catName, input){
+  var s = _interestEditState;
+  if(!s || !input) return;
+  var val = (input.value || '').trim().substring(0, INTEREST_CUSTOM_MAXLEN);
+  if(!val) return;
+  if(!Array.isArray(s.custom[catName])) s.custom[catName] = s.custom[catName] ? [s.custom[catName]] : [];
+  // 同カテゴリ内の重複 / 既存選択との重複は無視
+  if(s.custom[catName].indexOf(val) >= 0 || s.selected.indexOf(val) >= 0){
+    input.value = '';
+    renderInterestSelector();
+    return;
+  }
+  if(s.selected.length >= INTEREST_MAX_SELECT){
+    alert('最大' + INTEREST_MAX_SELECT + '個までです');
+    input.value = '';
+    return;
+  }
+  s.custom[catName].push(val);
+  s.selected.push(val);
+  input.value = '';
+  renderInterestSelector();
+}
+
+/** カスタムワードを削除（カテゴリ別） */
+function removeInterestCustom(catName, word){
   var s = _interestEditState;
   if(!s) return;
-  var val = (input.value || '').trim().substring(0, INTEREST_CUSTOM_MAXLEN);
-  var prevCustom = s.custom[catName] || null;
-  if(prevCustom && prevCustom !== val){
-    // 旧カスタムワードを selected から外す
-    var pi = s.selected.indexOf(prevCustom); if(pi >= 0) s.selected.splice(pi, 1);
-    var hi = s.highlighted.indexOf(prevCustom); if(hi >= 0) s.highlighted.splice(hi, 1);
-  }
-  if(val){
-    s.custom[catName] = val;
-    if(s.selected.indexOf(val) < 0){
-      if(s.selected.length >= INTEREST_MAX_SELECT){
-        alert('最大' + INTEREST_MAX_SELECT + '個までです');
-        delete s.custom[catName];
-        input.value = '';
-        renderInterestSelector();
-        return;
-      }
-      s.selected.push(val);
-    }
-  }else{
+  var arr = s.custom[catName];
+  if(Array.isArray(arr)){
+    var i = arr.indexOf(word); if(i >= 0) arr.splice(i, 1);
+    if(arr.length === 0) delete s.custom[catName];
+  }else if(arr === word){
     delete s.custom[catName];
   }
+  var si = s.selected.indexOf(word); if(si >= 0) s.selected.splice(si, 1);
+  var hi = s.highlighted.indexOf(word); if(hi >= 0) s.highlighted.splice(hi, 1);
   renderInterestSelector();
 }
 
@@ -8041,11 +8171,25 @@ function renderInterestSelector(){
       html += '</span>';
     });
     html += '</div>';
-    // カスタム入力（flex で input が縮まないバグ対策で min-width:0 + box-sizing:border-box）
-    var customVal = s.custom[cat.name] || '';
+    // カスタム入力（複数可）：既存ワードを削除可能チップで表示 ＋ 追加用入力
+    var safeCat = cat.name.replace(/'/g, "\\'");
+    var customs = Array.isArray(s.custom[cat.name]) ? s.custom[cat.name] : (s.custom[cat.name] ? [s.custom[cat.name]] : []);
+    if(customs.length){
+      html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">';
+      customs.forEach(function(cw){
+        var safeCw = String(cw).replace(/'/g, "\\'");
+        html += '<span style="display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 10px;border-radius:14px;background:#9966CC;color:#fff;border:1px solid #9966CC">'
+              + escapeHtml(cw)
+              + '<span style="cursor:pointer;font-size:11px;line-height:1" onclick="removeInterestCustom(\''+safeCat+'\',\''+safeCw+'\')" title="削除">✕</span>'
+              + '</span>';
+      });
+      html += '</div>';
+    }
+    // 追加用入力（flex で input が縮まないバグ対策で min-width:0 + box-sizing:border-box）
     html += '<div style="display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap">';
     html += '<label style="font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;flex-shrink:0">+その他(10文字以内):</label>';
-    html += '<input type="text" maxlength="'+INTEREST_CUSTOM_MAXLEN+'" value="'+escapeHtml(customVal)+'" placeholder="自由記述" style="flex:1;min-width:0;max-width:100%;box-sizing:border-box;font-size:11px;padding:5px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)" onblur="applyInterestCustomInput(\''+cat.name.replace(/'/g,"\\'")+'\',this)">';
+    html += '<input type="text" maxlength="'+INTEREST_CUSTOM_MAXLEN+'" placeholder="自由記述して追加" style="flex:1;min-width:0;max-width:100%;box-sizing:border-box;font-size:11px;padding:5px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addInterestCustom(\''+safeCat+'\',this);}" onblur="addInterestCustom(\''+safeCat+'\',this)">';
+    html += '<button type="button" onmousedown="event.preventDefault()" onclick="addInterestCustom(\''+safeCat+'\',this.previousElementSibling)" style="flex-shrink:0;font-size:11px;padding:5px 12px;border:0.5px solid #C9A96E;border-radius:6px;background:transparent;color:#C9A96E;cursor:pointer;font-family:inherit">追加</button>';
     html += '</div>';
     html += '</div>';
   });
@@ -8059,7 +8203,11 @@ function renderInterestChipsReadonly(tagsObj){
     return '<div style="font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:6px;padding:8px 10px;text-align:center">未設定</div>';
   }
   var customSet = {};
-  Object.keys(s.custom || {}).forEach(function(k){ customSet[s.custom[k]] = true; });
+  Object.keys(s.custom || {}).forEach(function(k){
+    var v = s.custom[k];
+    if(Array.isArray(v)) v.forEach(function(w){ customSet[w] = true; });
+    else if(v) customSet[v] = true;
+  });
   var html = '<div style="display:flex;flex-wrap:wrap;gap:5px">';
   s.selected.forEach(function(tag){
     var hi = (s.highlighted || []).indexOf(tag) >= 0;
@@ -10880,7 +11028,7 @@ function populateProfileModal(profile) {
   modalInfo += '<div class="modal-row"><span class="modal-lbl">出生地</span><span class="modal-val">'+birthLoc+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+(profile.marriage||'')+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+(profile.children||'')+'</span></div>';
-  modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openMkEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">✎ 結婚歴・子供を編集</button></div>';
+  modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openMkEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">✎ 居住地・結婚歴・子供を編集</button></div>';
   // カップル相手欄（state.js の enList を参照、coupled マッチ相手がいれば表示）
   // enList ロード前は空。loadEnList 後に refreshProfileCoupleSection() で更新される
   modalInfo += '<div id="profile-couple-section"></div>';
