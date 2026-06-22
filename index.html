@@ -7069,14 +7069,12 @@ function setShindanMode(mode){
   if(res){ res.style.display='none'; res.innerHTML=''; }
 }
 
-/** 相性ページを開いたとき呼ぶ：NOマッチングのみモードバー＆person2を有効化 */
+/** 相性ページを開いたとき呼ぶ：モードバー（自分との相性／自分以外の相性）を表示 */
 function initShindanOthers(){
-  var noMatch = (typeof myPlan !== 'undefined' && myPlan === 'no_matching');
   var bar=document.getElementById('shindan-mode-bar');
-  if(bar) bar.style.display = noMatch ? 'flex' : 'none';
+  if(bar) bar.style.display = 'flex';
   var sp2=document.getElementById('sh2-pref');
-  if(noMatch && sp2 && sp2.options.length===0) initShPrefs2();
-  if(!noMatch) shindanMode='self';
+  if(sp2 && sp2.options.length===0) initShPrefs2();
   setShindanMode(shindanMode);
   populateShindanPickers();
 }
@@ -7382,11 +7380,14 @@ function sortMemos(arr, key){
 function renderMemoList(){
   var container=document.getElementById('memo-list');
   if(!container)return;
-  // タイプ切替バーは NOマッチングのみ表示
+  // タイプ切替バー：NOマッチング、または「自分以外」メモが既に1件でもあれば表示
+  // （プラン変更などで myPlan が no_matching でなくても、保存済みの自分以外メモを見られるように）
   var noMatch=(typeof myPlan!=='undefined' && myPlan==='no_matching');
+  var hasOthers=getShindanMemos().some(function(m){ return m.type==='others'; });
+  var showTypeBar = noMatch || hasOthers;
   var bar=document.getElementById('memo-type-bar');
-  if(bar) bar.style.display = noMatch ? 'flex' : 'none';
-  var filterT = noMatch ? memoFilterType : 'self';
+  if(bar) bar.style.display = showTypeBar ? 'flex' : 'none';
+  var filterT = showTypeBar ? memoFilterType : 'self';
 
   // タイプで絞り込み
   var typeList=getShindanMemos().filter(function(m){
