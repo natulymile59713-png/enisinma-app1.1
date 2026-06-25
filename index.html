@@ -135,6 +135,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .other-tab-wrap{flex:1;position:relative}
 .other-tab-btn{width:100%;padding:9px 0;font-size:11px;text-align:center;cursor:pointer;color:var(--color-text-tertiary);border-bottom:2px solid transparent;border-top:none;border-left:none;border-right:none;background:transparent;transition:all .2s;font-family:'Noto Sans JP',sans-serif;font-weight:400;display:block}
 .other-tab-btn.on{color:#C9A96E;border-bottom-color:#C9A96E;font-weight:500}
+/* 現在開いているページのタブ名を少し大きく表示 */
+.nav .ntab.on{font-size:13px}
+.nav .other-tab-btn.on{font-size:13px}
+/* 卒業生の間のタブも同様に、現在ページを少し大きく */
+.vr-bnav .ntab.on{font-size:13px}
 .sub-menu{display:none;position:absolute;top:100%;right:0;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;z-index:50;min-width:120px;box-shadow:0 4px 10px rgba(0,0,0,.08)}
 .sub-menu.show{display:block}
 .sub-item{display:block;padding:9px 14px;font-size:12px;color:var(--color-text-primary);cursor:pointer;white-space:nowrap;border-bottom:0.5px solid var(--color-border-tertiary)}
@@ -437,7 +442,17 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .cal-legend>span{display:inline-flex;align-items:center;gap:3px}
 .cal-section{padding:.75rem 0;border-bottom:0.5px solid var(--color-border-tertiary)}
 .cal-section:last-child{border-bottom:none}
-.cal-section-hd{font-family:'Noto Serif JP',serif;font-size:12px;color:var(--color-text-secondary);margin-bottom:.4rem;line-height:1.5}
+.cal-section-hd{font-family:'Noto Serif JP',serif;font-size:12px;color:var(--color-text-secondary);margin-bottom:.4rem;line-height:1.5;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.cal-section-hd-txt{min-width:0}
+.cal-desc-toggle{flex-shrink:0;font-size:10px;padding:3px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:'Noto Sans JP',sans-serif;white-space:nowrap}
+.cal-desc-toggle:active{background:rgba(201,169,110,.14)}
+/* 各面の吉凶判定（◎大吉/〇中吉/△末吉/×凶） */
+.cal-verdict{font-weight:600;margin-left:2px}
+.cal-verdict.good{color:#C9A96E}
+.cal-verdict.caution{color:#E08040}
+.cal-verdict.bad{color:#C05050}
+.cal-verdict.neutral{color:var(--color-text-tertiary);font-weight:500}
+.cal-section-sub{font-size:10px;color:var(--color-text-tertiary);margin-bottom:.4rem}
 .cal-section-marks{display:flex;gap:6px;margin-bottom:.5rem;font-size:14px}
 .cal-section-text{font-size:12px;line-height:1.7;color:var(--color-text-primary);margin-bottom:.5rem}
 .cal-section-text:last-child{margin-bottom:0}
@@ -1382,7 +1397,6 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div></div>
     <div id="sub-calendar" style="display:none"><div style="padding:1rem">
       <p class="sec">運勢カレンダー</p>
-      <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:.75rem;line-height:1.7">あなたの3柱（日柱／月柱／年柱）と暦の十二支との組み合わせから、月単位・日単位の運勢を読み解きます。</div>
       <div class="cal-nav-row">
         <button class="cal-nav-btn" id="cal-prev-btn" onclick="calPrev()">◀</button>
         <span class="cal-title" id="cal-title">—</span>
@@ -1392,10 +1406,10 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div id="cal-month-summary" class="card" style="margin:0 0 .75rem;padding:.85rem 1rem"></div>
       <div class="cal-grid" id="cal-grid"></div>
       <div class="cal-legend">
-        <span><span class="cal-mk sango">◎</span>三合（吉）</span>
-        <span><span class="cal-mk shigo">〇</span>支合（吉）</span>
-        <span><span class="cal-mk chu">△</span>冲（変化）</span>
-        <span><span class="cal-mk kei">×</span>刑（注意）</span>
+        <span><span class="cal-mk sango">◎</span>三合（大吉）</span>
+        <span><span class="cal-mk shigo">〇</span>支合（中吉）</span>
+        <span><span class="cal-mk chu">△</span>冲（注意）</span>
+        <span><span class="cal-mk kei">×</span>刑（要注意）</span>
       </div>
       <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;margin-top:.5rem">※マークは、その日の日支と自分の <strong>日柱（プライベート）／月柱（家族）／年柱（社会）</strong> の関係を、左から順に並べています。</div>
     </div></div>
@@ -7526,6 +7540,13 @@ var calCurrentMonth = null;
 // 関係マークと名称
 var REL_MARKS = { sango: '◎', shigo: '〇', chu: '△', kei: '×' };
 var REL_NAMES = { sango: '三合（半会）', shigo: '支合', chu: '冲', kei: '刑' };
+// 関係性 → 吉凶判定（ヘッダ表示用）
+var REL_VERDICT = {
+  sango: { mark:'◎', label:'大吉', cls:'good' },
+  shigo: { mark:'〇', label:'中吉', cls:'good' },
+  chu:   { mark:'△', label:'末吉', cls:'caution' },
+  kei:   { mark:'×', label:'凶',   cls:'bad' }
+};
 
 // ドメイン定義
 // MY_PILLARS[0]=年柱(年支), [1]=月柱(月支), [2]=日柱(日支), [3]=時柱（使用せず）
@@ -7626,6 +7647,45 @@ var GOGYO_TEXT = {
     seikan:  '評価や昇進、公的な手続きに恵まれる{p}。筋を通してていねいにこなせば、信頼も評価も自然と上がっていきます'
   }
 };
+// ネガティブ版（冲・刑のとき＝その通変星が裏目に出やすい）。ドメイン×通変の30通り。{p}=「月/日」
+var GOGYO_TEXT_NEG = {
+  priv: {
+    hiken:   '自分を通したくなる{p}。意地やこだわりが強く出て人とぶつかったり、孤立しやすいので、少し肩の力を抜いて',
+    gozai:   '誘惑や出費が増えやすい{p}。見栄やノリでの散財・安請け合いに注意。流されないで',
+    shokujin:'のんびりしすぎて締まりがなくなりがちな{p}。食べ過ぎ・怠けすぎ・ダラダラに気をつけて',
+    shokan:  '言葉やSNSが鋭くなりすぎる{p}。口論や後悔の一言に注意。感情的な発信は控えめに',
+    henin:   '気が散って迷いやすい{p}。情報に振り回されたり、ネガティブ思考にハマりがち。深追いしないで',
+    seiin:   '受け身になりすぎる{p}。甘えや依存が出て行動が止まりがち。少しだけ自分から動いて',
+    henzai:  'あれこれ手を出して散漫になりやすい{p}。衝動買い・遊びすぎ・誘惑に注意',
+    seizai:  '細かいことに縛られて窮屈になりがちな{p}。ケチケチ・心配しすぎで疲れないように',
+    henkan:  'プレッシャーや焦りで空回りしやすい{p}。無理・無茶・衝動的な決断は控えて、まず深呼吸を',
+    seikan:  'ルールや体面に縛られて気が重くなりがちな{p}。完璧を求めすぎず、力を抜く時間も大切に'
+  },
+  fam: {
+    hiken:   'お互い譲らず衝突しやすい{p}。マイペースが過ぎると距離ができるので、相手の立場も思いやって',
+    gozai:   '身内とのお金の貸し借り・取り分でもめやすい{p}。見栄や張り合いは控え、白黒つけすぎないで',
+    shokujin:'甘えすぎ・なあなあになりやすい{p}。だらけた態度は相手の不満につながりがち',
+    shokan:  'つい余計な一言で家族を傷つけやすい{p}。正論でも言い方次第。やわらかく伝えて',
+    henin:   'すれ違いや思い込みが生まれやすい{p}。邪推せず、わからないことは直接たしかめて',
+    seiin:   '相手に頼りすぎ・甘えすぎになりがちな{p}。お世話されるばかりでなく、感謝とお返しも忘れずに',
+    henzai:  '外向きになりすぎて家庭がおろそかになりやすい{p}。散財や予定の入れすぎに注意',
+    seizai:  '細かいお金や家事のことで小言が増えやすい{p}。きっちりしすぎず、おおらかに',
+    henkan:  '家庭内で板挟み・責任過多になりやすい{p}。一人で抱えず、役割を分け合って',
+    seikan:  '「こうあるべき」を押し付けがちな{p}。正しさより、相手の気持ちを優先して'
+  },
+  soc: {
+    hiken:   '独断専行で周りと足並みが乱れやすい{p}。協調を欠くと孤立するので、報連相を丁寧に',
+    gozai:   '横取り・出し抜き・分け前のトラブルが起きやすい{p}。約束や条件は先に明確にして',
+    shokujin:'気が緩んでミスや締切遅れが出やすい{p}。楽な方に流れず、最後のツメを大事に',
+    shokan:  '才気が裏目に出て上司や規則と衝突しやすい{p}。生意気・批判的に見られないよう注意',
+    henin:   '情報過多で判断がブレやすい{p}。あいまいな話や甘い儲け話に乗らないで',
+    seiin:   '受け身で指示待ちになりがちな{p}。引き立てを待つだけでなく、自分から一歩動いて',
+    henzai:  '手を広げすぎて収拾がつかなくなりやすい{p}。安請け合い・出費・誘いの選別を',
+    seizai:  '数字や細部に追われて消耗しやすい{p}。完璧主義で抱え込みすぎないように',
+    henkan:  '強い重圧・厳しい局面が来やすい{p}。無理押しは禁物、引く判断も力。体調管理も忘れずに',
+    seikan:  '評価や立場を気にしすぎて窮屈になりがちな{p}。ミスを恐れて萎縮せず、誠実に'
+  }
+};
 /** 五行リーディングの HTML（関係の有無に関わらず常に出す地合いの読み） */
 function gogyoReadingHtml(domain, userBranch, calBranch, periodType){
   var t = gogyoTsuben(userBranch, calBranch);
@@ -7638,6 +7698,49 @@ function gogyoReadingHtml(domain, userBranch, calBranch, periodType){
   h += '<strong>五行の地合い：' + elLine + '</strong>';
   if(body) h += '<br>' + body + '。';
   h += '<br><span class="cal-kotowaza">— ' + GOGYO_KOTOWAZA[t.tsuben] + '</span>';
+  h += '</div>';
+  return h;
+}
+
+// ===== 通変星リーディング（十干：まわってくる月/日の天干を基準に） =====
+// 天干の五行(0木 1火 2土 3金 4水) と 陰陽(true=陽)。KAN=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']
+var KAN_GOGYO = [0,0,1,1,2,2,3,3,4,4];
+var KAN_YANG  = [true,false,true,false,true,false,true,false,true,false];
+/** 基準干(dm=暦の天干)に対する対象干(other=自分の天干)の通変星を返す */
+function tsubenFromStems(dm, other){
+  if(dm==null || other==null) return null;
+  var es = KAN_GOGYO[dm], eo = KAN_GOGYO[other];
+  var sameYy = (KAN_YANG[dm] === KAN_YANG[other]);
+  var rel;
+  if(es === eo) rel = 'hiwa';
+  else if(eo === (es+1)%5) rel = 'iku';   // dm が生む（食神/傷官）
+  else if(es === (eo+1)%5) rel = 'inj';   // dm を生む（印）
+  else if(eo === (es+2)%5) rel = 'zai';   // dm が剋す（財）
+  else rel = 'kan';                        // dm を剋す（官殺）
+  var map = {
+    hiwa: sameYy ? 'hiken'    : 'gozai',
+    iku:  sameYy ? 'shokujin' : 'shokan',
+    inj:  sameYy ? 'henin'    : 'seiin',
+    zai:  sameYy ? 'henzai'   : 'seizai',
+    kan:  sameYy ? 'henkan'   : 'seikan'
+  };
+  return map[rel];
+}
+/** 通変星リーディングの HTML（暦の天干基準 × 自分の天干＝通変星）
+ *  @param tone 'pos'=三合/支合(プラス) / 'neg'=冲/刑(マイナス) / 'neu'=関係なし */
+function tsubenReadingHtml(domain, userStem, calStem, periodType, tone){
+  if(userStem==null || calStem==null) return '';
+  var tsu = tsubenFromStems(calStem, userStem);
+  if(!tsu) return '';
+  var info = TSUBEN_INFO[tsu];
+  var pw = (periodType === 'month') ? '月' : '日';
+  // 判定がマイナス（冲/刑）なら通変星が裏目に出るネガティブ文、それ以外はポジティブ/中庸文
+  var src = (tone === 'neg' && GOGYO_TEXT_NEG[domain]) ? GOGYO_TEXT_NEG[domain] : GOGYO_TEXT[domain];
+  var body = (src && src[tsu]) ? src[tsu].replace('{p}', pw) : '';
+  var toneCls = (tone === 'neg') ? ' caution' : (tone === 'pos' ? ' good' : '');
+  var h = '<div class="cal-section-text cal-gogyo' + toneCls + '">';
+  h += '<strong>通変星：' + KAN[calStem] + '（今' + pw + '）× ' + KAN[userStem] + '（あなた）＝ ' + info.nm + '</strong>';
+  if(body) h += '<br>' + body + '。';
   h += '</div>';
   return h;
 }
@@ -7738,10 +7841,11 @@ function pairKey(s1, s2){
 // ===== マーク計算 =====
 // 暦の支（calBranch）に対し、自分の3柱との関係を返す
 /** 自分の四柱と暦の支との関係を全部洗い出す @param {number} calBranch @returns {object} */
-function computeAgainstBranch(calBranch){
+function computeAgainstBranch(calBranch, calStem){
   if(!MY_PILLARS||MY_PILLARS.length===0) return null;
   return {
     calBranch: calBranch,
+    calStem: (calStem==null ? null : calStem), // 暦の天干（通変星の基準）
     privBranch: MY_PILLARS[2].s, // 日柱
     famBranch:  MY_PILLARS[1].s, // 月柱
     socBranch:  MY_PILLARS[0].s, // 年柱
@@ -7754,14 +7858,14 @@ function computeAgainstBranch(calBranch){
 /** 指定日の運勢マーク（三合/支合/冲/刑）を計算 @returns {string[]} */
 function computeDayMarks(year, month, day){
   var pillars = calcPillars(year, month, day, 12, 0, 135.0);
-  return computeAgainstBranch(pillars[2].s);
+  return computeAgainstBranch(pillars[2].s, pillars[2].k); // 日支・日干
 }
 
 /** 月全体の運勢マーク（月支ベース） @returns {string[]} */
 function computeMonthMarks(year, month){
   // 月支は節入後で安定するので15日で計算
   var pillars = calcPillars(year, month, 15, 12, 0, 135.0);
-  return computeAgainstBranch(pillars[1].s);
+  return computeAgainstBranch(pillars[1].s, pillars[1].k); // 月支・月干
 }
 
 // ===== カレンダー描画 =====
@@ -7900,7 +8004,8 @@ function calNext(){
 /** 月全体のサマリー表示 */
 function renderMonthSummary(year, month, marks){
   if(!marks) return '';
-  var html = '<div style="font-family:\'Noto Serif JP\',serif;font-size:15px;font-weight:500;margin-bottom:.4rem;color:var(--color-text-primary);text-align:center;letter-spacing:.05em">今月（'+year+'年'+month+'月 = '+SHI[marks.calBranch]+'月）の運勢傾向</div>';
+  var kanshi = (marks.calStem!=null ? KAN[marks.calStem] : '') + SHI[marks.calBranch];
+  var html = '<div style="font-family:\'Noto Serif JP\',serif;font-size:15px;font-weight:500;margin-bottom:.4rem;color:var(--color-text-primary);text-align:center;letter-spacing:.05em">今月（'+year+'年'+month+'月 = '+kanshi+'）の運勢傾向</div>';
   html += '<div style="font-size:10px;color:var(--color-text-tertiary);margin-bottom:.6rem;text-align:center">3面の傾向（自分の3柱と今月の月支との関係）</div>';
   // 節入りの説明（干支の暦では「月」は1日ではなく節入りから始まる）
   var sk = getSekki(year, month);
@@ -7911,44 +8016,59 @@ function renderMonthSummary(year, month, marks){
     var info = DOMAIN_INFO[domain];
     var userBranch = marks[domain+'Branch'];
     var rels = marks[domain+'Rels'];
-    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'month');
+    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'month', marks.calStem);
   });
   return html;
 }
 
 // ===== ドメイン別セクション描画（月次・日次共通） =====
 /** ドメイン別（私事/家庭/社会）の運勢セクションを描画 */
-function renderDomainSection(domain, userBranch, calBranch, rels, periodType){
+function renderDomainSection(domain, userBranch, calBranch, rels, periodType, calStem){
   var info = DOMAIN_INFO[domain];
-  var calBranchLabel = (periodType==='month' ? '今月の月支' : '今日の日支');
-  var html = '<div class="cal-section">';
-  html += '<div class="cal-section-hd">【'+info.label+'】 '+info.sourceLabel+'「'+SHI[userBranch]+'」 × '+calBranchLabel+'「'+SHI[calBranch]+'」</div>';
+  var bodyId = 'caldesc-' + periodType + '-' + domain;
 
-  if(rels.length===0){
-    // 三合/支合/冲/刑が無くても、五行の地合いで必ず読み解く
-    html += gogyoReadingHtml(domain, userBranch, calBranch, periodType);
-  } else {
-    var marksLine = rels.map(function(r){return '<span class="cal-mk '+r+'">'+REL_MARKS[r]+'</span>';}).join(' ');
-    html += '<div class="cal-section-marks">'+marksLine+'</div>';
-    rels.forEach(function(rel){
-      var key = pairKey(userBranch, calBranch);
-      var pairData = (BRANCH_PAIR_DETAILS[rel]||{})[key];
-      var pairName = pairData ? pairData.name : '';
-      var pairHint = pairData ? pairData.hint : '';
-      var advice = (DOMAIN_ADVICE[domain]||{})[rel];
-      var adviceText = advice ? advice[periodType] : '';
-      var isBad = (rel==='chu'||rel==='kei');
-      html += '<div class="cal-section-text">';
-      html += '<strong'+(isBad?' class="bad"':'')+'>'+REL_MARKS[rel]+' '+REL_NAMES[rel]+(pairName?'（'+pairName+'）':'')+'</strong>';
-      if(pairHint) html += '<br>' + pairHint + '。';
-      if(adviceText) html += '<br>' + adviceText + '。';
-      html += '</div>';
+  // 吉凶判定（ヘッダ表示）：関係があれば三合◎大吉/支合〇中吉/冲△末吉/刑×凶、無ければ平穏
+  var verdictHtml;
+  if(rels.length){
+    var vorder = ['sango','shigo','chu','kei'];
+    var vparts = [];
+    vorder.forEach(function(r){
+      if(rels.indexOf(r) >= 0 && REL_VERDICT[r]){
+        vparts.push('<span class="cal-verdict '+REL_VERDICT[r].cls+'">'+REL_VERDICT[r].mark+' '+REL_VERDICT[r].label+'</span>');
+      }
     });
-    // 合冲刑がある日も、土台となる五行の地合いを併記
-    html += gogyoReadingHtml(domain, userBranch, calBranch, periodType);
+    verdictHtml = vparts.join(' ');
+  }else{
+    verdictHtml = '<span class="cal-verdict neutral">‐ 平穏</span>';
   }
+
+  // 本文（説明文）：まわってくる月/日の天干 × 自分の天干＝通変星 でみた意味合い
+  // 判定が吉(三合/支合)ならプラス、凶寄り(冲/刑)ならマイナスに働く文を出す
+  var hasBad = (rels.indexOf('chu') >= 0 || rels.indexOf('kei') >= 0);
+  var hasGood = (rels.indexOf('sango') >= 0 || rels.indexOf('shigo') >= 0);
+  var tone = hasBad ? 'neg' : (hasGood ? 'pos' : 'neu');
+  var userStem = (MY_PILLARS && MY_PILLARS[info.userPillarIdx]) ? MY_PILLARS[info.userPillarIdx].k : null;
+  var body = tsubenReadingHtml(domain, userStem, calStem, periodType, tone);
+  if(!body){
+    body = '<div class="cal-section-text" style="color:var(--color-text-tertiary)">この'+(periodType==='month'?'月':'日')+'は穏やかに過ごせそうです。</div>';
+  }
+
+  var html = '<div class="cal-section">';
+  html += '<div class="cal-section-hd"><span class="cal-section-hd-txt">【'+info.label+'】 '+verdictHtml+'</span>'
+        + '<button type="button" class="cal-desc-toggle" onclick="calToggleDesc(\''+bodyId+'\',this)">詳しく ▾</button>'
+        + '</div>';
+  html += '<div class="cal-desc-body" id="'+bodyId+'" style="display:none">' + body + '</div>';
   html += '</div>';
   return html;
+}
+
+/** 各面の説明文の折りたたみ開閉 */
+function calToggleDesc(id, btn){
+  var el = document.getElementById(id);
+  if(!el) return;
+  var show = (el.style.display === 'none' || el.style.display === '');
+  el.style.display = show ? 'block' : 'none';
+  if(btn) btn.textContent = show ? '閉じる ▴' : '詳しく ▾';
 }
 
 // ===== 日詳細モーダル =====
@@ -7962,12 +8082,11 @@ function showCalDetail(year, month, day){
   if(titleEl) titleEl.textContent = year+'年'+month+'月'+day+'日（'+dayOfWeek+'）';
 
   var html = '';
-  html += '<div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:.5rem;line-height:1.6">この日の日支「'+SHI[marks.calBranch]+'」と自分の3柱との関係から3面の傾向を表示。</div>';
   DOMAIN_KEYS.forEach(function(domain){
     var info = DOMAIN_INFO[domain];
     var userBranch = marks[domain+'Branch'];
     var rels = marks[domain+'Rels'];
-    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'day');
+    html += renderDomainSection(domain, userBranch, marks.calBranch, rels, 'day', marks.calStem);
   });
 
   var body = document.getElementById('cal-detail-body');
