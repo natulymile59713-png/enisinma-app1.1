@@ -1059,6 +1059,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="g3" style="margin-bottom:8px"><div class="fl"><label>生年 <span style="color:#C05050">*</span></label><input id="yr" type="number" value="1990"></div><div class="fl"><label>生月 <span style="color:#C05050">*</span></label><input id="mo" type="number" value="6" min="1" max="12"></div><div class="fl"><label>生日 <span style="color:#C05050">*</span></label><input id="dy" type="number" value="15" min="1" max="31"></div></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl"><label>生時（24h）<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・不明なら空欄</span></label><input id="hr" type="number" placeholder="—" min="0" max="23"></div><div class="fl"><label>生分<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><input id="mn" type="number" placeholder="—" min="0" max="59"></div></div>
       <div class="g2" style="margin-bottom:0"><div class="fl"><label>出生都道府県<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><select id="pref" onchange="updCity()"></select></div><div class="fl"><label>市区町村</label><select id="city"></select></div></div>
+      <div style="font-size:10px;color:#e53935;margin-top:4px">※市区町村がない場合は最も近いのを選択</div>
     </div>
     <p class="sec" style="margin-left:0">命式プレビュー</p>
     <div class="card" style="margin:0 0 .75rem">
@@ -1126,6 +1127,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <input type="file" id="avatar-edit-input" accept="image/*" style="display:none" onchange="changeAvatar(event)">
       <div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:-4px;margin-bottom:12px">📷 クリックでプロフィール画像を変更</div>
       <div id="modal-rating"></div>
+      <div id="modal-report-history"></div>
       <div id="modal-info"></div>
       <div style="margin-top:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px">命式</div><div class="pillars-mini" id="modal-pillars"></div></div>
       <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">会員ID</div><div id="modal-member-id" style="font-size:13px;font-weight:500;color:var(--color-text-primary);font-family:'Noto Serif JP',serif;letter-spacing:.1em"></div></div>
@@ -2443,7 +2445,7 @@ function checkRelations(myP,thP){var res={kango:[],sango:[],shigo:[],chu:[],kei:
  * @param {Relations} rel
  * @returns {number}
  */
-function calcScore(rel){return Math.min(99,Math.max(15,50+rel.kango.length*4+rel.sango.length*10+rel.shigo.length*7-rel.chu.length*7-rel.kei.length*10));}
+function calcScore(rel){return Math.min(99,Math.max(15,50+rel.kango.length*4+rel.sango.length*10+rel.shigo.length*7-rel.chu.length*10-rel.kei.length*13));}
 
 /**
  * 関係性のサマリーから人間向けコメント文を生成。
@@ -4323,6 +4325,8 @@ function renderPartnerProfile(prof, status, rating){
   }
   // レビュー（プロフィール画像とニックネームの間）：平均☆＋【コメントを見る】ボタン
   html += ppRatingBlockHtml(rating, 'pp-reviews-partner');
+  // 通報履歴（レビューの下）：件数＋内容の開閉。renderPartnerProfile後に非同期で流し込む
+  html += '<div id="partner-report-history"></div>';
   // 基本情報
   html += '<div class="modal-info">';
   html += '<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+escapeHtml(prof.nickname||'名無し')+'さん</span></div>';
@@ -4347,6 +4351,8 @@ function renderPartnerProfile(prof, status, rating){
     html += '<div style="text-align:center;margin-top:14px"><button onclick="closePartnerProfile();openReportFor(\''+prof.member_id+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:inherit">⚠️ この方を通報する</button></div>';
   }
   document.getElementById('partner-profile-body').innerHTML = html;
+  // 通報履歴を非同期で取得・表示
+  if(prof.id && typeof loadPartnerReportHistory === 'function') loadPartnerReportHistory(prof.id);
 }
 
 /** モーダルを閉じる */
@@ -7611,79 +7617,79 @@ var GOGYO_KOTOWAZA = {
 // ドメイン×通変の読み（30通り）。{p}=「月/日」へ置換
 var GOGYO_TEXT = {
   priv: {
-    hiken:   '自分らしさが自然とにじむ{p}。人に合わせなくても大丈夫、心がしたいことを大切にしてあげてね。ちょっと頑固になりやすいので、肩の力はふっと抜いて',
-    gozai:   '人とのつながりが増えて、にぎやかな{p}。楽しい反面ついお財布もゆるみがち。気持ちよく使いたい日こそ、ほどほどを意識すると安心だよ',
-    shokujin:'ごきげんな気持ちが広がる{p}。おいしいもの、笑うこと、好きなことに素直になると、運気もふんわり上向いていきます',
-    shokan:  '感性がすごく冴える{p}。その繊細さは創作やおしゃれにぴったり。ただ言葉が鋭くなりやすいので、ひと呼吸おいて伝えると◎',
-    henin:   'ふとした"ひらめき"が降りてくる{p}。気になることを調べたり学んでみると、思いがけない発見があるかも',
-    seiin:   'ゆっくり過ごすのが似合う{p}。休む・甘える・受け取る、ぜんぶOK。無理せず、自分をやさしく充電してあげてね',
-    henzai:  'フットワーク軽く動けるアクティブな{p}。出会いやおでかけ、ちょっとした冒険が、うれしい実りにつながりそう',
-    seizai:  'コツコツが報われる{p}。あせらず一歩ずつで大丈夫。小さな積み重ねが、ちゃんと未来の宝物になりますよ',
-    henkan:  '少し気が張りやすい{p}。無理して頑張りすぎなくていいからね。今日はマイペースに、自分を守ることを優先して',
-    seikan:  'なんだか背筋を正したくなる{p}。生活リズムを整えたり、やることをひとつ片づけると、気持ちまでスッと軽くなります'
+    hiken:   '強い自立心と一本気な職人気質が光る{p}。人に合わせなくていい、信じた道をまっすぐ進んで。嘘のない努力家のあなたらしさが自然と周りを引き寄せます',
+    gozai:   '社交センスと負けず嫌いの勝負強さが冴える{p}。人と関わるほど運が広がり、ここぞというシーンで実力が花開く。スケールの大きな野心を信じて動いて',
+    shokujin:'おおらかな心がふわっと広がる{p}。衣食住の幸運がそっと引き寄せられる。おいしいもの・笑うこと・好きなことに子どものように素直になって、それだけで十分',
+    shokan:  '感性とシャープな頭脳が冴えわたる{p}。繊細な美意識や芸術的なひらめきを思い切り解放して。気配りの細やかさが人の心をあたたかく動かします',
+    henin:   '個性的なひらめきとクリエイティブな発想が弾ける{p}。専門分野や独自の世界ほどあなたの才能が輝く。気になることを深掘りすると思いがけない発見があるかも',
+    seiin:   '穏やかな徳と学びへの意欲が満ちる{p}。休む・甘える・受け取る、ぜんぶOK。誰からも愛されるやさしさが自然とにじみ出て、周囲との縁があたたかく育ちます',
+    henzai:  'フットワークと圧倒的な社交性が全開になる{p}。出会いもチャンスもお金も、動けば動くほど流れがまわってくる。サービス精神を発揮して思い切り楽しんで',
+    seizai:  'コツコツの積み重ねが報われる{p}。真面目に・誠実に・一歩ずつで大丈夫。その姿が信頼を呼んで、地に足のついた幸運が育っていきます',
+    henkan:  '行動力と決断力が冴え渡る{p}。考えるより先に動ける勢いが武器。困難も正面から突破できるエネルギーと情の厚さが、今日のあなたの一番の強みです',
+    seikan:  '品格と責任感がにじみ出る{p}。やるべきことを丁寧にこなすほど自分への信頼が高まる。正義感とエリート気質が、今日の運気をぐっと引き上げてくれます'
   },
   fam: {
-    hiken:   'お互いのちょうどいい距離感が心地よい{p}。べったりしすぎず、それぞれの時間も大切にすると、かえって仲が深まります',
-    gozai:   '身内とのお金や貸し借りが、ちょっとこじれやすい{p}。きっちりさせるより、やさしくひと呼吸おく余裕が、家の空気を守ってくれます',
-    shokujin:'食卓がほっこり弾む{p}。一緒にごはんを食べたり笑ったりするだけで、家族の空気があたたかくなりますよ',
-    shokan:  'よかれと思った一言が、ちょっと刺さりやすい{p}。家族にこそ、言葉はやわらかく包んで伝えてあげてね',
-    henin:   '親や年上の人から、思いがけない知恵や助けがもらえる{p}。素直に頼ってみると、それがうれしい縁になります',
-    seiin:   'おうちが癒やしの場所になる{p}。気づかいやお世話、看病…そのやさしさは、めぐりめぐってちゃんと返ってきます',
-    henzai:  '大切な人とのおでかけや買い物が楽しい{p}。気前よく楽しそうにしていると、ふたりの縁があったかく深まります',
-    seizai:  '暮らしの土台をととのえるのにぴったりな{p}。地道な毎日の積み重ねが、家庭運をじっくり育ててくれます',
-    henkan:  '家の中で板挟みになったり、責任を感じやすい{p}。ぜんぶ一人で抱えこまないでね。まわりに頼って、荷物は分け合って',
-    seikan:  '約束や役割をていねいに果たすほど、信頼がつもる{p}。きちんとした姿が、家族にあんしんを届けます'
+    hiken:   'お互いの自立と個性を尊重できる{p}。べったりしすぎず、それぞれの時間を大切にするほど絆が深まります。一本気な誠実さが家族の信頼を呼ぶ',
+    gozai:   '家族と大きな夢を一緒に描ける{p}。スケールの大きな野心と協調性が家庭に活力をもたらす。協力して動くと思っていたよりずっといい結果が生まれます',
+    shokujin:'家の中がほっこりあたたかく和む{p}。ごはん・笑い・何気ない会話が家族の幸運をふくらませる。衣食住の福運が食卓から自然と広がっていきます',
+    shokan:  '家族への細やかな気配りと美意識が光る{p}。繊細なあなたの感性が、家の空気をおしゃれに心地よくしてくれます',
+    henin:   '家族にユニークな発想や個性を持ち込める{p}。既成概念にとらわれない提案が、意外な解決策になることも。専門知識が家族の力になりそう',
+    seiin:   'おうちが心の安らぎになる{p}。気づかいやお世話がめぐりめぐって感謝となって返ってくる。名誉を重んじる穏やかさが、家族の柱になっていきます',
+    henzai:  '大切な人との時間が豊かに広がる{p}。気前よくおでかけや食事を楽しんで。サービス精神が縁をあたたかく深め、家庭の笑顔を増やしてくれます',
+    seizai:  '家庭の土台を守る堅実さが輝く{p}。家族を思って地道に積み重ねる毎日が、しっかりとした安心感を育てていきます',
+    henkan:  '家族のために情熱的に動ける{p}。困難があっても親分肌でぐいっと引っ張れる力がある。行動力と情の厚さで、家族の絆がより強く育ちます',
+    seikan:  '約束と役割をていねいに果たすほど信頼が積まれる{p}。責任感と品格が、家族にゆるぎない安心をもたらします'
   },
   soc: {
-    hiken:   '自分のペースで進められる仕事が向いている{p}。自立心が認められそう。ただ抱え込みすぎず、まわりの力も借りてね',
-    gozai:   'ライバルや横やりが入りやすい{p}。協力する相手とは、役割や分け前を最初にやさしく確認しておくと安心です',
-    shokujin:'"出す"ことで運がひらく{p}。企画や発信、おもてなしが好調。あなたの笑顔が、今日いちばんの強みになりますよ',
-    shokan:  '才能がキラッと光る{p}。実力で見せれば味方が増えるけど、とがりすぎると衝突のもと。鋭さは静かに磨いておこう',
-    henin:   '専門知識や資格、裏方の準備が活きる{p}。表に立つより、コツコツ情報を集める人に運が味方します',
-    seiin:   '目上の人やお客さんに引き立ててもらえる{p}。"信用"という心強い味方が、そっと背中を押してくれます',
-    henzai:  '人脈や商売に追い風が吹く{p}。営業も、ちょっとした臨時収入も期待大。動けば動くほど、運がまわってきますよ',
-    seizai:  '地道な実務がしっかり報われる{p}。数字や契約、段取りごとがはかどります。信用と蓄えを育てる、いいチャンス',
-    henkan:  'プレッシャーや、ちょっと厳しい場面がありそうな{p}。ここぞの頑張りどころだけど、無理は禁物。引く勇気も立派な力だよ',
-    seikan:  '評価や昇進、公的な手続きに恵まれる{p}。筋を通してていねいにこなせば、信頼も評価も自然と上がっていきます'
+    hiken:   '自立心と専門性が認められる{p}。自分のペースで実力を発揮できる日。一本気な努力家の姿勢が周りの信頼をじわじわ引き寄せます',
+    gozai:   'スケールの大きな野心と協調性が光る{p}。チームを動かすエネルギーで運が開く。勝負どころでの判断力と社交センスが武器になります',
+    shokujin:'発信・おもてなし・創造が好調な{p}。おおらかな明るさと愛嬌が職場の空気を上げて、チャンスを引き寄せます。「出す」ことで運がひらく',
+    shokan:  '鋭い頭脳と美意識で才能が輝く{p}。批評・提案・クリエイティブな仕事で実力を発揮して。繊細な気配りが人の心を動かす日',
+    henin:   '専門性と独自の発想力が活きる{p}。占い・IT・医療・芸術など個性的な分野ほど才能がキラリと光る。裏方の準備やリサーチが運を呼びます',
+    seiin:   '目上の人に引き立てられ、信頼が後押ししてくれる{p}。専門知識と穏やかな徳が評価される。学びの成果が形になりやすい',
+    henzai:  '人脈とビジネスチャンスが広がる{p}。社交とサービス精神で大きく動くほど収穫が増えていく。営業・交流・臨時収入に追い風が吹きます',
+    seizai:  '地道な実務と誠実さが報われる{p}。数字・契約・段取りごとがはかどり、信用と蓄えを育てるいいチャンス。コツコツがしっかり評価される',
+    henkan:  '行動力と親分肌で道を切り開く{p}。スピードと情の厚さが武器。困難な局面ほど本領発揮で、まわりを引っ張るエネルギーがみなぎります',
+    seikan:  '評価・昇進・公的な手続きに恵まれる{p}。責任感と正義感を大切に筋を通すほど、組織での信頼と地位が自然と上がっていきます'
   }
 };
 // ネガティブ版（冲・刑のとき＝その通変星が裏目に出やすい）。ドメイン×通変の30通り。{p}=「月/日」
 var GOGYO_TEXT_NEG = {
   priv: {
-    hiken:   '自分を通したくなる{p}。意地やこだわりが強く出て人とぶつかったり、孤立しやすいので、少し肩の力を抜いて',
-    gozai:   '誘惑や出費が増えやすい{p}。見栄やノリでの散財・安請け合いに注意。流されないで',
-    shokujin:'のんびりしすぎて締まりがなくなりがちな{p}。食べ過ぎ・怠けすぎ・ダラダラに気をつけて',
-    shokan:  '言葉やSNSが鋭くなりすぎる{p}。口論や後悔の一言に注意。感情的な発信は控えめに',
-    henin:   '気が散って迷いやすい{p}。情報に振り回されたり、ネガティブ思考にハマりがち。深追いしないで',
-    seiin:   '受け身になりすぎる{p}。甘えや依存が出て行動が止まりがち。少しだけ自分から動いて',
-    henzai:  'あれこれ手を出して散漫になりやすい{p}。衝動買い・遊びすぎ・誘惑に注意',
-    seizai:  '細かいことに縛られて窮屈になりがちな{p}。ケチケチ・心配しすぎで疲れないように',
-    henkan:  'プレッシャーや焦りで空回りしやすい{p}。無理・無茶・衝動的な決断は控えて、まず深呼吸を',
-    seikan:  'ルールや体面に縛られて気が重くなりがちな{p}。完璧を求めすぎず、力を抜く時間も大切に'
+    hiken:   '頑固さとこだわりが強く出やすい{p}。「自分が正しい」を手放すだけで気持ちがずっと楽になる。一匹狼にならないよう、誰かに話しかけてみて',
+    gozai:   '見栄や意地がムダな出費・強引な行動を招きやすい{p}。ずる賢さや外面の良さが裏目に出る前に一度立ち止まって。流されないで',
+    shokujin:'怠け癖とルーズさが出やすい{p}。楽な方へ流されがちで自己管理がゆるみがち。食べ過ぎ・ダラダラに気をつけて、少し引き締めて',
+    shokan:  '言葉が鋭くなって人を傷つけやすい{p}。感情の波が激しくなりがちな日。SNSや発言はひと呼吸おいて、毒舌と後悔の一言に注意',
+    henin:   '気が散って飽きが出やすい{p}。あれこれ手を出して中途半端になりがち。情報に振り回されず、一つのことに集中するよう意識して',
+    seiin:   '受け身になりすぎて行動が止まりやすい{p}。依存心や甘えが出る日。頭でっかちにならず、考えすぎずに小さな一歩を踏み出して',
+    henzai:  '浪費や誘惑・広く浅い付き合いに流れやすい{p}。衝動買い・お人好しすぎて騙されるパターンに注意。甘い話は慎重に',
+    seizai:  '細かいことにこだわってケチになりやすい{p}。小さくまとまろうとする気持ちが変化とチャンスを遠ざける。心配しすぎで疲れないように',
+    henkan:  '短気と衝動が空回りしやすい{p}。考えるより先に動いて後悔するパターンに注意。深呼吸ひとつで全然変わるから、まず立ち止まって',
+    seikan:  'プライドや体面に縛られて気が重くなりがちな{p}。「こうあるべき」に縛られると窮屈になるだけ。完璧を求めすぎず、肩の力を抜いて'
   },
   fam: {
-    hiken:   'お互い譲らず衝突しやすい{p}。マイペースが過ぎると距離ができるので、相手の立場も思いやって',
-    gozai:   '身内とのお金の貸し借り・取り分でもめやすい{p}。見栄や張り合いは控え、白黒つけすぎないで',
-    shokujin:'甘えすぎ・なあなあになりやすい{p}。だらけた態度は相手の不満につながりがち',
-    shokan:  'つい余計な一言で家族を傷つけやすい{p}。正論でも言い方次第。やわらかく伝えて',
-    henin:   'すれ違いや思い込みが生まれやすい{p}。邪推せず、わからないことは直接たしかめて',
-    seiin:   '相手に頼りすぎ・甘えすぎになりがちな{p}。お世話されるばかりでなく、感謝とお返しも忘れずに',
-    henzai:  '外向きになりすぎて家庭がおろそかになりやすい{p}。散財や予定の入れすぎに注意',
-    seizai:  '細かいお金や家事のことで小言が増えやすい{p}。きっちりしすぎず、おおらかに',
-    henkan:  '家庭内で板挟み・責任過多になりやすい{p}。一人で抱えず、役割を分け合って',
-    seikan:  '「こうあるべき」を押し付けがちな{p}。正しさより、相手の気持ちを優先して'
+    hiken:   '家族とぶつかりやすい{p}。お互い譲らない頑固さが距離を生みがち。「自分が正しい」を少し脇に置いて、相手の立場も思いやって',
+    gozai:   '家族とのお金・役割・取り分でもめやすい{p}。表面上うまくやろうとしてかえって不満が溜まる。ずる賢さより正直な話し合いを',
+    shokujin:'家庭での甘えやなあなあが出やすい{p}。だらけた態度や自己管理の乱れが家族の不満につながりがち。楽に流れすぎないで',
+    shokan:  'よかれと思った一言が家族を傷つけやすい{p}。正論より共感を。鋭い言葉は飲み込んで、やさしい言い方で伝えて',
+    henin:   '家族に個性を押し付けすぎて理解されにくい{p}。自分の発想が「変わってる」と受け取られがち。飽き性が出る日でもあるので歩み寄りを忘れずに',
+    seiin:   '家族への依存・甘えが過剰になりやすい{p}。世話になるばかりでなく、感謝と行動で返すことを意識して。頼りすぎは関係を重くする',
+    henzai:  '外に気が向きすぎて家庭がおろそかになりやすい{p}。散財・予定の詰め込みすぎに注意。浮気性が出る日でもあるので大切な人をちゃんと見て',
+    seizai:  'お金や家事の細かいことで口うるさくなりやすい{p}。ケチケチより思いやりを。変化を恐れすぎると関係が窮屈になっていく',
+    henkan:  '家族に対して短気・強引になりやすい{p}。感情のままに動くと余計なトラブルを招く。情に任せすぎず、まずひと呼吸を',
+    seikan:  '「こうあるべき」を家族に押し付けやすい{p}。プライドより相手の気持ちを優先して。正しさより温かさを選んで'
   },
   soc: {
-    hiken:   '独断専行で周りと足並みが乱れやすい{p}。協調を欠くと孤立するので、報連相を丁寧に',
-    gozai:   '横取り・出し抜き・分け前のトラブルが起きやすい{p}。約束や条件は先に明確にして',
-    shokujin:'気が緩んでミスや締切遅れが出やすい{p}。楽な方に流れず、最後のツメを大事に',
-    shokan:  '才気が裏目に出て上司や規則と衝突しやすい{p}。生意気・批判的に見られないよう注意',
-    henin:   '情報過多で判断がブレやすい{p}。あいまいな話や甘い儲け話に乗らないで',
-    seiin:   '受け身で指示待ちになりがちな{p}。引き立てを待つだけでなく、自分から一歩動いて',
-    henzai:  '手を広げすぎて収拾がつかなくなりやすい{p}。安請け合い・出費・誘いの選別を',
-    seizai:  '数字や細部に追われて消耗しやすい{p}。完璧主義で抱え込みすぎないように',
-    henkan:  '強い重圧・厳しい局面が来やすい{p}。無理押しは禁物、引く判断も力。体調管理も忘れずに',
-    seikan:  '評価や立場を気にしすぎて窮屈になりがちな{p}。ミスを恐れて萎縮せず、誠実に'
+    hiken:   '独断専行で周囲と摩擦が生まれやすい{p}。一匹狼の姿勢が孤立を招く。報連相とひと言の確認だけでぐっと変わります',
+    gozai:   'ライバルや出し抜き・取り分トラブルが起きやすい{p}。目的のために手段を選ばないと信頼を失う。外面の良さだけでなく誠実さを優先して',
+    shokujin:'気が緩んでミスや締切遅れが出やすい{p}。楽な方に流れがちな日。最後のひと踏ん張りと自己管理を大切に',
+    shokan:  '才気が鋭すぎて上司や組織と衝突しやすい{p}。批判・毒舌に見られないよう伝え方をやわらかく。感情の起伏を抑えると信頼が増す',
+    henin:   '飽き性・転職衝動が出やすい{p}。変わりすぎて周囲に理解されにくいことも。情報過多で判断がブレる前に、足元を固めて',
+    seiin:   '指示待ち・受け身になりすぎて機会を逃しやすい{p}。依存心とプライドが行動を止める。引き立てを待つだけでなく自分から一歩動いて',
+    henzai:  '手を広げすぎて収拾がつかなくなりやすい{p}。安請け合い・衝動的な出費・甘い話への飛びつきに注意。広く浅くなりすぎないで',
+    seizai:  '細部や数字に縛られて消耗しやすい{p}。スケールの小ささや冒険できない守りがチャンスを逃す。完璧主義で抱え込みすぎないように',
+    henkan:  '短気と強引さで周囲と摩擦が起きやすい{p}。考えるより先に動いて失敗するパターンに注意。敵を作らないよう、一呼吸おいてから判断を',
+    seikan:  'プライドや体面が足かせになりやすい{p}。評価を気にしすぎて萎縮しないで。四角四面になると機会を逃す。誠実さだけを軸に動こう'
   }
 };
 /** 五行リーディングの HTML（関係の有無に関わらず常に出す地合いの読み） */
@@ -11107,6 +11113,65 @@ async function loadMyProfileRating(){
   }catch(e){ el.innerHTML = ''; }
 }
 
+/** 通報履歴ブロックのHTMLを組み立てる（マイプロフィール・相手プロフィール共通）
+ * @param {Array} rows RPCの返り値（reason_category/body/status/created_at）
+ * @param {string} listId 開閉リストの要素ID（画面内で一意に）
+ * @param {string} emptyMsg 0件時の文言
+ * @param {string} countMsg 件数見出しの文言（{n}が件数に置換される） */
+function buildReportHistoryHtml(rows, listId, emptyMsg, countMsg){
+  var n = rows.length;
+  var h = '<div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--color-border-tertiary)">';
+  h += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">通報履歴</div>';
+  if(n === 0){
+    h += '<div style="font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:6px;padding:7px 9px">'+emptyMsg+'</div>';
+    return h + '</div>';
+  }
+  h += '<div style="font-size:12px;color:#C05050;background:rgba(192,80,80,.06);border-radius:6px;padding:7px 9px;line-height:1.7">⚠️ '+countMsg.replace('{n}','<strong>'+n+'件</strong>')+'</div>';
+  h += '<div style="text-align:center;margin-top:8px"><button type="button" class="pp-review-toggle" onclick="toggleReportList(\''+listId+'\',this)" style="color:#C05050;border-color:#C05050">通報内容を見る</button></div>';
+  h += '<div id="'+listId+'" style="display:none;margin-top:8px">';
+  rows.forEach(function(r){
+    var cat = r.reason_category || '（理由未設定）';
+    var dt = r.created_at ? String(r.created_at).slice(0,10) : '';
+    var st = (r.status === 'dismissed') ? '<span style="color:#3a9a3a">対応済み（問題なし）</span>'
+           : (r.status === 'resolved') ? '<span style="color:#C05050">対応済み</span>'
+           : '<span style="color:var(--color-text-tertiary)">確認中</span>';
+    h += '<div style="background:var(--color-background-secondary);border-radius:6px;padding:8px 10px;margin-bottom:6px">';
+    h += '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:#C05050;font-weight:500">'+escapeHtml(cat)+'</span><span style="color:var(--color-text-tertiary)">'+dt+'</span></div>';
+    h += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.7;white-space:pre-wrap;word-break:break-word">'+escapeHtml(r.body||'')+'</div>';
+    h += '<div style="font-size:10px;margin-top:5px">'+st+'</div>';
+    h += '</div>';
+  });
+  return h + '</div></div>';
+}
+/** 通報履歴リストの開閉（listId指定で汎用） */
+function toggleReportList(listId, btn){
+  var el = document.getElementById(listId);
+  if(!el) return;
+  var show = (el.style.display === 'none');
+  el.style.display = show ? 'block' : 'none';
+  if(btn) btn.textContent = show ? '通報内容を閉じる' : '通報内容を見る';
+}
+/** マイプロフィールに「自分が受けた通報履歴」を表示 */
+async function loadMyReportHistory(){
+  var el = document.getElementById('modal-report-history');
+  if(!el || !currentUser) return;
+  try{
+    var rr = await supa.rpc('get_my_report_history');
+    var rows = (rr && rr.data) ? rr.data : [];
+    el.innerHTML = buildReportHistoryHtml(rows, 'my-report-list', '通報を受けた履歴はありません', 'あなたへの通報が {n} あります');
+  }catch(e){ el.innerHTML = ''; }
+}
+/** 相手プロフィール（推しページ🔎詳細）に「その人が受けた通報履歴」を表示 */
+async function loadPartnerReportHistory(targetUserId){
+  var el = document.getElementById('partner-report-history');
+  if(!el || !targetUserId) return;
+  try{
+    var rr = await supa.rpc('get_user_report_history', { p_target_user_id: targetUserId });
+    var rows = (rr && rr.data) ? rr.data : [];
+    el.innerHTML = buildReportHistoryHtml(rows, 'partner-report-list', 'この方への通報履歴はありません', 'この方への通報が {n} あります');
+  }catch(e){ el.innerHTML = ''; }
+}
+
 function populateProfileModal(profile) {
   // 通知トグル切替時に再描画できるよう、最後に表示したプロフィールを保持
   window._profileModalData = profile;
@@ -11132,6 +11197,7 @@ function populateProfileModal(profile) {
   }
   // 受けたレビューの平均☆（画像とニックネームの間）
   if(typeof loadMyProfileRating === 'function') loadMyProfileRating();
+  if(typeof loadMyReportHistory === 'function') loadMyReportHistory();
   // 会員ID・お問い合わせ欄の事前入力
   document.getElementById('modal-member-id').textContent = profile.member_id || '';
   document.getElementById('contact-id').value = profile.member_id || '';
