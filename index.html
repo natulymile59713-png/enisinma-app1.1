@@ -1624,6 +1624,19 @@ function escapeHtml(s){
 var escapeText = escapeHtml;
 
 /**
+ * 表示名など「HTML にも onclick 属性内の JS 文字列にも埋め込まれる」値の無害化。
+ * escapeHtml と違い実体参照化ではなく危険文字そのものを除去する
+ * （onclick="openChat('◯◯')" のような JS 文字列コンテキストでは
+ *   実体参照がデコードされて注入が成立するため、除去が安全）。
+ * @param {unknown} s
+ * @returns {string}
+ */
+function safeName(s){
+  if(s == null) return '';
+  return String(s).replace(/[<>"'`\\]/g, '');
+}
+
+/**
  * 数値を 2 桁ゼロ埋め文字列にする。
  * @param {number|string} n
  * @returns {string}
@@ -3298,7 +3311,7 @@ function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementBy
 function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];
 // マッチ前なので必ずぼかし表示。画像がなければ絵文字。
 var avaHtml = partner.avatarUrl
-  ? '<div class="ava-blur" style="background-image:url(\''+partner.avatarUrl+'\');background-size:cover;background-position:center;font-size:0"></div>'
+  ? '<div class="ava-blur" style="background-image:url(\''+escapeHtml(partner.avatarUrl)+'\');background-size:cover;background-position:center;font-size:0"></div>'
   : '<div class="ava-blur">🙂</div>';
 var _isLocked=isCoupledNow();
 var _cardCls=_isLocked?'match-card card-locked':'match-card';
@@ -3531,7 +3544,7 @@ async function cancelHanashi(idx){
 async function loadRealUsers() {
   if (!currentUser) return;
   try {
-    const { data: users, error } = await supa.from('profiles').select('*').neq('id', currentUser.id).is('banned_at', null);
+    const { data: users, error } = await supa.from('profiles_public').select('*').neq('id', currentUser.id).is('banned_at', null);
     if (error) { console.log('ユーザー取得エラー:', error); }
     var validUsers = (users && !error) ? users : [];
     // マッチング候補は「お試し / トータル」プランのみ。
@@ -3582,8 +3595,8 @@ async function loadRealUsers() {
     const realPartners = validUsers.map(u => {
       var hasHour = (u.pillar_hour_k != null && u.pillar_hour_s != null);
       return {
-        name: u.nickname + 'さん',
-        meta: (u.birth_year ? (new Date().getFullYear() - u.birth_year) + '歳' : '') + (u.prefecture ? '・' + u.prefecture : ''),
+        name: safeName(u.nickname) + 'さん',
+        meta: (u.birth_year ? (new Date().getFullYear() - u.birth_year) + '歳' : '') + (u.prefecture ? '・' + safeName(u.prefecture) : ''),
         pillars: [
           {k: u.pillar_year_k||0, s: u.pillar_year_s||0},
           {k: u.pillar_month_k||0, s: u.pillar_month_s||0},
@@ -3758,7 +3771,7 @@ function renderEnList(){
       var zoomHandler = zoomable
         ? ' onclick="event.stopPropagation();showAvatarZoom(\''+item.avatarUrl.replace(/'/g,"\\'")+'\')"'
         : '';
-      enAvaHtml = '<div class="ava'+zoomCls+'" style="background-image:url(\''+item.avatarUrl+'\');background-size:cover;background-position:center;font-size:0;'+blurStyle+'"'+zoomHandler+'></div>';
+      enAvaHtml = '<div class="ava'+zoomCls+'" style="background-image:url(\''+escapeHtml(item.avatarUrl)+'\');background-size:cover;background-position:center;font-size:0;'+blurStyle+'"'+zoomHandler+'></div>';
     } else {
       enAvaHtml = '<div class="ava">'+item.name.charAt(0)+'</div>';
     }
@@ -4254,7 +4267,7 @@ async function enNG(matchId){
 async function openPartnerProfile(partnerUserId, status){
   if(!partnerUserId){ alert('プロフィール取得に失敗しました'); return; }
   try{
-    var{data:prof, error}=await supa.from('profiles')
+    var{data:prof, error}=await supa.from('profiles_public')
       .select('id, nickname, sex, birth_year, birth_month, birth_day, prefecture, marriage, children, profile_text, avatar_url, member_id, interest_tags')
       .eq('id', partnerUserId).single();
     if(error || !prof){ alert('プロフィールの取得に失敗しました'); return; }
@@ -4316,7 +4329,7 @@ function renderPartnerProfile(prof, status, rating){
   var html = '';
   // アバター
   if(prof.avatar_url){
-    html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-block;width:100px;height:100px;border-radius:50%;background-image:url(\''+prof.avatar_url.replace(/'/g,"\\'")+'\');background-size:cover;background-position:center;border:1px solid #C9A96E;'+blurStyle+'"></div></div>';
+    html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-block;width:100px;height:100px;border-radius:50%;background-image:url(\''+escapeHtml(prof.avatar_url)+'\');background-size:cover;background-position:center;border:1px solid #C9A96E;'+blurStyle+'"></div></div>';
   }else{
     html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-flex;width:100px;height:100px;border-radius:50%;background:var(--color-background-secondary);align-items:center;justify-content:center;font-family:\'Noto Serif JP\',serif;font-size:32px;color:#C9A96E;border:1px solid #C9A96E">'+escapeHtml((prof.nickname||'?').charAt(0))+'</div></div>';
   }
@@ -4594,7 +4607,7 @@ function renderMsgList(){
     var ava;
     if(item.avatarUrl){
       var zoomHandler = ' onclick="event.stopPropagation();showAvatarZoom(\''+item.avatarUrl.replace(/'/g,"\\'")+'\')"';
-      ava = '<div class="msg-list-ava ava-zoomable" style="background-image:url(\''+item.avatarUrl+'\');background-size:cover;background-position:center;font-size:0"'+zoomHandler+'>'+dotHtml+'</div>';
+      ava = '<div class="msg-list-ava ava-zoomable" style="background-image:url(\''+escapeHtml(item.avatarUrl)+'\');background-size:cover;background-position:center;font-size:0"'+zoomHandler+'>'+dotHtml+'</div>';
     } else {
       ava = '<div class="msg-list-ava">'+item.name.charAt(0)+dotHtml+'</div>';
     }
@@ -4955,10 +4968,10 @@ async function loadEnList(){
     if(sentPending){
       for(var i=0;i<sentPending.length;i++){
         var m=sentPending[i];
-        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
+        var{data:prof}=await supa.from('profiles_public').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'sent'});
+          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:safeName(prof.nickname)+'さん',meta:age+(prof.prefecture?'・'+safeName(prof.prefecture):''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'sent'});
         }
       }
     }
@@ -4970,13 +4983,13 @@ async function loadEnList(){
       if(sentS){
         for(var i=0;i<sentS.length;i++){
           var m=sentS[i];
-          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
+          var{data:prof}=await supa.from('profiles_public').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
           if(prof){
             var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=ss==='matched'?'approved':ss==='reviewed'?'dated':ss;
-            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.from_user_date_at,partnerDateReq:!!m.to_user_date_at});
+            tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:safeName(prof.nickname)+'さん',meta:age+(prof.prefecture?'・'+safeName(prof.prefecture):''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.from_user_coupled_at,partnerCoupleReq:!!m.to_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.from_user_date_at,partnerDateReq:!!m.to_user_date_at});
           }
         }
       }
@@ -4986,10 +4999,10 @@ async function loadEnList(){
     if(sentRejected){
       for(var i=0;i<sentRejected.length;i++){
         var m=sentRejected[i];
-        var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
+        var{data:prof}=await supa.from('profiles_public').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.to_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
-          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'rejected_notify'});
+          tmp.push({matchId:m.id,partnerUserId:m.to_user_id,name:safeName(prof.nickname)+'さん',meta:age+(prof.prefecture?'・'+safeName(prof.prefecture):''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:'rejected_notify'});
         }
       }
     }
@@ -4998,13 +5011,13 @@ async function loadEnList(){
     if(received){
       for(var i=0;i<received.length;i++){
         var m=received[i];
-        var{data:prof}=await supa.from('profiles').select('*').eq('id',m.from_user_id).single();
+        var{data:prof}=await supa.from('profiles_public').select('*').eq('id',m.from_user_id).single();
         if(prof){
           var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
           var theirPillars=[{k:prof.pillar_year_k||0,s:prof.pillar_year_s||0},{k:prof.pillar_month_k||0,s:prof.pillar_month_s||0},{k:prof.pillar_day_k||0,s:prof.pillar_day_s||0},{k:prof.pillar_hour_k||0,s:prof.pillar_hour_s||0}];
           var rel=checkRelations(MY_PILLARS,theirPillars);
           var sc=calcScore(rel);
-          tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:sc,status:'pending'});
+          tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:safeName(prof.nickname)+'さん',meta:age+(prof.prefecture?'・'+safeName(prof.prefecture):''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:sc,status:'pending'});
         }
       }
     }
@@ -5016,13 +5029,13 @@ async function loadEnList(){
       if(recS){
         for(var i=0;i<recS.length;i++){
           var m=recS[i];
-          var{data:prof}=await supa.from('profiles').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.from_user_id).single();
+          var{data:prof}=await supa.from('profiles_public').select('nickname,birth_year,prefecture,member_id,avatar_url').eq('id',m.from_user_id).single();
           if(prof){
             var age=prof.birth_year?(new Date().getFullYear()-prof.birth_year)+'歳':'';
             var alreadyReviewed=reviewedIds.indexOf(m.id)>=0;
             // ステータスは matches.status に従う（'reviewed' は旧データ互換でのみ 'dated' へ）
             var displayStatus=rs==='matched'?'approved_by_me':rs==='reviewed'?'dated':rs;
-            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:prof.nickname+'さん',meta:age+(prof.prefecture?'・'+prof.prefecture:''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.to_user_date_at,partnerDateReq:!!m.from_user_date_at});
+            tmp.push({matchId:m.id,partnerUserId:m.from_user_id,name:safeName(prof.nickname)+'さん',meta:age+(prof.prefecture?'・'+safeName(prof.prefecture):''),memberId:prof.member_id,avatarUrl:prof.avatar_url||null,score:'--',status:displayStatus,reviewed:alreadyReviewed,coupledAt:m.coupled_at,myCoupleReq:!!m.to_user_coupled_at,partnerCoupleReq:!!m.from_user_coupled_at,dateCount:(m.date_count||0),myDateReq:!!m.to_user_date_at,partnerDateReq:!!m.from_user_date_at});
           }
         }
       }
@@ -5801,7 +5814,7 @@ async function refreshSotsugyouState(){
     var match = (cp1&&cp1[0])||(cp2&&cp2[0])||null;
     if(match){
       var partnerId = match.from_user_id===currentUser.id ? match.to_user_id : match.from_user_id;
-      var{data:partner}=await supa.from('profiles').select('id,member_id,nickname').eq('id',partnerId).single();
+      var{data:partner}=await supa.from('profiles_public').select('id,member_id,nickname').eq('id',partnerId).single();
       if(partner) coupledPartner = {match_id:match.id,...partner};
     }
   }catch(e){console.log('coupled match lookup error:',e);}
@@ -6838,7 +6851,7 @@ async function loadReferList(){
   var listEl=document.getElementById('refer-list');
   if(!listEl||!currentUser||!memberID)return;
   try{
-    const{data,error}=await supa.from('profiles').select('nickname,member_id').eq('referrer_id',memberID);
+    const{data,error}=await supa.from('profiles_public').select('nickname,member_id').eq('referrer_id',memberID);
     if(error){listEl.textContent='読み込みに失敗しました';return;}
     if(!data||data.length===0){
       listEl.innerHTML='<div style="color:var(--color-text-tertiary);font-size:11px">まだ紹介された方はいません。</div>';
@@ -6846,7 +6859,7 @@ async function loadReferList(){
     }
     var html='';
     data.forEach(function(u){
-      html+='<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-primary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span>'+(u.nickname||'')+'さん</span><span style="font-family:\'Noto Serif JP\',serif;font-size:11px;color:var(--color-text-tertiary);letter-spacing:.05em">'+(u.member_id||'')+'</span></div>';
+      html+='<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--color-text-primary);padding:4px 0;border-bottom:0.5px solid var(--color-border-tertiary)"><span>'+escapeHtml(u.nickname||'')+'さん</span><span style="font-family:\'Noto Serif JP\',serif;font-size:11px;color:var(--color-text-tertiary);letter-spacing:.05em">'+(u.member_id||'')+'</span></div>';
     });
     listEl.innerHTML=html;
   }catch(e){console.log('紹介リスト取得エラー:',e);listEl.textContent='読み込みに失敗しました';}
@@ -8692,7 +8705,7 @@ async function loadAffiliateReferList(){
   var sumEl=document.getElementById('aff-dash-summary');
   if(!currentUser||!memberID) return;
   try{
-    var{data:refs,error}=await supa.from('profiles')
+    var{data:refs,error}=await supa.from('profiles_public')
       .select('nickname,member_id,plan,banned_at,withdrawal_type,graduated_at')
       .eq('referrer_id',memberID);
     if(error){ if(listEl) listEl.textContent='読み込みに失敗しました'; return; }
@@ -9894,7 +9907,7 @@ async function vrLoadMembers(){
   try{
     var hidden = await loadHiddenUserIds();
     // 卒業認定者(graduated_at) ＋ 転入承認者(voice_transfer_at) を表示
-    var res = await supa.from('profiles')
+    var res = await supa.from('profiles_public')
       .select('id, nickname, sex, avatar_url, birth_year, birth_month, birth_day, pillar_year_s, pillar_month_s, pillar_day_k, pillar_day_s, graduated_at, voice_transfer_at, marital_status')
       .or('graduated_at.not.is.null,voice_transfer_at.not.is.null');
     if(res.error){ if(list) list.innerHTML = '<div class="vr-empty">読み込みに失敗しました。</div>'; return; }
@@ -10022,7 +10035,7 @@ async function vrOpenMemberProfile(memberId){
   body.innerHTML = '<div class="vr-empty">読み込み中…</div>';
   modal.classList.add('show');
   try{
-    var res = await supa.from('profiles')
+    var res = await supa.from('profiles_public')
       .select('id, nickname, sex, avatar_url, birth_year, birth_month, birth_day, member_id, interest_tags, pillar_year_k, pillar_year_s, pillar_month_k, pillar_month_s, pillar_day_k, pillar_day_s, pillar_hour_k, pillar_hour_s')
       .eq('id', memberId).single();
     if(res.error || !res.data){ body.innerHTML = '<div class="vr-empty">プロフィールを取得できませんでした。</div>'; return; }
@@ -10226,7 +10239,7 @@ async function vrLoadConversations(){
     }
     // 相手のプロフィール（名前・アバター）を取得
     var profs = {};
-    var pr = await supa.from('profiles').select('id, nickname, avatar_url').in('id', order);
+    var pr = await supa.from('profiles_public').select('id, nickname, avatar_url').in('id', order);
     (pr.data || []).forEach(function(p){ profs[p.id] = p; });
     list.innerHTML = order.map(function(oid){
       var cv = convs[oid]; var pf = profs[oid] || {};
@@ -10487,7 +10500,7 @@ async function vrOpenRoom(room){
 /** その間のメンバー数（卒業生の間 在籍者でその種族の人）を集計してタイトル右に表示 */
 async function vrUpdateRoomCount(room){
   try{
-    var res = await supa.from('profiles')
+    var res = await supa.from('profiles_public')
       .select('pillar_day_k, pillar_day_s, graduated_at, voice_transfer_at')
       .or('graduated_at.not.is.null,voice_transfer_at.not.is.null');
     if(res.error) return;
