@@ -202,7 +202,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 /* カップル成立中ロック表示：推しページのカードをグレーアウト */
 .match-card.card-locked{filter:grayscale(.9) opacity(.55);cursor:not-allowed}
 .match-card.card-locked:hover{border-color:var(--color-border-tertiary)}
-.ava-blur{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;filter:blur(1px)}
+.ava-blur{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
 .ava{width:44px;height:44px;border-radius:50%;background:var(--color-background-secondary);border:1.5px solid #C9A96E;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif JP',serif;font-size:16px;color:#C9A96E;flex-shrink:0}
 .minfo{flex:1;min-width:0}
 .mname{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
@@ -813,6 +813,15 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 </div>
 
 <!-- 退会通知モーダル（運営から退会処分 or 退会承認が下りた時に強制表示） -->
+<div class="review-overlay" id="grad-choice-overlay" style="z-index:9998">
+  <div class="review-card" style="max-width:480px">
+    <div class="review-title">🎓 卒業認定のお知らせ</div>
+    <div style="font-size:12px;color:var(--color-text-primary);line-height:1.9;margin-bottom:1rem;text-align:left">ご卒業おめでとうございます！🎉<br>今後の過ごし方を以下からお選びください。<br><br><strong>① 卒業生の間に参加する</strong><br>NOマッチングプランに切り替えると「卒業生の間」へ参加できます。<br><br><strong>② 退会する</strong><br>退会申請をしていただき、運営の承認をもって退会となります（卒業退会は再登録も可能です）。</div>
+    <button class="btn-gold" onclick="gradChoiceGoPlan()" style="margin-bottom:8px">① NOマッチングプランに変更する</button>
+    <button onclick="gradChoiceGoWithdraw()" style="width:100%;padding:10px;border:0.5px solid var(--color-border-tertiary);border-radius:8px;background:transparent;color:var(--color-text-secondary);cursor:pointer;font-family:inherit;font-size:13px;margin-bottom:8px">② 退会申請へ進む</button>
+    <button onclick="closeGradChoice()" style="width:100%;padding:8px;border:none;background:transparent;color:var(--color-text-tertiary);cursor:pointer;font-family:inherit;font-size:11px;text-decoration:underline">あとで選ぶ（この案内は表示されなくなります）</button>
+  </div>
+</div>
 <div class="review-overlay" id="withdrawal-notice-overlay" style="z-index:9999">
   <div class="review-card" style="max-width:480px">
     <div class="review-title" id="withdrawal-notice-title">運営からのお知らせ</div>
@@ -972,27 +981,27 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     <div class="ps-title">プランを選択してください</div>
     <div class="ps-sub">あなたに合ったプランをお選びいただけます。<br>※ 後日プラン変更も可能です。</div>
     <div class="plan-card-grid">
-      <div class="ps-card" onclick="selectPlan('trial')">
-        <div class="ps-card-name">お試しプラン</div>
-        <div class="ps-card-desc">とにかく良い出会いが欲しい！という方、出会った後に関係を長続きさせたい方にオススメ</div>
-        <div class="ps-card-price">¥963<span class="ps-card-unit"> / 月</span></div>
-        <div class="ps-card-features">
-          <div>✦ 良縁率の高い方とのマッチング</div>
-          <div>✦ メッセージでのやり取り</div>
-        </div>
-        <div class="ps-card-note">※ 相性診断・運勢カレンダーは利用不可</div>
-        <button class="ps-select-btn">このプランで登録する</button>
-      </div>
       <div class="ps-card" onclick="selectPlan('no_matching')">
         <div class="ps-card-name">NOマッチングプラン</div>
         <div class="ps-card-desc">パートナーが既にいらっしゃる方、家族や友人、知り合った方との相性を知りたい方、日々の運勢が気になる方にオススメ</div>
-        <div class="ps-card-price">¥1,693<span class="ps-card-unit"> / 月</span></div>
+        <div class="ps-card-price">¥963<span class="ps-card-unit"> / 月</span></div>
         <div class="ps-card-features">
           <div>✦ 気になる人との相性診断</div>
           <div>✦ 相性診断結果のメモ</div>
           <div>✦ あなた専用の運勢カレンダー</div>
         </div>
         <div class="ps-card-note">※ マッチング機能はなし</div>
+        <button class="ps-select-btn">このプランで登録する</button>
+      </div>
+      <div class="ps-card" onclick="selectPlan('trial')">
+        <div class="ps-card-name">お試しプラン</div>
+        <div class="ps-card-desc">とにかく良い出会いが欲しい！という方、出会った後に関係を長続きさせたい方にオススメ</div>
+        <div class="ps-card-price">¥1,693<span class="ps-card-unit"> / 月</span></div>
+        <div class="ps-card-features">
+          <div>✦ 良縁率の高い方とのマッチング</div>
+          <div>✦ メッセージでのやり取り</div>
+        </div>
+        <div class="ps-card-note">※ 相性診断・運勢カレンダーは利用不可</div>
         <button class="ps-select-btn">このプランで登録する</button>
       </div>
       <div class="ps-card highlight" onclick="selectPlan('total')">
@@ -1043,7 +1052,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div>
     <div id="reg-photo-section">
       <p class="sec" style="margin-left:0">プロフィール写真</p>
-      <div style="margin-bottom:.75rem"><div class="img-area" id="img-area" onclick="document.getElementById('img-input').click()"><img id="preview-img" src="" style="display:none"><div class="img-ph" id="img-ph"><span class="img-ph-icon">+</span><div class="img-ph-lbl">写真を追加</div></div></div><input type="file" id="img-input" accept="image/*" style="display:none" onchange="previewImg(event)"><p class="img-note">マッチング前は相手に顔は見えません</p></div>
+      <div style="margin-bottom:.75rem"><div class="img-area" id="img-area" onclick="document.getElementById('img-input').click()"><img id="preview-img" src="" style="display:none"><div class="img-ph" id="img-ph"><span class="img-ph-icon">+</span><div class="img-ph-lbl">写真を追加</div></div></div><input type="file" id="img-input" accept="image/*" style="display:none" onchange="previewImg(event)"><p class="img-note">お相手にプロフィール写真として表示されます</p><div style="margin-top:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:5px">サブ写真（2〜5枚目）<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・タップで追加</span></div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"><div style="position:relative"><div id="reg-sub-slot-1" onclick="pickRegSub(1)" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center">＋</div><button type="button" id="reg-sub-del-1" onclick="clearRegSub(1)" style="display:none;position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#C05050;color:#fff;font-size:11px;line-height:1;cursor:pointer">✕</button></div><div style="position:relative"><div id="reg-sub-slot-2" onclick="pickRegSub(2)" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center">＋</div><button type="button" id="reg-sub-del-2" onclick="clearRegSub(2)" style="display:none;position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#C05050;color:#fff;font-size:11px;line-height:1;cursor:pointer">✕</button></div><div style="position:relative"><div id="reg-sub-slot-3" onclick="pickRegSub(3)" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center">＋</div><button type="button" id="reg-sub-del-3" onclick="clearRegSub(3)" style="display:none;position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#C05050;color:#fff;font-size:11px;line-height:1;cursor:pointer">✕</button></div><div style="position:relative"><div id="reg-sub-slot-4" onclick="pickRegSub(4)" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center">＋</div><button type="button" id="reg-sub-del-4" onclick="clearRegSub(4)" style="display:none;position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#C05050;color:#fff;font-size:11px;line-height:1;cursor:pointer">✕</button></div></div></div></div>
     </div>
     <p class="sec" style="margin-left:0">プロフィール</p>
     <div class="card" style="margin:0 0 .75rem">
@@ -1052,6 +1061,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="fl" id="reg-residence" style="margin-bottom:8px"><label>居住都道府県 <span style="color:#C05050">*</span></label><select id="r-res"><option value="">選択してください</option></select></div>
       <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴 <span style="color:#C05050">*</span></label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供 <span style="color:#C05050">*</span></label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
       <div id="kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="r-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="r-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>身長</label><select id="r-height"><option value="">選択してください</option></select></div><div class="fl" style="margin-bottom:0"><label>体型</label><select id="r-body-type"><option value="">選択してください</option><option>スリム</option><option>やや細め</option><option>普通</option><option>ややぽっちゃり</option><option>ぽっちゃり</option><option>がっちり</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>職業 <span style="color:#C05050">*</span></label><input type="text" id="r-occupation" placeholder="例：会社員（営業）" maxlength="30"></div><div class="fl" style="margin-bottom:0"><label>年収 <span style="color:#C05050">*</span></label><select id="r-income"><option value="">選択してください</option><option>300万円未満</option><option>300〜500万円</option><option>500〜700万円</option><option>700〜1000万円</option><option>1000〜1500万円</option><option>1500万円以上</option><option>非公開</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>家 <span style="color:#C05050">*</span></label><select id="r-living"><option value="">選択してください</option><option>実家暮らし</option><option>一人暮らし</option></select></div><div class="fl" style="margin-bottom:0"><label>引越し <span style="color:#C05050">*</span></label><select id="r-moving"><option value="">選択してください</option><option>引越し可能</option><option>引越し不可</option><option>要相談</option></select></div></div>
+      <div class="fl" style="margin-bottom:8px"><label>働き方の希望 <span style="color:#C05050">*</span></label><select id="r-work-pref"><option value="">選択してください</option><option>共働き希望</option><option>専業主婦(主夫)OK</option><option>どちらでもOK</option></select></div>
+      <div class="fl" style="margin-bottom:8px"><label>相手に求める条件<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・1行に1つずつ</span></label><textarea id="r-partner-conds" maxlength="300" placeholder="例：&#10;タバコを吸わない方&#10;家族を大切にする方" style="min-height:70px;font-size:12px;line-height:1.7"></textarea></div>
       <div class="fl" style="margin-top:8px;margin-bottom:0"><label>プロフィール文<span style="font-size:10px;color:var(--color-text-tertiary)"> 最大500文字</span></label><textarea id="r-profile-text" maxlength="500" oninput="updateProfileTextCount(this,'r-profile-text-count')" placeholder="例：はじめまして！趣味は読書とカフェ巡りです。週末はゆったり過ごすのが好きです。よろしくお願いします。" style="min-height:90px;font-size:12px;line-height:1.7"></textarea><div style="text-align:right;font-size:10px;color:var(--color-text-tertiary);margin-top:3px"><span id="r-profile-text-count">0</span> / 500</div></div>
     </div>
     <p class="sec" style="margin-left:0">生まれの情報</p>
@@ -1126,6 +1140,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       </div>
       <input type="file" id="avatar-edit-input" accept="image/*" style="display:none" onchange="changeAvatar(event)">
       <div style="text-align:center;font-size:11px;color:#C9A96E;margin-top:-4px;margin-bottom:12px">📷 クリックでプロフィール画像を変更</div>
+      <div id="modal-sub-images"></div>
       <div id="modal-rating"></div>
       <div id="modal-report-history"></div>
       <div id="modal-info"></div>
@@ -1195,11 +1210,16 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
   <!-- 結婚歴・子供 編集モーダル -->
   <div class="modal-bg" id="mk-edit-modal">
     <div class="modal-card">
-      <div class="modal-hd"><span class="modal-ttl">居住地・結婚歴・子供を編集</span><button class="modal-close" onclick="closeMkEdit()">✕</button></div>
-      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">居住都道府県・結婚歴・子供の情報はあとから変更できます。</div>
+      <div class="modal-hd"><span class="modal-ttl">プロフィール情報を編集</span><button class="modal-close" onclick="closeMkEdit()">✕</button></div>
+      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">居住都道府県・結婚歴・子供・身長・体型・職業・年収・家・働き方・相手に求める条件はあとから変更できます。</div>
       <div class="fl" style="margin-bottom:8px"><label>居住都道府県</label><select id="mk-pref" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></select></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴</label><select id="mk-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供</label><select id="mk-kodomo" onchange="toggleMkKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
       <div id="mk-kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="mk-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="mk-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>身長</label><select id="mk-height"><option value="">選択してください</option></select></div><div class="fl" style="margin-bottom:0"><label>体型</label><select id="mk-body-type"><option value="">選択してください</option><option>スリム</option><option>やや細め</option><option>普通</option><option>ややぽっちゃり</option><option>ぽっちゃり</option><option>がっちり</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>職業</label><input type="text" id="mk-occupation" placeholder="例：会社員（営業）" maxlength="30" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)"></div><div class="fl" style="margin-bottom:0"><label>年収</label><select id="mk-income"><option value="">選択してください</option><option>300万円未満</option><option>300〜500万円</option><option>500〜700万円</option><option>700〜1000万円</option><option>1000〜1500万円</option><option>1500万円以上</option><option>非公開</option></select></div></div>
+      <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>家</label><select id="mk-living"><option value="">選択してください</option><option>実家暮らし</option><option>一人暮らし</option></select></div><div class="fl" style="margin-bottom:0"><label>引越し</label><select id="mk-moving"><option value="">選択してください</option><option>引越し可能</option><option>引越し不可</option><option>要相談</option></select></div></div>
+      <div class="fl" style="margin-bottom:8px"><label>働き方の希望</label><select id="mk-work-pref"><option value="">選択してください</option><option>共働き希望</option><option>専業主婦(主夫)OK</option><option>どちらでもOK</option></select></div>
+      <div class="fl" style="margin-bottom:8px"><label>相手に求める条件<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・1行に1つずつ</span></label><textarea id="mk-partner-conds" maxlength="300" placeholder="例：&#10;タバコを吸わない方&#10;家族を大切にする方" style="min-height:70px;font-size:12px;line-height:1.7"></textarea></div>
       <div id="mk-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
       <div id="mk-success" style="font-size:12px;color:#C9A96E;text-align:center;margin:.25rem 0;min-height:14px;display:none">✓ 更新しました</div>
       <button class="btn-gold" id="mk-save-btn" onclick="saveMkEdit()" style="margin-bottom:0">保存する</button>
@@ -1232,10 +1252,13 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div style="margin-bottom:8px;margin-top:4px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">結婚歴</label><select id="f-marriage" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option>初婚のみ</option></select></div></div>
         <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">年齢範囲</label><div class="age-chk-row"><div class="age-btn on" id="age-older" onclick="toggleAge('older')">年上OK</div><div class="age-btn on" id="age-younger" onclick="toggleAge('younger')">年下OK</div></div><div style="background:var(--color-background-secondary);border-radius:8px;padding:7px 9px"><div class="age-row" id="row-upper"><label>上は何歳まで</label><select id="age-upper" style="flex:1;font-size:12px" onchange="updateAgeSummary();applyFilter()"><option value="0">指定しない</option><option value="5">5歳上まで</option><option value="10" selected>10歳上まで</option><option value="15">15歳上まで</option><option value="20">20歳上まで</option><option value="25">25歳上まで</option><option value="30">30歳上まで</option></select></div><div class="age-row" id="row-lower"><label>下は何歳まで</label><select id="age-lower" style="flex:1;font-size:12px" onchange="updateAgeSummary();applyFilter()"><option value="0">指定しない</option><option value="5" selected>5歳下まで</option><option value="10">10歳下まで</option><option value="15">15歳下まで</option><option value="20">20歳下まで</option><option value="25">25歳下まで</option><option value="30">30歳下まで</option></select></div><div class="age-sum" id="age-sum">最大10歳上まで・最大5歳下まで</div></div></div>
         <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">子供</label><select id="f-child" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option value="none">なし希望</option></select></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">良縁率（最低）</label><select id="f-score" style="font-size:12px" onchange="applyFilter()"><option value="0">指定しない</option><option value="60">60%以上</option><option value="70">70%以上</option><option value="80">80%以上</option><option value="90">90%以上</option></select></div></div>
-        <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;background:var(--color-background-secondary);border-radius:6px;padding:5px 8px">判定材料：三合・支合・冲・刑・<span style="color:#C9A96E;font-weight:500">干合</span>の組み合わせで算出</div>
+        <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">身長</label><select id="f-height" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option value="150">150cm以上</option><option value="155">155cm以上</option><option value="160">160cm以上</option><option value="165">165cm以上</option><option value="170">170cm以上</option><option value="175">175cm以上</option><option value="180">180cm以上</option></select></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">体型</label><select id="f-body" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option>スリム</option><option>やや細め</option><option>普通</option><option>ややぽっちゃり</option><option>ぽっちゃり</option><option>がっちり</option></select></div></div>
+        <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">職業（含む文字）</label><input type="text" id="f-occupation" placeholder="例：会社員" style="font-size:12px" oninput="applyFilter()"></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">年収</label><select id="f-income" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option value="300">300万円以上</option><option value="500">500万円以上</option><option value="700">700万円以上</option><option value="1000">1000万円以上</option><option value="1500">1500万円以上</option></select></div></div>
+        <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">家</label><select id="f-living" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option>実家暮らし</option><option>一人暮らし</option></select></div><div class="fl" style="margin-bottom:0"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500">働き方の希望</label><select id="f-work" style="font-size:12px" onchange="applyFilter()"><option value="">指定しない</option><option>共働き希望</option><option>専業主婦(主夫)OK</option><option>どちらでもOK</option></select></div></div>
+        <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;background:var(--color-background-secondary);border-radius:6px;padding:5px 8px">判定材料：三合・支合・冲・刑・<span style="color:#C9A96E;font-weight:500">干合</span>の組み合わせで算出<br>※ 身長〜働き方の条件は、未設定の方が除外されます</div>
       </div>
     </div>
-    <div style="padding-top:.25rem"><div class="notice">✦ 良縁率の高い順に表示。マッチング前の顔写真はぼかし表示です。</div><p class="sec">ご縁の深い方</p><div id="match-list"></div></div>
+    <div style="padding-top:.25rem"><div class="notice">✦ 良縁率の高い順に表示。</div><p class="sec">ご縁の深い方</p><div id="match-list"></div></div>
   </div>
   <div id="s1" class="screen"><div style="padding:.75rem 0 0"><div class="notice" style="margin-top:.25rem">✦ マッチングが成立した方・申請待ちの方が表示されます。</div><div id="en-list"></div><div id="en-empty" style="text-align:center;padding:2rem 0;color:var(--color-text-tertiary);font-size:13px">まだ縁リストに登録がありません</div></div></div>
   <div id="s2" class="screen">
@@ -1247,7 +1270,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec">月額プラン</p>
       <div id="plans-subs-container"></div>
       <p class="sec" style="margin-top:1.25rem">特別プラン</p>
-      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)">¥ 36,900 <span class="other-plan-unit">一括</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)">・卒業後も運営への連絡が可能<br>・今後の全ての鑑定が永久30%OFF<br>・卒業生の間への参加権<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
+      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)">¥ 36,900 <span class="other-plan-unit">一括</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)"><span style="font-weight:600">【 鑑定内容 】</span><br>お2人の相性の詳細／一緒に過ごす上での注意点／相手に求めるもの／今後の運勢／運気を上げる要素／運気を下げる要素／人生の武器／開運ナンバー<br>以上8つをお伝えの上、時間の限りご質問にお応え致します🍀<br><br><span style="font-weight:600">【 特典 】</span><br>・卒業後も運営への連絡が可能<br>・今後の全ての鑑定が永久30%OFF<br>・卒業生の間への参加権<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
       <div id="sotsugyou-status-area"></div>
       <div class="other-plan-card" style="background:var(--color-background-secondary)"><div class="other-plan-nm">紹介プログラム（卒業生限定）</div><div class="other-plan-items">卒業鑑定プランで卒業後、知人を紹介してその方が同じく卒業鑑定プランで卒業した場合、3,690円をご紹介者様へキャッシュバック（人数制限なし）！</div></div>
     </div></div>
@@ -2148,6 +2171,61 @@ function _imgZoomKeyHandler(e){
  * @param {File|Blob} fileOrBlob
  * @returns {Promise<{url:string|null, error:any}>}
  */
+/**
+ * サブ写真（2〜5枚目）を Storage にアップロードして公開URLを返す。
+ * パスは <userId>/sub<idx>.jpg（idx: 1〜4）で上書き保存。
+ * @param {object} supabaseClient
+ * @param {string} userId
+ * @param {number} idx - サブ枠番号 1〜4（表示上の2〜5枚目）
+ * @param {File|Blob} fileOrBlob
+ * @returns {Promise<{url: string|null, error: Error|null}>}
+ */
+async function uploadSubImage(supabaseClient, userId, idx, fileOrBlob){
+  if(!supabaseClient || !userId || !fileOrBlob || !(idx >= 1 && idx <= 4)){
+    return { url: null, error: new Error('invalid args') };
+  }
+  try{
+    const blob = await compressImage(fileOrBlob, { maxSide: 1200, quality: 0.85 });
+    const path = userId + '/sub' + idx + '.jpg';
+    const { error: upErr } = await supabaseClient.storage
+      .from('avatars')
+      .upload(path, blob, { upsert: true, contentType: 'image/jpeg', cacheControl: '3600' });
+    if(upErr) return { url: null, error: upErr };
+    const { data: pub } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+    const url = pub && pub.publicUrl ? pub.publicUrl + '?t=' + Date.now() : null;
+    return { url: url, error: null };
+  }catch(e){
+    return { url: null, error: e };
+  }
+}
+
+/**
+ * 「相手に求める条件」の表示HTML。2行以上なら箇条書き(<ul>)、1行ならそのまま。
+ * @param {string|null} text - 改行区切りの条件テキスト
+ * @returns {string} HTML（空なら ''）
+ */
+function partnerCondsHtml(text){
+  if(!text) return '';
+  var lines = String(text).split('\n').map(function(s){return s.trim();}).filter(function(s){return s;});
+  if(lines.length === 0) return '';
+  if(lines.length === 1) return escapeHtml(lines[0]);
+  return '<ul style="margin:0;padding-left:1.2em">' + lines.map(function(s){return '<li style="margin:2px 0">'+escapeHtml(s)+'</li>';}).join('') + '</ul>';
+}
+
+/**
+ * 身長セレクトに 140〜200cm の option を追加する（先頭の「選択してください」は残す）。
+ * @param {string} selectId
+ */
+function populateHeightSelect(selectId){
+  var sel = document.getElementById(selectId);
+  if(!sel || sel.options.length > 1) return; // 既に生成済み
+  for(var h = 140; h <= 200; h++){
+    var o = document.createElement('option');
+    o.value = String(h); o.textContent = h + 'cm';
+    sel.appendChild(o);
+  }
+}
+
 async function uploadAvatar(supabaseClient, userId, fileOrBlob){
   if(!supabaseClient || !userId || !fileOrBlob){
     return { url: null, error: new Error('invalid args') };
@@ -2662,13 +2740,13 @@ const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persist
 // ===== プラン別オリエンスライド =====
 // 各スライドは .slide div の inner HTML
 const SLIDE_DATA = {
-  // -------- お試しプラン (¥963/月) --------
+  // -------- お試しプラン (¥1,693/月) --------
   trial: [
     // 1. プラン紹介
     '<div class="slide-badge">① プラン</div><div class="slide-title">お試しプラン</div>'
-    +'<div class="slide-sub">月963円から始められる、<br>マッチングに特化した軽量プランです。</div>'
+    +'<div class="slide-sub">月1,693円で始められる、<br>マッチングに特化した軽量プランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">お試しプラン</div>'
-    +'<div class="plan-box-price">¥ 963 <span class="plan-box-unit">/ 月</span></div>'
+    +'<div class="plan-box-price">¥ 1,693 <span class="plan-box-unit">/ 月</span></div>'
     +'<div class="plan-box-items">✦ 命式の自動計算・登録<br>✦ 良縁率の高い方とのマッチング<br>✦ 仮マッチ後のプロフィール閲覧<br>✦ メッセージ最大100回</div></div>'
     +'<div class="slide-note">※ 相性診断・運勢カレンダーをご利用になりたい場合は、後日「NOマッチングプラン」または「トータルプラン」へ変更ください。</div>',
     // 2. 登録について
@@ -2709,13 +2787,13 @@ const SLIDE_DATA = {
     +'<div style="background:rgba(201,169,110,.1);border:0.5px solid #C9A96E;border-radius:8px;padding:.6rem .75rem;font-size:11px;color:#C9A96E;text-align:center">以上で説明は終わりです。<br>登録に進みましょう！</div>'
   ],
 
-  // -------- NOマッチングプラン (¥1,693/月) --------
+  // -------- NOマッチングプラン (¥963/月) --------
   no_matching: [
     // 1. プラン紹介
     '<div class="slide-badge">① プラン</div><div class="slide-title">NOマッチングプラン</div>'
     +'<div class="slide-sub">マッチングは使わず、<br>相性診断と運勢カレンダーに特化したプランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">NOマッチングプラン</div>'
-    +'<div class="plan-box-price">¥ 1,693 <span class="plan-box-unit">/ 月</span></div>'
+    +'<div class="plan-box-price">¥ 963 <span class="plan-box-unit">/ 月</span></div>'
     +'<div class="plan-box-items">✦ 気になる人との相性診断<br>✦ 相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー</div></div>'
     +'<div class="slide-note">※ マッチング機能はご利用いただけません。<br>マッチングもご希望の場合は「トータルプラン」をご検討ください。</div>',
     // 2. 登録について
@@ -2992,9 +3070,41 @@ function calcMeishiki(){
 }
 function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=getKodomoText();var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('orient-wrap').style.display='none';document.getElementById('login-wrap').style.display='none';showAppWrap();renderMatchList(MY_PILLARS);}
 /** 都道府県・出生地のセレクトボックスを初期化 */
+// ===== 登録画面のサブ写真（2〜5枚目）選択 =====
+var regSubFiles = [null, null, null, null];
+/** サブ写真枠のファイル選択 @param {number} idx 1〜4 */
+function pickRegSub(idx){
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = function(ev){
+    var file = ev.target.files ? ev.target.files[0] : null;
+    if(!file) return;
+    if(file.size > 5 * 1024 * 1024){ alert('画像サイズは 5MB 以内にしてください'); return; }
+    regSubFiles[idx-1] = file;
+    var slot = document.getElementById('reg-sub-slot-'+idx);
+    var del = document.getElementById('reg-sub-del-'+idx);
+    var reader = new FileReader();
+    reader.onload = function(e){
+      if(slot){ slot.style.backgroundImage = 'url('+e.target.result+')'; slot.textContent=''; slot.style.border='1px solid #C9A96E'; }
+      if(del) del.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+/** サブ写真枠をクリア @param {number} idx 1〜4 */
+function clearRegSub(idx){
+  regSubFiles[idx-1] = null;
+  var slot = document.getElementById('reg-sub-slot-'+idx);
+  var del = document.getElementById('reg-sub-del-'+idx);
+  if(slot){ slot.style.backgroundImage=''; slot.textContent='＋'; slot.style.border='1px dashed var(--color-border-tertiary)'; }
+  if(del) del.style.display = 'none';
+}
+
 function initPrefs(){
   var rp=document.getElementById('r-res');
   PREF_NAMES.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;rp.appendChild(o);});
+  if(typeof populateHeightSelect==='function') populateHeightSelect('r-height');
   var s=document.getElementById('pref');
   // 出生都道府県は「選択しない」がデフォルト（時刻と同じく任意）
   var unknown=document.createElement('option');
@@ -3087,6 +3197,12 @@ async function completeReg() {
     alert('電話番号は0から始まる10〜11桁の数字で入力してください');
     return;
   }
+  // 必須プロフィール項目チェック（職業・年収・家・引越し・働き方）
+  if (!((document.getElementById('r-occupation')||{}).value||'').trim()) { alert('職業を入力してください'); return; }
+  if (!((document.getElementById('r-income')||{}).value||'')) { alert('年収を選択してください'); return; }
+  if (!((document.getElementById('r-living')||{}).value||'')) { alert('家（実家暮らし／一人暮らし）を選択してください'); return; }
+  if (!((document.getElementById('r-moving')||{}).value||'')) { alert('引越しの可否を選択してください'); return; }
+  if (!((document.getElementById('r-work-pref')||{}).value||'')) { alert('働き方の希望を選択してください'); return; }
 
   // 退会処分された電話番号かチェック（登録前）
   try {
@@ -3192,6 +3308,15 @@ async function completeReg() {
     plan: selectedPlan || 'total',
     profile_text: ((document.getElementById('r-profile-text') || {}).value || '').trim().substring(0, 500) || null,
     avatar_url: null,
+    // 追加プロフィール項目（すべて任意）
+    height: (function(){ var v=(document.getElementById('r-height')||{}).value||''; return v===''?null:parseInt(v); })(),
+    body_type: ((document.getElementById('r-body-type')||{}).value||'') || null,
+    occupation: ((document.getElementById('r-occupation')||{}).value||'').trim().substring(0,30) || null,
+    income: ((document.getElementById('r-income')||{}).value||'') || null,
+    living: ((document.getElementById('r-living')||{}).value||'') || null,
+    moving_ok: ((document.getElementById('r-moving')||{}).value||'') || null,
+    work_pref: ((document.getElementById('r-work-pref')||{}).value||'') || null,
+    partner_conditions: ((document.getElementById('r-partner-conds')||{}).value||'').trim().substring(0,300) || null,
     // 興味のあるカテゴリー(任意・スキップ可)。何も選んでなければ null
     interest_tags: (function(){
       try{
@@ -3214,6 +3339,19 @@ async function completeReg() {
       else if (url) { profileData.avatar_url = url; }
     } catch (e) { console.log('avatar upload exception:', e); }
   }
+  // サブ写真（2〜5枚目）も即時アップロード（メール認証 OFF 時）
+  if (!isEmailConfirmRequired && regSubFiles.some(function(f){return !!f;})) {
+    var subUrls = [null, null, null, null];
+    for (var si = 0; si < 4; si++) {
+      if (!regSubFiles[si]) continue;
+      try {
+        var subRes = await uploadSubImage(supa, currentUser.id, si + 1, regSubFiles[si]);
+        if (subRes.url) subUrls[si] = subRes.url;
+        else console.log('sub image upload error (continuing):', subRes.error);
+      } catch (e) { console.log('sub image upload exception:', e); }
+    }
+    if (subUrls.some(function(u){return !!u;})) profileData.sub_images = subUrls;
+  }
 
   // ★ メール認証 ON のときはまだ未認証 → INSERT を保留して localStorage へ
   if (isEmailConfirmRequired) {
@@ -3229,6 +3367,21 @@ async function completeReg() {
         };
         reader.readAsDataURL(imgFile);
       }
+      // サブ写真も Base64 化して保留（容量対策で圧縮してから保存）
+      regSubFiles.forEach(function(f, si){
+        if(!f) return;
+        (async function(){
+          try{
+            var blob = (typeof compressImage === 'function') ? await compressImage(f, { maxSide: 1200, quality: 0.85 }) : f;
+            var r = new FileReader();
+            r.onload = function(ev){
+              try { localStorage.setItem('pending_sub_' + (si+1) + '_' + currentUser.id, ev.target.result); }
+              catch(e){ console.log('pending sub save error:', e); }
+            };
+            r.readAsDataURL(blob);
+          }catch(e){ console.log('pending sub compress error:', e); }
+        })();
+      });
     } catch (e) { console.log('pending profile save error:', e); }
     recordRateLimitHit('register');
     showEmailConfirmScreen(email);
@@ -3275,7 +3428,50 @@ async function completeReg() {
 <script>
 // ===== UI: マッチング一覧・フィルタ・詳細表示・SVG描画 =====
 /** 推しページのフィルタ条件（最低スコア・年齢）を ALL_SORTED に適用して再描画 */
-function applyFilter(){var minScore=parseInt(document.getElementById('f-score').value)||0;if(minScore<50)minScore=50;var filtered=ALL_SORTED.filter(function(item){if(item.score<minScore)return false;return true;});renderFiltered(filtered);}
+function applyFilter(){
+  var $=function(id){return document.getElementById(id);};
+  var minScore=parseInt(($('f-score')||{}).value)||0; if(minScore<50)minScore=50;
+  var fMar=($('f-marriage')||{}).value||'';
+  var fChild=($('f-child')||{}).value||'';
+  var fHeight=parseInt(($('f-height')||{}).value)||0;
+  var fBody=($('f-body')||{}).value||'';
+  var fOcc=(($('f-occupation')||{}).value||'').trim();
+  var fIncome=parseInt(($('f-income')||{}).value)||0;
+  var fLiving=($('f-living')||{}).value||'';
+  var fWork=($('f-work')||{}).value||'';
+  // 年齢範囲（自分の生年が分かる場合のみ）
+  var myBirthYear=(window._profileModalData&&window._profileModalData.birth_year)?window._profileModalData.birth_year:null;
+  var ageUpper=parseInt(($('age-upper')||{}).value)||0;
+  var ageLower=parseInt(($('age-lower')||{}).value)||0;
+  // 年収帯 → 下限額(万円)
+  var INCOME_MIN={'300万円未満':0,'300〜500万円':300,'500〜700万円':500,'700〜1000万円':700,'1000〜1500万円':1000,'1500万円以上':1500};
+  var filtered=ALL_SORTED.filter(function(item){
+    if(item.score<minScore)return false;
+    var p=item.p||{};
+    if(fMar==='初婚のみ' && !(p.isDemo || p.marriage==='未婚'))return false;
+    if(fChild==='none' && !(p.isDemo || !p.children || p.children==='なし' || p.children==='無'))return false;
+    // 年齢範囲（生年不明の相手・自分の生年不明時はスキップ）
+    if(myBirthYear && p.birthYear){
+      var diff=myBirthYear-p.birthYear; // 正=相手が年上
+      if(!ageState.older && diff>0)return false;
+      if(!ageState.younger && diff<0)return false;
+      if(ageState.older && ageUpper>0 && diff>ageUpper)return false;
+      if(ageState.younger && ageLower>0 && -diff>ageLower)return false;
+    }
+    // 追加プロフィール条件（指定時、未設定の相手は除外）
+    if(fHeight>0 && !(p.height && p.height>=fHeight))return false;
+    if(fBody && p.bodyType!==fBody)return false;
+    if(fOcc && !(p.occupation && p.occupation.indexOf(fOcc)>=0))return false;
+    if(fIncome>0){
+      var inc=(p.income!=null)?INCOME_MIN[p.income]:null;
+      if(inc==null || inc<fIncome)return false;
+    }
+    if(fLiving && p.living!==fLiving)return false;
+    if(fWork && p.workPref!==fWork)return false;
+    return true;
+  });
+  renderFiltered(filtered);
+}
 /** フィルタ済みの推し候補リストを HTML に描画 @param {Array<{i:number,p:any,score:number,tags:string,isDemo:boolean}>} list */
 function renderFiltered(list){var container=document.getElementById('match-list');if(list.length===0){container.innerHTML='<div class="no-result">条件に合う方が見つかりませんでした。</div>';return;}var html='';var hasDemo=list.some(function(item){return item.isDemo;});if(hasDemo&&!demoGuideDismissed){html+='<div class="demo-guide" id="demo-guide">リアルユーザーの推しが現れたら、このデモユーザーのように、<br>このページに追加されていきます。<br><br>良縁率80%以上の方は【運命の相手候補】なので要チェック！<br><span class="demo-guide-close" onclick="dismissDemoGuide()">閉じる</span></div>';}list.forEach(function(item){html+=buildDetail(item.i,MY_PILLARS,item.p,item.score,item.tags,item.isDemo);});container.innerHTML=html;
     // 申請済みのボタンを更新 + キャンセルボタンの表示
@@ -3300,7 +3496,7 @@ function renderFiltered(list){var container=document.getElementById('match-list'
     }}
 /** デモユーザー案内バナーを非表示にする */
 function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementById('demo-guide');if(el)el.remove();}
-/** 推しページの 1 件分の HTML を生成（マッチ前ぼかし表示・命式比較・関係性表示・話してみたい/通報ボタンを含む）
+/** 推しページの 1 件分の HTML を生成（命式比較・関係性表示・話してみたいボタンを含む）
  * @param {number} idx - PARTNERS 配列のインデックス
  * @param {Array<{k:number,s:number}|null>} myP - 自分の四柱
  * @param {{name:string,meta:string,pillars:Array<{k:number,s:number}|null>,userId?:string,memberId?:string,avatarUrl?:string|null}} partner
@@ -3309,7 +3505,7 @@ function dismissDemoGuide(){demoGuideDismissed=true;var el=document.getElementBy
  * @param {boolean} isDemo - デモユーザーかどうか
  * @returns {string} */
 function buildDetail(idx,myP,partner,score,tagsHtml,isDemo){var rel=REL_CACHE[idx];
-// マッチ前なので必ずぼかし表示。画像がなければ絵文字。
+// メイン写真をクリア表示。画像がなければ絵文字。
 var avaHtml = partner.avatarUrl
   ? '<div class="ava-blur" style="background-image:url(\''+escapeHtml(partner.avatarUrl)+'\');background-size:cover;background-position:center;font-size:0"></div>'
   : '<div class="ava-blur">🙂</div>';
@@ -3606,6 +3802,16 @@ async function loadRealUsers() {
         userId: u.id,
         memberId: u.member_id,
         avatarUrl: u.avatar_url || null,
+        // 絞り込み用フィールド
+        birthYear: u.birth_year || null,
+        marriage: u.marriage || null,
+        children: u.children || null,
+        height: u.height || null,
+        bodyType: u.body_type || null,
+        occupation: u.occupation || null,
+        income: u.income || null,
+        living: u.living || null,
+        workPref: u.work_pref || null,
         isDemo: false
       };
     });
@@ -3664,6 +3870,101 @@ async function loadRealUsers() {
     var demoErr = (mySex === '女性') ? DEMO_MALE : demoFemale2;
     demoErr.forEach(function(p){ PARTNERS.push(p); });
     renderMatchList(MY_PILLARS);
+  }
+}
+
+</script>
+<script>
+// ===== 相手のプチトリセツ（叩き台） =====
+// マッチング後の相手の「🔍詳細」に【プチトリセツを購入】ボタンを表示し、
+// 購入すると相手の「好きなこと/嫌なこと」トリセツが見られる。
+// 本文は 六十干支（日柱の十干×十二支）別の定型文 60通り。
+// ★ TORISETSU_DATA は現状プレースホルダ。後日60通りの本文を流し込む。
+
+// 表示価格（仮）。実際の課金フローは後日実装
+var TORISETSU_PRICE_LABEL = '¥500（仮）';
+
+// 六十干支別トリセツ本文。キーは '甲子'〜'癸亥'。
+// 例: TORISETSU_DATA['甲子'] = { likes: '…', dislikes: '…' };
+var TORISETSU_DATA = {
+  // TODO: 60通りの本文をここに追加（ユーザー作成予定）
+};
+// 未作成の干支用プレースホルダ
+var TORISETSU_PLACEHOLDER = {
+  likes: '（このタイプのトリセツは準備中です。近日公開予定！）',
+  dislikes: '（このタイプのトリセツは準備中です。近日公開予定！）'
+};
+
+/** 日柱の干支キー（'甲子' など）を返す @param {number|null} dayK @param {number|null} dayS */
+function torisetsuKey(dayK, dayS){
+  if(dayK == null || dayS == null) return null;
+  if(typeof KAN === 'undefined' || typeof SHI === 'undefined') return null;
+  return (KAN[dayK] || '') + (SHI[dayS] || '');
+}
+
+/** トリセツ本文を取得（未作成ならプレースホルダ） */
+function torisetsuContent(dayK, dayS){
+  var key = torisetsuKey(dayK, dayS);
+  var d = (key && TORISETSU_DATA[key]) ? TORISETSU_DATA[key] : TORISETSU_PLACEHOLDER;
+  return { key: key, likes: d.likes || '', dislikes: d.dislikes || '' };
+}
+
+/** この相手のトリセツを購入済みか @param {string} targetId */
+async function hasTorisetsuPurchase(targetId){
+  if(!currentUser) return false;
+  try{
+    var r = await supa.from('torisetsu_purchases').select('id')
+      .eq('buyer_id', currentUser.id).eq('target_user_id', targetId).limit(1);
+    return !!(r.data && r.data.length);
+  }catch(e){ return false; }
+}
+
+// 直近に表示した相手のコンテキスト（onclick引数を安全に渡すため）
+var _torisetsuCtx = null;
+
+/** 相手プロフィール内のトリセツセクションを描画 @param {string} targetId @param {number|null} dayK @param {number|null} dayS @param {string} nickname */
+async function loadTorisetsuSection(targetId, dayK, dayS, nickname){
+  var el = document.getElementById('torisetsu-section');
+  if(!el) return;
+  _torisetsuCtx = { targetId: targetId, dayK: dayK, dayS: dayS, nickname: nickname || 'お相手' };
+  var purchased = await hasTorisetsuPurchase(targetId);
+  if(purchased){
+    var c = torisetsuContent(dayK, dayS);
+    var h = '<div style="margin-top:14px;padding:12px;background:rgba(201,169,110,.07);border:1px solid #C9A96E;border-radius:10px">';
+    h += '<div style="font-size:12px;color:#C9A96E;font-weight:600;letter-spacing:.05em;margin-bottom:8px">📖 ' + escapeHtml(_torisetsuCtx.nickname) + 'さんのプチトリセツ' + (c.key ? '<span style="font-size:10px;color:var(--color-text-tertiary);font-weight:normal">（日柱：' + c.key + '）</span>' : '') + '</div>';
+    h += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">💛 好きなこと</div>';
+    h += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;background:var(--color-background-primary);border-radius:6px;padding:8px 10px;margin-bottom:8px">' + escapeHtml(c.likes) + '</div>';
+    h += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">💢 嫌なこと</div>';
+    h += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;background:var(--color-background-primary);border-radius:6px;padding:8px 10px">' + escapeHtml(c.dislikes) + '</div>';
+    h += '</div>';
+    el.innerHTML = h;
+  }else{
+    var h2 = '<div style="margin-top:14px;padding:12px;background:var(--color-background-secondary);border-radius:10px;text-align:center">';
+    h2 += '<div style="font-size:12px;color:var(--color-text-primary);font-weight:500;margin-bottom:4px">📖 相手のプチトリセツ</div>';
+    h2 += '<div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:8px">「絶対この人と付き合いたい！」と思ったら。<br>四柱推命から導いた、お相手の好きなこと・嫌なことが分かります。</div>';
+    h2 += '<button class="btn-gold" onclick="buyTorisetsu()" style="display:inline-block;width:auto;padding:9px 22px;font-size:13px;margin-bottom:4px">プチトリセツを購入 ' + TORISETSU_PRICE_LABEL + '</button>';
+    h2 += '</div>';
+    el.innerHTML = h2;
+  }
+}
+
+/** 【プチトリセツを購入】押下 → 確認 → 購入RPC → 表示更新 */
+async function buyTorisetsu(){
+  if(!_torisetsuCtx || !currentUser) return;
+  var ctx = _torisetsuCtx;
+  if(!confirm(ctx.nickname + 'さんのプチトリセツを購入しますか？\n価格：' + TORISETSU_PRICE_LABEL)) return;
+  try{
+    var r = await supa.rpc('purchase_torisetsu', { p_target: ctx.targetId });
+    var result = r ? r.data : null;
+    if(r && r.error){ alert('購入に失敗しました：' + r.error.message); return; }
+    if(result === 'not_matched'){ alert('プチトリセツはマッチング成立後に購入できます'); return; }
+    if(result !== 'ok'){ alert('購入に失敗しました（' + (result || '不明なエラー') + '）'); return; }
+    // 購入成功 → セクションを購入済み表示に更新
+    await loadTorisetsuSection(ctx.targetId, ctx.dayK, ctx.dayS, ctx.nickname);
+    if(typeof addOfficialMessage === 'function') addOfficialMessage('プチトリセツを購入しました（対象：' + ctx.nickname + 'さん）。');
+  }catch(e){
+    console.log('torisetsu purchase error:', e);
+    alert('購入中にエラーが発生しました');
   }
 }
 
@@ -3762,7 +4063,7 @@ function renderEnList(){
     html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
     // マッチ後（matched 以降）はクリア表示、申請中(sent/pending) はぼかし
     // クリア表示かつ画像ありの場合のみタップで拡大表示（マッチ前のぼかしは拡大しない）
-    var enAvaBlurred = (s === 'sent' || s === 'pending');
+    var enAvaBlurred = false; // ぼかし表示は廃止（マッチング前もクリア表示）
     var enAvaHtml;
     if(item.avatarUrl){
       var blurStyle = enAvaBlurred ? 'filter:blur(1px);' : '';
@@ -4268,7 +4569,7 @@ async function openPartnerProfile(partnerUserId, status){
   if(!partnerUserId){ alert('プロフィール取得に失敗しました'); return; }
   try{
     var{data:prof, error}=await supa.from('profiles_public')
-      .select('id, nickname, sex, birth_year, birth_month, birth_day, prefecture, marriage, children, profile_text, avatar_url, member_id, interest_tags')
+      .select('id, nickname, sex, birth_year, birth_month, birth_day, prefecture, marriage, children, profile_text, avatar_url, member_id, interest_tags, height, body_type, occupation, income, living, moving_ok, work_pref, partner_conditions, sub_images, pillar_day_k, pillar_day_s')
       .eq('id', partnerUserId).single();
     if(error || !prof){ alert('プロフィールの取得に失敗しました'); return; }
     // 平均レビュー（食べログ式の平均☆＋コメント）を取得（取得失敗時は無表示）
@@ -4324,7 +4625,7 @@ function ppToggleReviews(listId, btn){
 function renderPartnerProfile(prof, status, rating){
   // マッチ後(approved/matched/...) は avatar クリア、それ以外(pending/sent) はぼかし
   var clearAvatar = ['approved','approved_by_me','matched','chatting','date_set','dated','coupled'].indexOf(status) >= 0;
-  var blurStyle = clearAvatar ? '' : 'filter:blur(2px);';
+  var blurStyle = ''; // ぼかし表示は廃止（マッチング前もクリア表示）
   var age = prof.birth_year ? (new Date().getFullYear() - prof.birth_year) + '歳' : '';
   var html = '';
   // アバター
@@ -4333,8 +4634,15 @@ function renderPartnerProfile(prof, status, rating){
   }else{
     html += '<div style="text-align:center;margin-bottom:14px"><div style="display:inline-flex;width:100px;height:100px;border-radius:50%;background:var(--color-background-secondary);align-items:center;justify-content:center;font-family:\'Noto Serif JP\',serif;font-size:32px;color:#C9A96E;border:1px solid #C9A96E">'+escapeHtml((prof.nickname||'?').charAt(0))+'</div></div>';
   }
-  if(!clearAvatar){
-    html += '<div style="font-size:10px;color:var(--color-text-tertiary);text-align:center;margin-bottom:10px">※ マッチング前のため写真はぼかし表示です</div>';
+
+  // サブ写真（2〜5枚目）：メイン画像とレビューの間に表示
+  var subImgs = (Array.isArray(prof.sub_images)?prof.sub_images:[]).filter(function(u){return !!u;});
+  if(subImgs.length){
+    html += '<div style="margin-bottom:14px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">写真（'+(subImgs.length+1)+'枚）</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+    subImgs.forEach(function(u){
+      html += '<div style="width:100%;aspect-ratio:1;border-radius:8px;background-image:url(\''+escapeHtml(u)+'\');background-size:cover;background-position:center;border:1px solid #C9A96E"></div>';
+    });
+    html += '</div></div>';
   }
   // レビュー（プロフィール画像とニックネームの間）：平均☆＋【コメントを見る】ボタン
   html += ppRatingBlockHtml(rating, 'pp-reviews-partner');
@@ -4348,7 +4656,17 @@ function renderPartnerProfile(prof, status, rating){
   if(prof.prefecture) html += '<div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+escapeHtml(prof.prefecture)+'</span></div>';
   if(prof.marriage) html += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+escapeHtml(prof.marriage)+'</span></div>';
   if(prof.children) html += '<div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+escapeHtml(prof.children)+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">身長</span><span class="modal-val">'+(prof.height?prof.height+'cm':'未設定')+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">体型</span><span class="modal-val">'+escapeHtml(prof.body_type||'未設定')+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">職業</span><span class="modal-val">'+escapeHtml(prof.occupation||'未設定')+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">年収</span><span class="modal-val">'+escapeHtml(prof.income||'未設定')+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">家</span><span class="modal-val">'+(prof.living?escapeHtml(prof.living)+(prof.moving_ok?'（'+escapeHtml(prof.moving_ok)+'）':''):'未設定')+'</span></div>';
+  html += '<div class="modal-row"><span class="modal-lbl">働き方の希望</span><span class="modal-val">'+escapeHtml(prof.work_pref||'未設定')+'</span></div>';
   html += '</div>';
+  // 相手に求める条件（2つ以上は箇条書き）
+  if(prof.partner_conditions){
+    html += '<div style="margin-top:14px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">相手に求める条件</div><div style="font-size:12px;color:var(--color-text-primary);line-height:1.8">'+partnerCondsHtml(prof.partner_conditions)+'</div></div>';
+  }
   // プロフィール文
   if(prof.profile_text){
     html += '<div style="margin-top:14px;padding:10px 12px;background:var(--color-background-secondary);border-radius:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">プロフィール文</div><div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;white-space:pre-wrap">'+escapeHtml(prof.profile_text)+'</div></div>';
@@ -4359,6 +4677,10 @@ function renderPartnerProfile(prof, status, rating){
   if(typeof renderInterestChipsReadonly === 'function'){
     html += '<div style="margin-top:14px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">興味のあるカテゴリー</div>' + renderInterestChipsReadonly(prof.interest_tags || null) + '</div>';
   }
+  // 相手のプチトリセツ（マッチング成立後のみ。中身は loadTorisetsuSection が非同期で描画）
+  if(clearAvatar){
+    html += '<div id="torisetsu-section"></div>';
+  }
   // 通報リンク
   if(prof.member_id){
     html += '<div style="text-align:center;margin-top:14px"><button onclick="closePartnerProfile();openReportFor(\''+prof.member_id+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:inherit">⚠️ この方を通報する</button></div>';
@@ -4366,6 +4688,10 @@ function renderPartnerProfile(prof, status, rating){
   document.getElementById('partner-profile-body').innerHTML = html;
   // 通報履歴を非同期で取得・表示
   if(prof.id && typeof loadPartnerReportHistory === 'function') loadPartnerReportHistory(prof.id);
+  // トリセツセクションの中身をロード（購入済み判定→表示）
+  if(clearAvatar && typeof loadTorisetsuSection === 'function'){
+    loadTorisetsuSection(prof.id, (prof.pillar_day_k!=null?prof.pillar_day_k:null), (prof.pillar_day_s!=null?prof.pillar_day_s:null), safeName(prof.nickname)||'お相手');
+  }
 }
 
 /** モーダルを閉じる */
@@ -5136,12 +5462,12 @@ async function loadEnList(){
 const PLANS_INFO = {
   trial: {
     name: 'お試しプラン',
-    price: 963,
+    price: 1693,
     items: ['良縁率の高い方とのマッチング', 'メッセージのやり取り']
   },
   no_matching: {
     name: 'NOマッチングプラン',
-    price: 1693,
+    price: 963,
     items: ['気になる人との相性診断', '相性診断結果のメモ', 'あなた専用の運勢カレンダー']
   },
   total: {
@@ -5154,7 +5480,7 @@ const PLANS_INFO = {
 function renderPlansList(){
   var box = document.getElementById('plans-subs-container');
   if(!box) return;
-  var order = ['trial', 'no_matching', 'total'];
+  var order = ['no_matching', 'trial', 'total'];
   var html = '';
   order.forEach(function(key){
     var p = PLANS_INFO[key];
@@ -5525,6 +5851,56 @@ async function disablePushNotifications(){
 // ===== アバター画像の差し替え =====
 // プロフィールモーダル内のアバターをクリック → ファイル選択 → Storage にアップロード → DB 更新
 /** プロフィールモーダルからアバター画像を変更 @param {Event} e */
+// ===== サブ写真（2〜5枚目）の管理 =====
+// profiles.sub_images = [url|null, url|null, url|null, url|null]（枠1〜4 = 表示上の2〜5枚目）
+/** サブ写真枠のファイル選択を開く @param {number} idx 1〜4 */
+function pickSubImage(idx){
+  if(!currentUser){ alert('ログインが必要です'); return; }
+  var input = document.createElement('input');
+  input.type = 'file'; input.accept = 'image/*';
+  input.onchange = function(ev){
+    var file = ev.target.files ? ev.target.files[0] : null;
+    if(file) changeSubImage(idx, file);
+  };
+  input.click();
+}
+/** サブ写真をアップロードして sub_images を更新 @param {number} idx 1〜4 @param {File} file */
+async function changeSubImage(idx, file){
+  if(file.size > 5 * 1024 * 1024){ alert('画像サイズは 5MB 以内にしてください'); return; }
+  try{
+    var res = await uploadSubImage(supa, currentUser.id, idx, file);
+    if(res.error || !res.url){ alert('画像のアップロードに失敗しました：' + (res.error && res.error.message || '不明なエラー')); return; }
+    var cur = (window._profileModalData && Array.isArray(window._profileModalData.sub_images)) ? window._profileModalData.sub_images.slice() : [null,null,null,null];
+    while(cur.length < 4) cur.push(null);
+    cur[idx-1] = res.url;
+    const { error } = await supa.from('profiles').update({ sub_images: cur }).eq('id', currentUser.id);
+    if(error){ alert('プロフィール更新エラー：' + error.message); return; }
+    const { data: updated } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(updated && typeof populateProfileModal === 'function') populateProfileModal(updated);
+  }catch(err){
+    console.log('changeSubImage error:', err);
+    alert('画像変更中にエラーが発生しました');
+  }
+}
+/** サブ写真を削除（Storage + sub_images） @param {number} idx 1〜4 */
+async function deleteSubImage(idx){
+  if(!currentUser) return;
+  if(!confirm((idx+1) + '枚目の写真を削除しますか？')) return;
+  try{
+    try{ await supa.storage.from('avatars').remove([currentUser.id + '/sub' + idx + '.jpg']); }catch(e){}
+    var cur = (window._profileModalData && Array.isArray(window._profileModalData.sub_images)) ? window._profileModalData.sub_images.slice() : [null,null,null,null];
+    while(cur.length < 4) cur.push(null);
+    cur[idx-1] = null;
+    const { error } = await supa.from('profiles').update({ sub_images: cur }).eq('id', currentUser.id);
+    if(error){ alert('削除エラー：' + error.message); return; }
+    const { data: updated } = await supa.from('profiles').select('*').eq('id', currentUser.id).single();
+    if(updated && typeof populateProfileModal === 'function') populateProfileModal(updated);
+  }catch(err){
+    console.log('deleteSubImage error:', err);
+    alert('削除中にエラーが発生しました');
+  }
+}
+
 async function changeAvatar(e){
   var file = e && e.target && e.target.files ? e.target.files[0] : null;
   if(!file) return;
@@ -5736,9 +6112,20 @@ async function openMkEdit(){
   var errEl=document.getElementById('mk-error'),okEl=document.getElementById('mk-success');
   if(errEl)errEl.textContent='';if(okEl)okEl.style.display='none';
   try{
-    const{data:profile}=await supa.from('profiles').select('marriage,children,prefecture').eq('id',currentUser.id).single();
+    const{data:profile}=await supa.from('profiles').select('marriage,children,prefecture,height,body_type,occupation,income,living,moving_ok,work_pref,partner_conditions').eq('id',currentUser.id).single();
     var marriage=(profile&&profile.marriage)?profile.marriage:'未婚';
     var children=(profile&&profile.children)?profile.children:'なし';
+    // 追加プロフィール項目を反映
+    if(typeof populateHeightSelect==='function') populateHeightSelect('mk-height');
+    var _set=function(id,v){var el=document.getElementById(id);if(el)el.value=(v==null?'':String(v));};
+    _set('mk-height',profile?profile.height:null);
+    _set('mk-body-type',profile?profile.body_type:null);
+    _set('mk-occupation',profile?profile.occupation:null);
+    _set('mk-income',profile?profile.income:null);
+    _set('mk-living',profile?profile.living:null);
+    _set('mk-moving',profile?profile.moving_ok:null);
+    _set('mk-work-pref',profile?profile.work_pref:null);
+    _set('mk-partner-conds',profile?profile.partner_conditions:null);
     // 居住都道府県のセレクトを生成（PREF_NAMES）＋現在値を選択
     var prefSel=document.getElementById('mk-pref');
     if(prefSel && typeof PREF_NAMES!=='undefined'){
@@ -5781,6 +6168,17 @@ async function saveMkEdit(){
     const{data:profile}=await supa.from('profiles').select('*').eq('id',currentUser.id).single();
     var updateData={marriage:marriage,children:children};
     if(prefecture) updateData.prefecture=prefecture;
+    // 追加プロフィール項目（空欄は null で保存）
+    var _val=function(id){var el=document.getElementById(id);var v=el?el.value:'';return v===''?null:v;};
+    var hRaw=_val('mk-height');
+    updateData.height=hRaw==null?null:parseInt(hRaw);
+    updateData.body_type=_val('mk-body-type');
+    updateData.occupation=(function(){var v=_val('mk-occupation');return v?v.trim().substring(0,30)||null:null;})();
+    updateData.income=_val('mk-income');
+    updateData.living=_val('mk-living');
+    updateData.moving_ok=_val('mk-moving');
+    updateData.work_pref=_val('mk-work-pref');
+    updateData.partner_conditions=(function(){var v=_val('mk-partner-conds');return v?v.trim().substring(0,300)||null:null;})();
     const{error}=await supa.from('profiles').update(updateData).eq('id',currentUser.id);
     if(error){if(errEl)errEl.textContent='保存に失敗しました：'+error.message;if(btn){btn.disabled=false;btn.textContent='保存する';}return;}
     var merged=Object.assign({},profile||{},updateData);
@@ -8711,7 +9109,7 @@ async function loadAffiliateReferList(){
     if(error){ if(listEl) listEl.textContent='読み込みに失敗しました'; return; }
     refs=refs||[];
     // ステータス分類 + 月額30%見込み合計（利用中のみ）
-    var PRICE={ trial:963, no_matching:1693, total:2369 };
+    var PRICE={ trial:1693, no_matching:963, total:2369 };
     var active=0, withdrawn=0, graduated=0, monthlyEst=0;
     refs.forEach(function(u){
       var isGrad = (u.withdrawal_type==='approved') || !!u.graduated_at;
@@ -11229,7 +11627,33 @@ function populateProfileModal(profile) {
   modalInfo += '<div class="modal-row"><span class="modal-lbl">出生地</span><span class="modal-val">'+birthLoc+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+(profile.marriage||'')+'</span></div>';
   modalInfo += '<div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+(profile.children||'')+'</span></div>';
-  modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openMkEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">✎ 居住地・結婚歴・子供を編集</button></div>';
+  // 追加プロフィール項目（未設定は「未設定」表示）
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">身長</span><span class="modal-val">'+(profile.height?profile.height+'cm':'未設定')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">体型</span><span class="modal-val">'+escapeHtml(profile.body_type||'未設定')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">職業</span><span class="modal-val">'+escapeHtml(profile.occupation||'未設定')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">年収</span><span class="modal-val">'+escapeHtml(profile.income||'未設定')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">家</span><span class="modal-val">'+escapeHtml(profile.living||'未設定')+(profile.moving_ok?'（'+escapeHtml(profile.moving_ok)+'）':'')+'</span></div>';
+  modalInfo += '<div class="modal-row"><span class="modal-lbl">働き方の希望</span><span class="modal-val">'+escapeHtml(profile.work_pref||'未設定')+'</span></div>';
+  if(profile.partner_conditions){
+    modalInfo += '<div style="margin-top:8px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">相手に求める条件</div><div style="font-size:12px;color:var(--color-text-primary);line-height:1.7;background:var(--color-background-secondary);border-radius:6px;padding:8px 10px">'+partnerCondsHtml(profile.partner_conditions)+'</div></div>';
+  }
+  modalInfo += '<div style="text-align:center;margin-top:8px"><button type="button" onclick="openMkEdit()" style="font-size:11px;padding:6px 14px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;font-family:\'Noto Sans JP\',sans-serif">✎ プロフィール情報を編集</button></div>';
+  // サブ写真（2〜5枚目）管理グリッド：メイン画像とレビューの間（#modal-sub-images）に描画
+  var subs = Array.isArray(profile.sub_images) ? profile.sub_images : [null,null,null,null];
+  var subHtml = '<div style="margin-bottom:12px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">サブ写真（2〜5枚目）<span style="font-size:10px;color:var(--color-text-tertiary)"> タップで追加・変更</span></div>';
+  subHtml += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">';
+  for(var si=1; si<=4; si++){
+    var su = subs[si-1];
+    if(su){
+      subHtml += '<div style="position:relative"><div onclick="pickSubImage('+si+')" style="width:100%;aspect-ratio:1;border-radius:8px;background-image:url(\''+escapeHtml(su)+'\');background-size:cover;background-position:center;cursor:pointer;border:1px solid #C9A96E"></div>'
+        +'<button type="button" onclick="deleteSubImage('+si+')" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:#C05050;color:#fff;font-size:11px;line-height:1;cursor:pointer">✕</button></div>';
+    }else{
+      subHtml += '<div onclick="pickSubImage('+si+')" style="width:100%;aspect-ratio:1;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--color-text-tertiary);cursor:pointer">＋</div>';
+    }
+  }
+  subHtml += '</div><div style="font-size:10px;color:var(--color-text-tertiary);margin-top:5px">メイン写真＋サブ4枚の最大5枚。サブ写真はお相手の「🔍詳細」に表示されます</div></div>';
+  var subImgEl = document.getElementById('modal-sub-images');
+  if(subImgEl) subImgEl.innerHTML = subHtml;
   // カップル相手欄（state.js の enList を参照、coupled マッチ相手がいれば表示）
   // enList ロード前は空。loadEnList 後に refreshProfileCoupleSection() で更新される
   modalInfo += '<div id="profile-couple-section"></div>';
@@ -11383,6 +11807,37 @@ function refreshProfileCoupleSection(){
 var __withdrawalCurrentType = null;
 
 /** 退会通知モーダルを開く @param {object} contactRow */
+// ===== 卒業認定後のプラン選択ポップアップ =====
+// 認定済み(graduated_at) かつ NOマッチング以外のプランのユーザーに、初回のみ表示。
+// 「あとで選ぶ」で永続的に非表示（案内は公式チャットの認定通知にも残っている）。
+/** 条件を満たせば卒業認定ポップアップを表示 */
+function maybeShowGraduationChoicePopup(){
+  if(!currentUser) return;
+  if(typeof myIsGraduated === 'undefined' || !myIsGraduated) return;
+  if(typeof myPlan !== 'undefined' && myPlan === 'no_matching') return; // 既に①を選択済み
+  try{ if(localStorage.getItem('grad_choice_dismissed_' + currentUser.id) === '1') return; }catch(e){}
+  var ov = document.getElementById('grad-choice-overlay');
+  if(ov) ov.classList.add('show');
+}
+/** ポップアップを閉じて以後表示しない */
+function closeGradChoice(){
+  var ov = document.getElementById('grad-choice-overlay');
+  if(ov) ov.classList.remove('show');
+  try{ if(currentUser) localStorage.setItem('grad_choice_dismissed_' + currentUser.id, '1'); }catch(e){}
+}
+/** ① NOマッチングプランへ変更 → その他→プランページへ */
+function gradChoiceGoPlan(){
+  closeGradChoice();
+  goTab(3);
+  if(typeof openSubPage === 'function') openSubPage('plan');
+}
+/** ② 退会申請へ進む → その他→退会申請ページへ */
+function gradChoiceGoWithdraw(){
+  closeGradChoice();
+  goTab(3);
+  if(typeof openSubPage === 'function') openSubPage('cancel');
+}
+
 function showWithdrawalNoticeModal(contactRow){
   if(!contactRow) return;
   var isBan = (contactRow.contact_type === '退会処分通知');
@@ -11844,6 +12299,23 @@ async function flushPendingProfile(userId){
       }
     } catch (avErr) { console.log('pending avatar process error:', avErr); }
 
+    // 保留されたサブ写真（2〜5枚目）があればアップロード
+    try {
+      const subUrls = [null, null, null, null];
+      let hasSub = false;
+      for (let si = 1; si <= 4; si++) {
+        const pendingSub = localStorage.getItem('pending_sub_' + si + '_' + userId);
+        if (!pendingSub || pendingSub.indexOf('data:') !== 0) continue;
+        const res2 = await fetch(pendingSub);
+        const blob2 = await res2.blob();
+        const { url: subUrl, error: subErr } = await uploadSubImage(supa, userId, si, blob2);
+        if (subErr) { console.log('pending sub upload error:', subErr); }
+        else if (subUrl) { subUrls[si-1] = subUrl; hasSub = true; }
+        localStorage.removeItem('pending_sub_' + si + '_' + userId);
+      }
+      if (hasSub) profileData.sub_images = subUrls;
+    } catch (subErr2) { console.log('pending sub process error:', subErr2); }
+
     const { error } = await supa.from('profiles').insert(profileData);
     if (error) {
       console.log('pending profile INSERT error:', error);
@@ -11933,6 +12405,7 @@ async function checkSession() {
       await loadMyCashbacks();
       populateProfileModal(profile);
       await loadMyGraduationStatus();
+      maybeShowGraduationChoicePopup();
       if (typeof applyPlanUI === 'function') applyPlanUI(myPlan);
       loadOfficialChatHistory();
       loadRealUsers();
@@ -12004,6 +12477,7 @@ async function doLogin() {
     await loadMyCashbacks();
     populateProfileModal(profile);
     await loadMyGraduationStatus();
+    maybeShowGraduationChoicePopup();
     if (typeof applyPlanUI === 'function') applyPlanUI(myPlan);
     loadOfficialChatHistory();
     loadRealUsers();
@@ -12011,9 +12485,10 @@ async function doLogin() {
     // 未表示の退会通知があればポップアップ表示
     checkPendingWithdrawalNotice();
   } else {
-    // プロフィール未登録ならオリエンテーションへ
+    // プロフィール未登録ならプラン選択から登録フローへ
+    // （以前は orient-wrap を直接出していたが、プラン未選択だとスライドが空になるため）
     document.getElementById('login-wrap').style.display = 'none';
-    document.getElementById('orient-wrap').style.display = 'flex';
+    document.getElementById('plan-select-wrap').style.display = 'flex';
   }
   } catch(e) { console.log('ログイン例外:', e); errEl.textContent = 'エラーが発生しました'; }
 }
