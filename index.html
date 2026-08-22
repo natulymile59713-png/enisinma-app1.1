@@ -805,7 +805,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 <div class="modal-bg" id="partner-profile-modal">
   <div class="modal-card">
     <div class="modal-hd">
-      <span class="modal-ttl">プロフィール</span>
+      <span class="modal-ttl" id="partner-profile-title">プロフィール</span>
       <button class="btn-text" onclick="closePartnerProfile()">✕</button>
     </div>
     <div id="partner-profile-body"></div>
@@ -3879,20 +3879,320 @@ async function loadRealUsers() {
 // マッチング後の相手の「🔍詳細」に【プチトリセツを購入】ボタンを表示し、
 // 購入すると相手の「好きなこと/嫌なこと」トリセツが見られる。
 // 本文は 六十干支（日柱の十干×十二支）別の定型文 60通り。
-// ★ TORISETSU_DATA は現状プレースホルダ。後日60通りの本文を流し込む。
+// TORISETSU_DATA に六十干支ぶんの本文を収録済み（2026-07-10 全60通り完成）。
 
 // 表示価格（仮）。実際の課金フローは後日実装
-var TORISETSU_PRICE_LABEL = '¥500（仮）';
+var TORISETSU_PRICE_LABEL = '¥369';
 
 // 六十干支別トリセツ本文。キーは '甲子'〜'癸亥'。
-// 例: TORISETSU_DATA['甲子'] = { likes: '…', dislikes: '…' };
+// 例: TORISETSU_DATA['甲子'] = { likes: '…', dislikes: '…', approach: '…' };
 var TORISETSU_DATA = {
-  // TODO: 60通りの本文をここに追加（ユーザー作成予定）
+  '丙戌': {
+    likes: '穏便に物事を進められる。リードしてくれる存在がいる。精神状態を察してくれる。安定した落ち着いた関係。パートナーと本音で話せる。甘えさせてくれる。世話を焼かせてくれる。オタク気質なところを褒められる。',
+    dislikes: '予想外の出来事。思い通りにいかない。先頭に立たされる。自分の内面に気づいてくれない。不安を払拭できない。仲間はずれにされる。存在を無視される。',
+    approach: '不安でいっぱいだったり、メンタルが傷ついてる時に優しく寄り添われると気持ちが傾きやすい。周りには自身を犠牲にして尽くす分、精神面を守ってあげられると◎。'
+  },
+  '丁丑': {
+    likes: '親しき仲にも礼儀ありな関係。優しさや正義感、気遣い、協調性を褒められる。節度と適度な距離感。',
+    dislikes: '人生計画を崩される。常識やモラルがなく、初めからグイグイこられる。過干渉。八方美人を皮肉られる。',
+    approach: '常識やモラル、マナーをわきまえた上で、相手の知的好奇心をくすぐれると◎。無茶なお願いをしたり、初めから突っ込んだ部分を聞いたり、干渉しすぎるのはNG。「大切に想ってる」ことをさり気なく伝えながら自立した関係を目指して。'
+  },
+  '戊戌': {
+    likes: '人の役に立てる。優しくされる。頼られる。一緒に協力してやる。感謝される。面倒見の良さや包容力を褒められる。',
+    dislikes: '上から目線で指示や命令をされる。プライドを傷つけられる。負け戦。単独行動。自分のやり方を批判される。',
+    approach: '頼られたり、人の役に立てるのが好きなタイプなので、相談事などをキッカケにして自然な流れで距離を縮められると◎。いきなり恋愛対象というよりは、友達からスタートして親しくなっていくのが良い。また、どんな人と関わってるのかや、親や兄弟の身辺を気にするのでその点は注意。'
+  },
+  '己丑': {
+    likes: '親しい人や自分と似ていたり同じような雰囲気の人。理解し合える温和な関係性。社会的な名声や地位を得る。人のお世話や役に立つこと。自分の存在や結果を褒められる。',
+    dislikes: '争い事、揉め事。浅い付き合いで距離を詰められる。乱暴で汚い言葉。思いやりや礼儀がなってない。恩を仇で返される。',
+    approach: '好きな人と一緒にいられればどこでも幸せを感じるタイプ。コスパや雰囲気より想いが大事。その上で、世話を焼きたい性分なので、たくさん頼って力を貸してくれたら常に感謝を言葉にできると◎。'
+  },
+  '壬辰': {
+    likes: 'ステータスがある。社会的地位を手に入れる。人の温かみを感じる(スキンシップなどの身体的な温もり)。ロマンチックで甘いシチュエーション。人に頼られる。',
+    dislikes: 'お金や時間を無駄にする。言葉だけの表面的な愛情表現やコミュニケーション。自分の知らない情報や知識でマウントを取られる。手助けをおせっかいと思われる。',
+    approach: 'さり気なく自然な感じにスキンシップをとったり、綺麗な夜景や雰囲気のあるレストランなどでムードを演出できると◎。軽いノリや表面的な言葉はNG。'
+  },
+  '癸未': {
+    likes: '人から頼られる。人と良好な関係でいられる。トラブルがなく安心できる環境。リスクや心配がなく安心できる。かまってもらえる。楽しく話せる人。',
+    dislikes: 'プライドを傷つけられる。冷静さを欠かされる。軽くあしらわれる。非常識だったりモラルのない対応。短気で感情的な人。努力を頑固と誤解される。',
+    approach: '礼儀がない人、グイグイ来る人は苦手。安定的で穏やかなお付き合いをしたいタイプ。そして人の役に立ったりお喋りが好きなので、デートはカフェなど落ち着ける空間でまったりしながら色々な会話ができると◎。'
+  },
+  '甲戌': {
+    likes: '安定した環境や人付き合い。何でも話せるオープンな関係。愛情や思いやりを感じること。近い距離感。甘えさせてくれる。相手がリードしてくれる。',
+    dislikes: '環境の変化や新しく始めること。騒々しい環境や人。隠し事をされる。非常識な言動。素っ気ない態度を取られる。突き放される。構ってもらえない。頻繁に会えない。',
+    approach: '気心知れたり、信頼関係がないと心の扉は開きにくいので、礼儀やモラルを守りながら「まずは友達から」の感覚がベスト。安心・安定思考なので、ここぞという時は守ってあげられると◎。'
+  },
+  '乙未': {
+    likes: '人に好かれる。良い評判を得る。愛情や気持ちを言葉で伝えられる。常識や礼儀、モラルのある振る舞い。安心できる環境・関係性。守ってもらえる。',
+    dislikes: 'ストレスを感じる環境や人間関係。非常識や理不尽なこと。不安定、安心できない。甘えさせてくれない。構ってもらえない。突き放される。人間関係のトラブル。',
+    approach: '健康面を考えてあげたり、マメに連絡を取ってあげたり、気遣いや思いやりをアピールできると◎。相手に「安心できる」「家庭的」と感じてもらえると距離が縮まります。'
+  },
+  '庚辰': {
+    likes: '平和で穏やかな環境、関係性。好奇心のまま動ける。人に喜ばれる。良い評価を受ける。知性や才能、人間性を褒められる。',
+    dislikes: '陰口、悪口を言われる。人間関係のトラブル。暗くどんよりした空気感。時間や約束を破られる。彼氏・彼女として特別扱いしてくれない。',
+    approach: 'いきなり「恋愛感」が強すぎるのはNG。友達からスタートし、じっくり関係性と信頼を築いていきましょう。自分にないものをもっていたり、特別扱いされると好感を抱きやすいです。その上で、想いは言葉と行動、両方でしっかり伝えられると◎。'
+  },
+  '辛丑': {
+    likes: '気にしてもらえる。温かい言葉をかけられる。ライバルのような関係。優位な立場やポジション。ロマンチックなシチュエーション。わがままやお願いを聞いてくれる。',
+    dislikes: 'テキトーに褒められる。プライドを汚される。リスクや不安があるもの。ミスを周囲に知られる、ばかにされる。軽くあしらわれる。雑に扱われる。認めてくれない。',
+    approach: '構ってあげて、肯定してあげて、尊重してあげること。がんばりや良い部分を、具体的に言葉にして褒めてあげられると◎。心を許すとわがままな部分が出てきますが、それも許容して包容力も伝わるといい関係性になれるでしょう。'
+  },
+  '甲辰': {
+    likes: '自由で縛りがない状態。恋愛恋愛し過ぎない親友のような距離感や関係性。穏やかで安定的なライフスタイル。頼られる。マイペースに動ける。',
+    dislikes: '場の空気を壊す。平和的じゃないこと。無理をしたり、身の丈に合ってないこと。人付き合いを粗末にする。人前でベタベタする。急かされる。',
+    approach: '自分からいくのが得意ではないですが、とにかく頼られるのが好きなので、こちらからさり気なく頼ったり甘えたりして押してみると◎。ただし、人前でというよりかは2人だけの時に。軽いノリや積極的過ぎるのは逆効果なのでNG。'
+  },
+  '乙丑': {
+    likes: '頼られる。人の役に立つ。人の笑顔を見れる。穏やかで安心できる環境。安定的なライフスタイル。マメに連絡をくれる。',
+    dislikes: 'ノリや勢い。確認や準備をせずに動く。突き放される。人間関係のトラブル。背伸びをする。口だけで行動や結果を伴っていない。空気や雰囲気を乱す。',
+    approach: 'ノリや勢いでお付き合いに発展することはないです。真剣な気持ちで接するのはもちろんのこと、相手がより安心感を持てるように、大人な言動をできると◎。奥手なので想いや気持ちはこちらから伝えてあげましょう。'
+  },
+  '庚戌': {
+    likes: '心のつながり、言わなくても分かってもらえる。会話がはずむ。根性や精神力を褒められる。頼りにされる。',
+    dislikes: '礼儀やマナー、モラルがなってない。子供っぽい言動。精神年齢が低い。ノリや無計画な行動。いい加減なこと。',
+    approach: '着飾ったり、経歴で押すのはNG。それよりも、波長や価値観が合うかどうか、そして礼儀や常識があるかどうかを見ます。落ち着きのあるオトナな人を好むので、その辺りを意識できると◎。奥手で自分からアプローチするタイプではないので、こちらからアプローチしてみましょう。'
+  },
+  '辛未': {
+    likes: '気遣いや心配りをされる。じっくり考える時間を持てる。信頼される。頼られる。繊細さを理解される。',
+    dislikes: '考えなしで動く。非常識やモラルのない言動。人前に出て目立つ。急かされる。急なプライベートへの過干渉。騒がしい場所や下品なノリ。',
+    approach: 'ゆっくり時間をかけて心を開いていくタイプ。馴れ馴れしい呼びかけや、強引な態度はNG。食べ物や映画、服など身近にある好きなものの話ができると安心して心を開きやすそう。相手の好みのリサーチや理解ができると◎。また、見た目より中身をみるので、「この人なら大丈夫そう」と思われるような言葉遣いや接し方を意識しましょう。'
+  },
+  '丙午': {
+    likes: '頼られる。一目置かれる。認められる。自分を理解して許容してくれる。自分の考えに賛同して着いてきてくれる。',
+    dislikes: 'プライドを汚される。指図されたり、へりくだること。上から目線な言動。生意気と批判される。',
+    approach: '基本的に自分が舵を取りたいタイプなので、反論や指図するのはNG。相手の強い部分や価値観を理解して自分が「右腕」になる感覚で、サポートしてあげられると◎。'
+  },
+  '丁巳': {
+    likes: 'マイペースに動ける。自分がリードできる。頼られる。何でも話したり相談できるオープンな関係性。',
+    dislikes: '非常識なこと。筋が通ってないこと。隠し事や秘密。上から目線な言動。命令や指図。無礼な態度。',
+    approach: '自分がリードしたいタイプなので、相手の考えや計画に賛同してついていくスタンスが◎。お互いのことは何でも知っておきたい部分があるので、隠し事はせずに過去の恥ずかしい思い出や遍歴などたくさん話せると打ち解けられそう。頼られるのも好きなのでたくさん頼ってあげて。'
+  },
+  '戊午': {
+    likes: '頼られる。計画を立てる。計画通りに動ける。自分がリードできる。リーダーシップや要領、頼もしさを褒められる。',
+    dislikes: '頼りや当てにされない。「リーダー気取り」とけなされる。妥協したり諦めること。指示やアドバイスを無視される。お世辞や言い訳。',
+    approach: '面倒を見たいタイプなので、頼ったり甘えたりしてみるとそれがアピールになって◎。その上で相手にリードして引っ張っていってもらえるスタンスで接することができるとベスト。自分がリードしようとしたり傲慢な態度を取るのはNG。'
+  },
+  '己巳': {
+    likes: '自分のペースを貫ける。好きな人の良い評判を家族や親友からもらう。周りをまとめる。頼られる。',
+    dislikes: 'プライドを傷つけられる。人にへりくだる。人の指示や命令に従う。反抗的な態度を取られる。ペースを崩される。',
+    approach: '愛するより愛されたい欲が強いので、気持ちはしっかり言葉で伝えると◎。回りくどい言い回しはNG。その上で、相手の友人や親族にも好感を持ってもらえるように立ち回れるとベスト。自分の周りからも推してもらえると恋愛に熱が入ります。'
+  },
+  '壬子': {
+    likes: '決めたことを最後までやりきる。ゆっくり考えられる。ポジティブなところや面倒見が良いところを褒められる。縛りのないオープンな関係性。',
+    dislikes: 'お金や時間を無駄にする。リスクや不確実性があること。細かく行動を管理・制限される。過干渉。頼りにされない。',
+    approach: '例え好きな人であっても、干渉されたり行動を制限されたりは無理なタイプ。気になることがあっても詮索しないであげると「尊重してくれた」と思って信頼してくれそう。信頼は言葉より態度で示せると◎。'
+  },
+  '癸亥': {
+    likes: '自分がリードできる。頼られる。慕われる。尊敬される。守ってあげられる。気遣いや配慮を褒められる。',
+    dislikes: '身だしなみがなってない。汚い言葉遣い。モラルや常識、礼儀に欠けている。上から目線な物言い。ナメた態度を取られる。',
+    approach: '礼儀礼節、モラルを持って誠実に接しながらロマンチックな演出をできると◎。その上で、「守ってあげたい」と思わせられると効果的なので、弱い部分を見せたり悩み事を相談してみるのも◎。'
+  },
+  '丙辰': {
+    likes: '相手に好かれる、尊敬される。自分を理解してくれる。勇気づけてくれる。否定されないでやりたいことをやれる。存在感やセンスを褒められる。新鮮さや刺激がある。',
+    dislikes: 'マンネリ、新鮮さに欠ける。地味で目立てない。無難で平凡なこと。理想やプライドを傷つけられる。その他大勢として無視されること。',
+    approach: '着てる服や身だしなみ、外見を重視するので、見た目に拘ることを忘れずに。そして、明確なサインや言葉があるとスイッチが入ります。思いや気持ちは積極的に伝えてアプローチすると◎。'
+  },
+  '丁未': {
+    likes: 'お洒落さやセンス、親しみやすさを褒められる。「あなたなら何を任せても安心」と全信頼を置かれる。自分を無条件に理解してくれる。',
+    dislikes: '繊細さを求められる。自分以外の異性に目がいく。集中してる時に邪魔される。センスをけなされる。自分の意見を頭ごなしに否定され、恥をかかされること。',
+    approach: '話題のレストランや、相手が「センス良い！」と思うような場所・お店に案内できると◎。相手の外見やセンス、身につけてるアクセサリー、できたらライフスタイルまで具体的に褒めると効果的。'
+  },
+  '戊辰': {
+    likes: '強い意志とプライドを理解してもらえる。やりたいと思ったことを肯定・応援される。「いつも存在感があって頼もしい」と、どんと構えた華やかさを褒められる。',
+    dislikes: '段取りがわるくスマートじゃない。「頑固で派手なだけ」などと揶揄される。主導権が相手になる。プライバシーがない。依存され過ぎる。',
+    approach: '小洒落たお店や場所で相手を立てながら話は聞き役にまわり、センスを褒めて時には冗談も交えて笑わせる。こんな立ち居振る舞いができれば◎。楽しい雰囲気で盛り上がれると好感触。'
+  },
+  '己未': {
+    likes: '真面目な姿勢や態度、面倒見の良さ、縁の下の力持ちな所を評価される。「厳しさの中に優しさがあって憧れます」「いつも上品で華やかだね」と、内面の強さ・外見の魅力を褒められる。',
+    dislikes: '自分のテリトリーに遠慮なく踏み入られる。礼儀や常識、モラルがない。ナメられた態度を取られる。自分のプライドや身内を悪く言われること。甘えられ過ぎる。',
+    approach: 'デートはお洒落で落ち着いたカフェや流行りの場所。そして相手の家族や友人まで一緒に大切に。その中で距離感は縮めすぎず離し過ぎず、相手を立てられると◎。'
+  },
+  '壬戌': {
+    likes: '会いたいと思ってる時に連絡をくれる。話を聞いて欲しい時に耳を傾けてくれる。求めることに応えてくれる。頼られる。',
+    dislikes: 'マナー違反、非常識な言動。空気が読めなかったり、特にタイミングがわるいこと。緩めず緊張する関係。揚げ足を取られる。自分のペースを乱される。',
+    approach: 'ルックスはこだわらないが、外見は重視するタイプ。見た目的に、「自分に合うもの合わないもの」を理解していてコーデや生活にいかせていると好印象。相手の好みを理解して自分磨きをできると◎。'
+  },
+  '癸丑': {
+    likes: '連帯感があったり協力できる。気配りな面を評価される。頼りにされる。華やかさやセンスの良さ褒められる。',
+    dislikes: '忠告を受けたり否定される。新鮮さに欠けマンネリになる。プライベートを尊重される。地味と言われる(思われる)。おせっかい・おっちょこちょいと思われる。',
+    approach: '相手に対して、容姿や身だしなみ、服のセンスは必要不可欠なタイプなので身につける服やアイテムにこだわる。その上で想いや気持ちはストレートに伝えると◎。'
+  },
+  '丙申': {
+    likes: '時間やお金に余裕がある。無駄なく合理的に動ける。最も楽で確実なこと。負けない勝負。良い雰囲気やムード。',
+    dislikes: '自分のペースを崩される。急かされる。考えた計画や予定が白紙になる。失敗や損をする。負け戦。現実をみせられる。夢やアイデアを否定される。',
+    approach: '刺激的な演出やサプライズをされるのが好きなタイプ。その上で趣味やおでかけなどで刺激と楽しさを共有できると◎。また、将来のことを常に考えてるので、自分と2人の将来のビジョンを話し合うのも◎。'
+  },
+  '丁卯': {
+    likes: '刺激や変化がある。将来についての妄想を肯定される。物事を思い通りに進行できる。心や魂が通じていると感じること。アイデアや想像力、根性、忍耐力を褒められる。',
+    dislikes: '時間やお金を無駄にする。立てた計画が途中で進まなくなる。妄想を否定され現実を見させられる。同じことや変わり気のないこと。軽いノリや誘い。',
+    approach: '聞き役に徹し、とにかく否定をしないこと。自分のペースで思い通りに進めたい性分なので、こっちが色々考えたり先回りして段取りしたりは必要なし。デートは相手の計画に身を任せるのが◎。'
+  },
+  '戊申': {
+    likes: '自分の考えや計画、ペースに沿って動ける。ロマンチックなシチュエーション。理想と現実のバランスを上手くとれる。知性やビジョン、存在感を褒められる。',
+    dislikes: '相手の考えやペースで推し進められる。リスクや不安、デメリットがあること。筋の通っていない言動。上から目線な強い言葉。',
+    approach: 'ロマンチック、ドラマチックなこと、そして楽しいことが大好きなタイプ。相手の心がワクワクドキドキするようなやり取りやデートを演出できると◎。'
+  },
+  '己卯': {
+    likes: '自立・独立できる。始めたことを最後までやり遂げられる。空想や妄想ができる。一人の時間。時間やお金の無駄や損がないこと。',
+    dislikes: '筋が通っていないこと。途中で投げ出す、諦める。納得する前に動かされる。自分や他人を傷つける。人の前に出る。大勢をまとめたり仕切ること。',
+    approach: '想いを寄せる人がいても自分からアタックはせず、「待ち」のスタンス。好意を感じたらこっちからアタックしましょう。堅実派で常識的な上、疑い深いタイプなので、相手が信頼・安心できるよう誠実さを伝えられると◎。'
+  },
+  '壬寅': {
+    likes: 'やりたいことをできる。劇的な展開、ドラマチックなこと。想像力や夢を共感されたり褒められる。困難を乗り越えて結果や成果を手に入れる。',
+    dislikes: 'やりたくない事を強いられる。価値観やセンスを否定される。いつも同じで変化がない。夢を否定され潰される。',
+    approach: 'ドラマチック思考で、障害や壁が大きいほど燃えるタイプ。母性本能も強いので、抜けていたり、少しダメ男・ダメ女を演出して相手に「守ってあげたい」と思わせられると◎。また、誤解されやすい部分もあるので、「あなたを理解している」ということが伝わると信頼に繋がりそう。'
+  },
+  '癸酉': {
+    likes: '素早く物事の白黒をつけられる。ロマンチック・ドラマチックな展開。以心伝心を感じられる。時には甘えさせてくれる関係性。知的好奇心をそそられる。',
+    dislikes: 'プライドを傷つけられる。人前で失敗する。計画や段取りを指摘される。スムーズに進まないこと。きたない言葉遣いや、心ないドライすぎる正論。隠し事をされる。',
+    approach: '自分が真似できなかったり、自分にないものを持っている相手に惹かれるタイプなので、相手に自分の「得意」を推して尊敬してもらえると◎。ただし、自慢話になり過ぎるとNG。'
+  },
+  '丙子': {
+    likes: '単独行動。1人になれる時間。人と違うこと。個性を出せる。筋の通った言動。自分のペースで動ける。自立した関係性。オリジナリティや個性を褒められる。',
+    dislikes: '「普通」や「平凡」。人と同じこと。アイデアやファッション、身につけるアイテムなどが人と被ること。指摘や口出しされる。時間やお金を無駄にする。自分のペースを崩される。',
+    approach: '自分が変わり者なので、相手にもその部分を求めます。ライフスタイルや生き方に独自の考えやこだわりがある人に惹かれやすいでしょう。基本的にはダメ出しや指摘されるのは嫌いですが、大事な話や真剣な話をする時はお互いに本音で意見を言い合えると◎。'
+  },
+  '丁亥': {
+    likes: '自分の信念や考えを貫ける。適度な距離感を保てる関係性。好きな人からのマメな連絡。マイペースで動ける。個性やアイデアを褒められる。',
+    dislikes: '過干渉。「普通」なこと。協調性やルールに沿った行動を求められる。熱中していることに水を差される。集中している時に邪魔される。',
+    approach: '持っている服やアイテム・ルックスよりも、人間性や人柄、仕事面や収入面を重視していて、パートナーとしての将来を見据えた考えを常に持っています。相手に将来一緒になった時の期待感や堅実性が伝わると◎。じゃまされるのが極端に嫌いなので、話しかけたりアクションするタイミングは慎重に。'
+  },
+  '戊子': {
+    likes: '追いかけられるより追いかける。前もっての計画。相手を楽しませること。個性やこだわりがある。取りかかったことを最後までやり切れる。マイペースに動ける。',
+    dislikes: '重い愛情表現。ベタベタされる。始めたことが途中で打ち切りになる。家や身なりがだらしない。協調性を求められる。個性を出せない。傲慢だと誤解される。細かいダメ出し。',
+    approach: '「自分を理解してくれるか」が一番大事なタイプ。強めの個性やこだわり、ちょっと偏屈なところやワガママな部分などを理解してあげられると◎。好きな相手には、基本的には待ちの姿勢なので、ある程度関係性が築けた頃合いでさり気なくアプローチしてみて。'
+  },
+  '己亥': {
+    likes: '自分の趣味ややりたいこと、ライフスタイルに集中できる。穏やかで安定した関係性。成長や能力アップできること。のんびりマイペースに過ごせる。',
+    dislikes: '批判されたりわるく言われる。周りからあれこれ頼み事やお願いをされる。大衆や人情に流される。刺激が強い関係性やアクティブなお付き合い。非常識な言動やモラルのないこと。',
+    approach: '時間や約束を守らなかったり、モラルや礼儀がないのは言語道断。誠実さをもって常識的に接しましょう。「この人なら安心して頼れる」と思わせられると◎。マイペースなタイプなので関係はゆっくりじっくり育んで。'
+  },
+  '壬午': {
+    likes: '自分のやりたいように動ける。初めての場所や新しく知ること。個性やユーモアを褒められる。一歩引いた近過ぎない距離感。',
+    dislikes: '世間体を気にする。周りに合わせる。いつも同じで変化や刺激がない。周りからあれこれ言われる。ダメ出しや口出し。浅い関係性で慣れ慣れしくされたり近い距離に来られる。',
+    approach: '会う度違う所へ行ったりやったことのないのとをやったり、常に新鮮で刺激が時間を共有できると◎。人と違う個性や考え方に共感して、尊敬してあげられると、信頼を得られて距離がグッと縮まりそう。でも物理的な距離感を近づけ過ぎるのはNG。'
+  },
+  '癸巳': {
+    likes: '納得するまでじっくり考えられる。自分の意見や考えをはっきり言える。まともで堅実な嘘のない関係性やお付き合い。一人の時間などプライベートを尊重しくれる。',
+    dislikes: 'その場で判断を迫られる。リスクやデメリットのある物事や勝負。ベタベタしたり近過ぎる距離感。周りと同じこと。服やアイテムが人と被る。',
+    approach: '自分と同じように相手にも個性やこだわりを求め、「自分は自分、相手は相手」というタイプ。自分の個性をアピールしつつ、相手の全てを受け入れる包容力が伝わると◎。急な判断を迫ったり近過ぎる距離感はNG。'
+  },
+  '甲寅': {
+    likes: '結果や努力を称えられる。特別扱いやVIP待遇。自力で最後までやり通せる。礼儀正しい態度や言動。安心できて心身ともに安定できる。',
+    dislikes: '人に自分の弱点や苦手な面をみせる。上から目線の言動。横柄に指図される。筋が通ってないこと。道理に反すること。軽いノリやチャラい人。礼儀やモラルがなってない。',
+    approach: 'いつも気を張ってミスのないよう完璧に立ち回っている分、心を許せる人には「何も気にせずとことん甘えたい」と思ってる部分があるので、礼儀正しく優しく接してあげて、安心感と包容力を伝えられると◎。'
+  },
+  '乙卯': {
+    likes: '何度も行っている常連や行きつけのお店や場所。自分の思っていた通りに事が運ぶ。スケジュールや段取り通りに動ける。芯の強さと努力を褒められる。',
+    dislikes: '人の言いなりになる。指図される。新しく慣れてない場所や環境。プライドを傷つけられる。自分のペースを乱される。馴れ馴れしいノリ。細さや頑固さをわるく言われる。',
+    approach: '直接本人と話したり、相手の知人に聞いたりして相手の好き嫌いを全体的に把握できると◎。理想通りに動きたい完璧主義タイプなので、デートは事前に一日の計画を立てるのがベスト。相手の意見には基本的に従うスタンスが吉。'
+  },
+  '庚申': {
+    likes: 'おだてられたり褒められる。頼られる。自分の意見をハッキリ言える。以心伝心で心が通じあっている。お互いに高め合える関係。',
+    dislikes: '白黒ハッキリしない状態。弱い部分を人にみられる。自分を抑え込んで周囲に合わせる。存在を無視される。礼儀やモラルのない言動。',
+    approach: '常日頃、周囲に気を配っていたり、自分の威厳を保とうと頑張ってる面があるので、その部分を褒めてあげて、全てを肯定して包み込んであげられると◎。相手と一緒に何かに取り組んだり、楽しみながら成長し合える関係を目指して。'
+  },
+  '辛酉': {
+    likes: '安心できる。安定している。ひとつひとつ確実にこなしていく。計画通りにパーフェクトに動ける。おだてられる。褒められる。常連や行きつけの慣れたお店や場所。',
+    dislikes: '身の周りが乱れている。リスキーなことや不安がある状態。勝負に負ける。いい加減なことや筋が通らないこと。プライドを傷つけられる。礼儀礼節のない無礼な態度。',
+    approach: '礼儀やモラルをもって誠実に接して。いきなり軽いノリはタブー。その上で相手のすごいと思うところや尊敬できる部分をたくさん褒めておだててあげると◎。将来を考えられる人でないとお付き合いには至りません。'
+  },
+  '丙寅': {
+    likes: '「気遣いハンパない！」「計画力すごすぎ」「いつも助けてくれてありがとう」と、真面目さや素直さ、行動力を褒められる。',
+    dislikes: '「おせっかいが過ぎます」「ちょっとテンション下げて」と自分の熱量を否定される。口だけで行動が伴わない人、理屈ばかりの人は嫌い。',
+    approach: '楽しいことが大好きなので、「真剣さ」を伝えようとするより、一緒にわいわい楽しめる方が距離が縮まりやすい。リスペクトできるかどうかも見るタイプなので、自分の信念や人間性を磨くと◎'
+  },
+  '丁酉': {
+    likes: '「いつもさりげない気配り尊敬する！」「あなたがいると安心できる」「あなたの真似はできないよ」と、視野の広さや人柄、実力を褒められる。一緒に楽しめること。',
+    dislikes: '嫌味や雑な扱いを受ける。動く前に考えさせられる。約束をドタキャンされたり、時間を守らなかったりする。',
+    approach: '好きな人にも控えめなので、引っ張ってあげると心地よく感じる。ただし、グイグイすぎは✕。節度はわきまえて。その上で、優しい言葉遣いと、マメな連絡。相手の細かい気配りに気づいたら、「ありがとう」と言葉にすること。'
+  },
+  '戊寅': {
+    likes: '頭のキレの早さ、面倒見の良さを褒められる。「本当に誠実で、誰からも好かれそうだね」と、真面目さと人柄を評価される。静かに過ごすよりワイワイするのが好き。',
+    dislikes: 'ルール違反や裏切り。自分の面目を丸潰れにされるような非常識な行動。諦めの良さ、切り替えの良さを「我慢ができない」とけなされる。',
+    approach: '「頼りにされてる自分が好き」なのでとにかく頼ったり甘えると◎。また、自分の価値観や感覚に近い人を好きになる傾向があるので、相手の趣味や好きなことに関心もったり一緒にすると好感をもたれそう。'
+  },
+  '己酉': {
+    likes: '「いつも落ち着いてて安心する」「本当に育ちが良いね」と、細やかな配慮や上品さを褒められる。',
+    dislikes: '物事を途中で遮られる。プライドを傷つけられる。雑な対応をされる。不潔な環境や、きたない言葉遣い。',
+    approach: '清潔感のある服装と丁寧な言葉遣いが基本。相手がしてくれた些細な親切に対して、きちんと言葉でお礼を伝えて、一緒に楽しめる親友感覚で攻めると◎。'
+  },
+  '壬申': {
+    likes: '「知的で信頼できる」「頭の回転の早さと柔軟な対応力さすが過ぎる」と、人間性と頭のキレを褒められる。自分の好きなことをさせてもらえる。得意なことに没頭できる。',
+    dislikes: 'やりたいことができない。行きたい所に行けない。我慢させられる。考えてから動く。おせっかいと思われる。好奇心とフットワークの軽さを叩かれる。',
+    approach: '誰にでも気さくに話す性格を理解して、嫉妬せずにどんと構えて、自由にさせてあげると◎。自分から過度に距離を縮めに行ったり、小さいことを気にし過ぎるのはNG。'
+  },
+  '癸卯': {
+    likes: '自分の思い通りに進められる。色んな場所に出かける。「本当に品があって、誰もがあなたを好きになるね」「いつも誠実で安心する」と、素直な品格と信頼性を絶賛される。',
+    dislikes: '人間関係でのトラブル。争い事や揉め事。リスクや不安がある状態で動いて失敗する。いい加減な態度を取られる。「もっとハッキリ言いなよ」と主張を迫られる。',
+    approach: '褒められることが好きなので、相手の人柄や人間性、忍耐力、誠実さなど、とにかく褒めまくると◎。同じ価値観、考え方だったり、将来のビジョンや好きな物が共通していると距離が縮まりやすい。'
+  },
+  '甲午': {
+    likes: '安心安定できる関係や環境。ひたむきな姿勢や努力をほめられる。潔さとストイックさを認められる。',
+    dislikes: '早く結果や成果を求められる。ちょっとしたミスを責められたり悪く言われる。見下されたり上から目線で扱われる。道理に反する行動。軽いノリ・言動。表面的なお世辞やごまかし、建前ばかりのコミュニケーション。',
+    approach: '慎重派なので軽い雰囲気のアプローチはNG。かといって、熱過ぎたり大胆に想いを伝えられるのも苦手。誠実に、かつさり気なくアプローチしたり伝えられると◎'
+  },
+  '乙亥': {
+    likes: '頼りにされる。達成感を味わう。物事を自分で考えて進められる。切磋琢磨できる関係や環境。鋭い感性や観察眼を褒められる。',
+    dislikes: '曲がったこと。納得できないこと。筋違いなこと。嘘やごまかし。重すぎる(過度な)愛情表現。不安やリスクが目に見えてるのに飛び込むこと。薄っぺらいお世辞や、中身のないおしゃべりに付き合わされる。',
+    approach: 'まじめで自立していて精神年齢が高い人がタイプ。好きな相手には待つスタンスで、好意は雰囲気やしぐさで伝えるタイプなので、それを感じたらアタックして◎'
+  },
+  '庚子': {
+    likes: '道理に沿った常識的なこと。存在感や努力を評される。頼りにされる。嘘を見破り本質を見抜く目を褒められる。',
+    dislikes: '曲がったこと。軽いノリや勢い。人間関係での争い事や揉め事。ダラダラとした言い訳。嘘やごまかし。',
+    approach: '見た目や経歴より精神性や価値観を重視するタイプ。結婚後のことまで見据えてお付き合いするかどうかを決めるので、相手にそのビジョンが見えないとNG。相手の好きなことや趣味を一緒にしたり、飾らず誠実な気持ちと言葉で伝えると◎'
+  },
+  '辛巳': {
+    likes: '安心安定できる関係や環境。頑張りや熱意、直感、判断力を褒められる。同じ価値観や趣味を共有できる。一目置かれる。頼られる。',
+    dislikes: '思い通りにいかなかったり、理想や計画を狂わされる。軽いノリや言動。中身のない世間話。嘘やごまかし。',
+    approach: '日々努力を惜しまず続けてる人なので、肩や胸を貸してくれたり心と身体の安心を与えてくれるような人がタイプ。軽い言葉や嘘は一瞬で見抜かれます。同じ趣味やスポーツをしたり、求められたら寄り添ってあげられると◎'
+  },
+  '甲申': {
+    likes: '感覚や波長が合う。自分がやりたいことや気分が向いたことができる。近すぎる距離感より遠めな距離感。褒められること。',
+    dislikes: '過干渉や過保護。堅いルール・規則・監視など。行動が制限される。自由に行動できない。まわりくどく面倒なこと。細かいことや繊細さを求められる。ベタベタと甘えられる。',
+    approach: '第一印象が大切。「なんかいいかも」「この人おもしろい」と思わせられると◎。そして、ユーモアや雰囲気を作ってアプローチするのも効果的。想いや気持ち、メリットデメリットで動くタイプではないので注意。いきなり距離を縮めすぎたり、相手の自由を奪うこともNG。'
+  },
+  '乙酉': {
+    likes: 'ゴールまでのプロセスを楽しめる。社会面での安定や成功。人のお世話。自由を感じられること。特別感やサプライズ。柔軟性やユニークさを褒められる。',
+    dislikes: 'ルールや枠組みにガチガチに縛られること。単調で退屈なルーティンワークの強要。人間関係で揉める、争い事。安定が崩れること。',
+    approach: '距離感は少し縮めてみたら、一気に遠くしてみたりすると◎。基本的に遠めで、相手から近寄ってきたらかまって上げる感じでOK。自由を尊重しつつ、お洒落なお店や雰囲気の良い場所に行ってみて。'
+  },
+  '庚寅': {
+    likes: '豪華なものや場所。気分のままに動ける。人と適度な距離感を保てる。自由にさせてくれる。ドラマチックな展開。',
+    dislikes: '同じことの繰り返し。特定の組織やグループにいること。世間体を気にされる。無難で普通なこと。強制、制限、束縛。細かいこと。気分のムラを注意される。',
+    approach: '相手の自由な部分を尊重して合わせてあげられると◎。鋭さやストレートな感覚を受けると思いますが、それを真に受けるのでなく許したり受け流せると好印象。いちいち追求したり理由などを聞くのはNG。'
+  },
+  '辛卯': {
+    likes: '好奇心のままに動ける。制限や束縛がなく自由に何でもできる関係性。プライベート、恋愛、仕事など全てに熱中できる。ユニークな想像力や発想力を褒められる。',
+    dislikes: '止まったり停滞したり動けないこと。プライドを傷つけられる。周りに自分の弱みが明るみになる。何か1つに絞って行動する。面倒、過干渉と感じる関係性。',
+    approach: 'いつも一緒に近い距離にいられたり、ルールや制限があると気が滅入ってしまうタイプ。距離感は近づき過ぎず、プライベートを尊重してあげられると◎。ある程度の自由やわがままを許容してあげましょう。'
+  },
+  '甲子': {
+    likes: '気が向くままに動ける。スムーズに事が運ぶ。明るさやセンス、ノリの良さを褒められる。失敗やミスを許容される。',
+    dislikes: '「もっと現実を見なよ」「言う通りにして」と夢を壊されたり、マニュアルやルールに従う。プライドを傷つけられる。熟考すること。',
+    approach: '束縛はNG。勢いで押してロマンチックなデートや、相手のクリエイティブな趣味を一緒に楽しめると◎。気持ちは言葉以上に態度で示しましょう。'
+  },
+  '乙巳': {
+    likes: '「いつも引っ張ってくれて嬉しい！」「スマートで素敵」と、頼りになるところやスマートさを褒められる。',
+    dislikes: 'スマートさ、世渡り上手な面に皮肉を言われたり、きちっとした金銭感覚・損得勘定をわるく言われる。',
+    approach: '恋愛においてはかなり奥手。そのことを頭に入れて誤解をしないように。こっちからアタックしてあげると◎'
+  },
+  '庚午': {
+    likes: '新しいことや興味のあることに挑戦できる。自由奔放さとチャレンジ精神を褒められる。',
+    dislikes: '「強がるなよ」「自己中すぎ」「少し空気読みなよ」と、否定されたり制限される。',
+    approach: '束縛・否定は絶対にNG。本当は繊細なことを理解してあげて、寄り添いながら気があることを見せる。好意を素直に伝えるのも◎'
+  },
+  '辛亥': {
+    likes: '周りから脚光をあびる。「気配り上手！」「頭の回転と行動が早い」「その忍耐力尊敬します」と、自分の感性や美学、粘り強さを褒められる。',
+    dislikes: '出鼻を挫かれる。自分より目立たれる。「態度がでかい」「周りが見えてない」「短気ですね」と、けなされる。',
+    approach: '相手を立てながらも、時より素っ気ない態度で接すると、好かれたい欲がかき立てられ興味を引けそう。でもやりすぎは禁物。絶妙な距離を保ちながら、相手にとって自分を気になる存在にできると◎'
+  }
 };
 // 未作成の干支用プレースホルダ
 var TORISETSU_PLACEHOLDER = {
   likes: '（このタイプのトリセツは準備中です。近日公開予定！）',
-  dislikes: '（このタイプのトリセツは準備中です。近日公開予定！）'
+  dislikes: '（このタイプのトリセツは準備中です。近日公開予定！）',
+  approach: '（このタイプのトリセツは準備中です。近日公開予定！）'
 };
 
 /** 日柱の干支キー（'甲子' など）を返す @param {number|null} dayK @param {number|null} dayS */
@@ -3906,7 +4206,7 @@ function torisetsuKey(dayK, dayS){
 function torisetsuContent(dayK, dayS){
   var key = torisetsuKey(dayK, dayS);
   var d = (key && TORISETSU_DATA[key]) ? TORISETSU_DATA[key] : TORISETSU_PLACEHOLDER;
-  return { key: key, likes: d.likes || '', dislikes: d.dislikes || '' };
+  return { key: key, likes: d.likes || '', dislikes: d.dislikes || '', approach: d.approach || '' };
 }
 
 /** この相手のトリセツを購入済みか @param {string} targetId */
@@ -3930,18 +4230,22 @@ async function loadTorisetsuSection(targetId, dayK, dayS, nickname){
   var purchased = await hasTorisetsuPurchase(targetId);
   if(purchased){
     var c = torisetsuContent(dayK, dayS);
-    var h = '<div style="margin-top:14px;padding:12px;background:rgba(201,169,110,.07);border:1px solid #C9A96E;border-radius:10px">';
+    var h = '<div style="margin-bottom:12px;padding:12px;background:rgba(201,169,110,.07);border:1px solid #C9A96E;border-radius:10px">';
     h += '<div style="font-size:12px;color:#C9A96E;font-weight:600;letter-spacing:.05em;margin-bottom:8px">📖 ' + escapeHtml(_torisetsuCtx.nickname) + 'さんのプチトリセツ' + (c.key ? '<span style="font-size:10px;color:var(--color-text-tertiary);font-weight:normal">（日柱：' + c.key + '）</span>' : '') + '</div>';
-    h += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">💛 好きなこと</div>';
-    h += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;background:var(--color-background-primary);border-radius:6px;padding:8px 10px;margin-bottom:8px">' + escapeHtml(c.likes) + '</div>';
-    h += '<div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:4px">💢 嫌なこと</div>';
-    h += '<div style="font-size:12px;color:var(--color-text-primary);line-height:1.8;background:var(--color-background-primary);border-radius:6px;padding:8px 10px">' + escapeHtml(c.dislikes) + '</div>';
+    var box = 'font-size:12px;color:var(--color-text-primary);line-height:1.8;background:var(--color-background-primary);border-radius:6px;padding:8px 10px;white-space:pre-wrap;word-break:break-word;';
+    var lbl = 'font-size:11px;color:var(--color-text-secondary);margin-bottom:4px';
+    h += '<div style="' + lbl + '">💛 嬉しいこと</div>';
+    h += '<div style="' + box + 'margin-bottom:8px">' + escapeHtml(c.likes) + '</div>';
+    h += '<div style="' + lbl + '">💧 嫌なこと</div>';
+    h += '<div style="' + box + 'margin-bottom:8px">' + escapeHtml(c.dislikes) + '</div>';
+    h += '<div style="' + lbl + '">🎯 アプローチ方法</div>';
+    h += '<div style="' + box + '">' + escapeHtml(c.approach) + '</div>';
     h += '</div>';
     el.innerHTML = h;
   }else{
-    var h2 = '<div style="margin-top:14px;padding:12px;background:var(--color-background-secondary);border-radius:10px;text-align:center">';
+    var h2 = '<div style="margin-bottom:12px;padding:12px;background:var(--color-background-secondary);border-radius:10px;text-align:center">';
     h2 += '<div style="font-size:12px;color:var(--color-text-primary);font-weight:500;margin-bottom:4px">📖 相手のプチトリセツ</div>';
-    h2 += '<div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:8px">「絶対この人と付き合いたい！」と思ったら。<br>四柱推命から導いた、お相手の好きなこと・嫌なことが分かります。</div>';
+    h2 += '<div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:8px">本気で「この人と付き合いたい！」と思ったら。<br>四柱推命で見る、お相手の嬉しいこと・嫌なこと、アプローチ方法が分かります。</div>';
     h2 += '<button class="btn-gold" onclick="buyTorisetsu()" style="display:inline-block;width:auto;padding:9px 22px;font-size:13px;margin-bottom:4px">プチトリセツを購入 ' + TORISETSU_PRICE_LABEL + '</button>';
     h2 += '</div>';
     el.innerHTML = h2;
@@ -4047,6 +4351,7 @@ function renderEnList(){
     // 「付き合いました！」双方申請式の特殊バッジ（date_set のとき）
     // 文字が長いので名前の右ではなく下に独立して表示するため、別フラグで管理
     var badgeBelowName = '';
+    var badgeBelowTight = false; // true なら名前との隙間を詰める
     // 優先: 相手がレビュー送信済み = キャンセル通知 / マッチ終了
     if(s==='date_set' && item.partnerReviewed){
       var hadRequest = item.myCoupleReq || item.partnerCoupleReq;
@@ -4058,6 +4363,11 @@ function renderEnList(){
     }else if(s==='date_set' && item.partnerCoupleReq && !item.myCoupleReq){
       badgeBelowName = '「付き合いました！」申請✨';
       badgeLabel = '';
+    }else if(s==='approved' || s==='approved_by_me'){
+      // 承認系バッジは名前の横ではなく、改行して名前の下に詰めて表示
+      badgeBelowName = badgeLabel;
+      badgeLabel = '';
+      badgeBelowTight = true;
     }
     var isCompact=(s==='matched'||s==='chatting'||s==='date_set'||s==='dated'||s==='coupled');
     html+='<div class="en-card '+(isCompact?'en-card-compact':'')+' '+((s==='matched'||s==='chatting'||s==='approved'||s==='approved_by_me'||s==='date_set'||s==='dated'||s==='coupled')?'matched':'')+'">';
@@ -4080,13 +4390,18 @@ function renderEnList(){
     // ※ pending/sent はぼかし表示、マッチ後はクリア表示で openPartnerProfile が出し分ける
     var detailBtnHtml = '';
     if(item.partnerUserId && s !== 'rejected_notify'){
-      detailBtnHtml = '<button onclick="event.stopPropagation();openPartnerProfile(\''+item.partnerUserId+'\',\''+s+'\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">🔍 詳細</button>';
+      // 「🎯 トリセツ」はマッチ成立後のみ（詳細の左）。プロフィールを開いてトリセツ欄へスクロール
+      var MATCHED_STATES = ['approved','approved_by_me','matched','chatting','date_set','dated','coupled','reviewed'];
+      if(MATCHED_STATES.indexOf(s) >= 0){
+        detailBtnHtml += '<button onclick="event.stopPropagation();openPartnerProfile(\''+item.partnerUserId+'\',\''+s+'\',true)" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit;margin-right:5px">🎯 トリセツ</button>';
+      }
+      detailBtnHtml += '<button onclick="event.stopPropagation();openPartnerProfile(\''+item.partnerUserId+'\',\''+s+'\')" style="font-size:10px;padding:5px 10px;border:0.5px solid #C9A96E;border-radius:6px;color:#C9A96E;background:transparent;cursor:pointer;white-space:nowrap;flex-shrink:0;font-family:inherit">🔍 詳細</button>';
     }
     // 名前横バッジ（badgeLabel が空なら表示しない=下に独立表示するケース）
     var inlineBadgeHtml = badgeLabel ? '<span class="en-badge '+badgeClass+'">'+badgeLabel+'</span>' : '';
     // 名前下に出すバッジ（長い文言用）
     var belowBadgeHtml = badgeBelowName
-      ? '<div style="margin-top:4px"><span class="en-badge '+badgeClass+'" style="margin-left:0;display:inline-block">'+badgeBelowName+'</span></div>'
+      ? '<div style="margin-top:'+(badgeBelowTight?'-2px':'4px')+'"><span class="en-badge '+badgeClass+'" style="margin-left:0;display:inline-block">'+badgeBelowName+'</span></div>'
       : '';
     html+='<div class="en-top">'+enAvaHtml+'<div class="minfo"><div class="mname">'+item.name+inlineBadgeHtml+'</div>'+belowBadgeHtml+'<div class="mmeta">'+item.meta+'</div></div>'+detailBtnHtml+'</div>';
     // ロック中のボタン生成ヘルパー（見た目だけ無効化、クリックでアラート）
@@ -4565,7 +4880,7 @@ async function enNG(matchId){
 // 縁リスト の pending/approved 等の相手をタップ → プロフィールモーダル表示。
 // マッチ前(pending/sent) は avatar をぼかす、マッチ後はクリア表示。
 /** 相手の詳細プロフィールを取得して表示 @param {string} partnerUserId @param {string} [status] */
-async function openPartnerProfile(partnerUserId, status){
+async function openPartnerProfile(partnerUserId, status, focusTorisetsu){
   if(!partnerUserId){ alert('プロフィール取得に失敗しました'); return; }
   try{
     var{data:prof, error}=await supa.from('profiles_public')
@@ -4578,8 +4893,9 @@ async function openPartnerProfile(partnerUserId, status){
       var rr = await supa.rpc('get_user_rating', { p_user_id: partnerUserId });
       if(rr && rr.data && rr.data.length) rating = rr.data[0];
     }catch(_){}
-    renderPartnerProfile(prof, status || 'pending', rating);
+    renderPartnerProfile(prof, status || 'pending', rating, !!focusTorisetsu);
     document.getElementById('partner-profile-modal').classList.add('show');
+
   }catch(e){
     console.log('openPartnerProfile error:', e);
     alert('エラーが発生しました');
@@ -4622,7 +4938,7 @@ function ppToggleReviews(listId, btn){
   if(btn) btn.textContent = show ? 'レビューコメントを閉じる' : 'レビューコメントを見る';
 }
 /** モーダルに HTML を流し込む @param {object} prof @param {string} status @param {object} [rating] */
-function renderPartnerProfile(prof, status, rating){
+function renderPartnerProfile(prof, status, rating, showTorisetsu){
   // マッチ後(approved/matched/...) は avatar クリア、それ以外(pending/sent) はぼかし
   var clearAvatar = ['approved','approved_by_me','matched','chatting','date_set','dated','coupled'].indexOf(status) >= 0;
   var blurStyle = ''; // ぼかし表示は廃止（マッチング前もクリア表示）
@@ -4643,6 +4959,19 @@ function renderPartnerProfile(prof, status, rating){
       html += '<div style="width:100%;aspect-ratio:1;border-radius:8px;background-image:url(\''+escapeHtml(u)+'\');background-size:cover;background-position:center;border:1px solid #C9A96E"></div>';
     });
     html += '</div></div>';
+  }
+  // モーダルのタイトル：トリセツ専用ビューだけ「プロフィール㊙️」
+  var ttlEl = document.getElementById('partner-profile-title');
+  if(ttlEl) ttlEl.textContent = (clearAvatar && showTorisetsu) ? 'プロフィール㊙️' : 'プロフィール';
+  // 「🎯トリセツ」から開いた場合はトリセツ専用ビュー（通報履歴・基本情報などは出さない）
+  if(clearAvatar && showTorisetsu){
+    html += '<div style="font-size:13px;color:var(--color-text-primary);text-align:center;margin-bottom:12px">'+escapeHtml(prof.nickname||'お相手')+'さん</div>';
+    html += '<div id="torisetsu-section"></div>';
+    document.getElementById('partner-profile-body').innerHTML = html;
+    if(typeof loadTorisetsuSection === 'function'){
+      loadTorisetsuSection(prof.id, (prof.pillar_day_k!=null?prof.pillar_day_k:null), (prof.pillar_day_s!=null?prof.pillar_day_s:null), safeName(prof.nickname)||'お相手');
+    }
+    return;
   }
   // レビュー（プロフィール画像とニックネームの間）：平均☆＋【コメントを見る】ボタン
   html += ppRatingBlockHtml(rating, 'pp-reviews-partner');
@@ -4677,10 +5006,6 @@ function renderPartnerProfile(prof, status, rating){
   if(typeof renderInterestChipsReadonly === 'function'){
     html += '<div style="margin-top:14px"><div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px">興味のあるカテゴリー</div>' + renderInterestChipsReadonly(prof.interest_tags || null) + '</div>';
   }
-  // 相手のプチトリセツ（マッチング成立後のみ。中身は loadTorisetsuSection が非同期で描画）
-  if(clearAvatar){
-    html += '<div id="torisetsu-section"></div>';
-  }
   // 通報リンク
   if(prof.member_id){
     html += '<div style="text-align:center;margin-top:14px"><button onclick="closePartnerProfile();openReportFor(\''+prof.member_id+'\')" style="font-size:11px;padding:6px 14px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;color:#C05050;background:transparent;cursor:pointer;font-family:inherit">⚠️ この方を通報する</button></div>';
@@ -4688,10 +5013,6 @@ function renderPartnerProfile(prof, status, rating){
   document.getElementById('partner-profile-body').innerHTML = html;
   // 通報履歴を非同期で取得・表示
   if(prof.id && typeof loadPartnerReportHistory === 'function') loadPartnerReportHistory(prof.id);
-  // トリセツセクションの中身をロード（購入済み判定→表示）
-  if(clearAvatar && typeof loadTorisetsuSection === 'function'){
-    loadTorisetsuSection(prof.id, (prof.pillar_day_k!=null?prof.pillar_day_k:null), (prof.pillar_day_s!=null?prof.pillar_day_s:null), safeName(prof.nickname)||'お相手');
-  }
 }
 
 /** モーダルを閉じる */
