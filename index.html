@@ -12,7 +12,56 @@
 <link rel="apple-touch-icon" href="icons/icon.svg">
 
 <title>縁の間 ― えにしのま ―</title>
+<script>
+/* ===== 画面にエラーを表示する簡易デバッグ表示 =====
+   alert が無効化されていても、またコンソールを開けない端末でも
+   「なぜ動かないか」が画面で分かるようにするための安全網。 */
+(function(){
+  function show(kind, msg){
+    try{
+      var box = document.getElementById('__errbox');
+      if(!box){
+        box = document.createElement('div');
+        box.id = '__errbox';
+        box.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b00020;color:#fff;'
+          + 'font-size:11px;line-height:1.6;padding:8px 28px 8px 10px;white-space:pre-wrap;word-break:break-all;'
+          + 'max-height:45vh;overflow:auto;font-family:monospace';
+        var x = document.createElement('div');
+        x.textContent = '✕';
+        x.style.cssText = 'position:absolute;top:4px;right:8px;cursor:pointer;font-size:14px';
+        x.onclick = function(){ box.remove(); };
+        box.appendChild(x);
+        (document.body || document.documentElement).appendChild(box);
+      }
+      var line = document.createElement('div');
+      line.textContent = '[' + kind + '] ' + msg;
+      box.appendChild(line);
+    }catch(e){}
+  }
+  window.addEventListener('error', function(ev){
+    show('ERROR', (ev.message || '') + ' @ ' + (ev.filename || '').split('/').pop() + ':' + ev.lineno);
+  });
+  window.addEventListener('unhandledrejection', function(ev){
+    var r = ev.reason;
+    show('PROMISE', (r && r.message) ? r.message : String(r));
+  });
+  window.__showErr = show;
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* 1つ目のCDNが落ちていた場合に備え、別のCDNから読み直す（同期読み込み）。
+   これが無いと supabase 未定義のまま後続スクリプトが全滅し、
+   「ボタンを押しても何も起きない」状態になる。 */
+if (typeof supabase === 'undefined') {
+  document.write('<scr' + 'ipt src="https://unpkg.com/@supabase/supabase-js@2"><\/scr' + 'ipt>');
+}
+</script>
+<script>
+if (typeof supabase === 'undefined') {
+  document.write('<scr' + 'ipt src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.39.3/supabase.min.js"><\/scr' + 'ipt>');
+}
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
@@ -781,6 +830,20 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
 .vr-reply-bar-mark{color:#C9A96E;font-weight:600;margin-right:5px}
 .vr-reply-bar-x{flex-shrink:0;background:none;border:none;font-size:13px;color:var(--color-text-tertiary);cursor:pointer;padding:2px 4px}
 
+/* 新規登録：必須項目が未入力の欄を赤枠で示す */
+.req-missing,
+.req-missing input,
+.req-missing select,
+.req-missing textarea{border:1.5px solid #e53935 !important;border-radius:6px}
+/* 性別のボタン行（.sexrow）は中のボタンを赤枠にする */
+.sexrow.req-missing{border:none !important}
+.sexrow.req-missing .sxbtn{border:1.5px solid #e53935 !important}
+/* ラベルを含むブロック全体も囲って、どの項目か一目で分かるようにする */
+.req-missing-box{background:rgba(229,57,53,.07);border-radius:8px;padding:6px 8px;margin-left:-8px;margin-right:-8px;animation:reqShake .3s}
+.req-missing-box > label,
+.req-missing-box label{color:#e53935 !important}
+@keyframes reqShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
 </style>
 </head>
 <body>
@@ -984,11 +1047,12 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="ps-card" onclick="selectPlan('no_matching')">
         <div class="ps-card-name">NOマッチングプラン</div>
         <div class="ps-card-desc">パートナーが既にいらっしゃる方、家族や友人、知り合った方との相性を知りたい方、日々の運勢が気になる方にオススメ</div>
-        <div class="ps-card-price">¥963<span class="ps-card-unit"> / 月</span></div>
+        <div class="ps-card-price"><span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥963<span class="ps-card-unit"> / 月</span></span><span style="color:#e53935;font-weight:700;font-size:20px;margin-left:8px">今だけ¥0</span></div>
         <div class="ps-card-features">
-          <div>✦ 気になる人との相性診断</div>
-          <div>✦ 相性診断結果のメモ</div>
+          <div>✦ 気になる人との良縁率・相性診断</div>
+          <div>✦ 良縁率・相性診断結果のメモ</div>
           <div>✦ あなた専用の運勢カレンダー</div>
+          <div>✦ 命式の自動算出・登録</div>
         </div>
         <div class="ps-card-note">※ マッチング機能はなし</div>
         <button class="ps-select-btn">このプランで登録する</button>
@@ -996,10 +1060,11 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="ps-card" onclick="selectPlan('trial')">
         <div class="ps-card-name">お試しプラン</div>
         <div class="ps-card-desc">とにかく良い出会いが欲しい！という方、出会った後に関係を長続きさせたい方にオススメ</div>
-        <div class="ps-card-price">¥1,693<span class="ps-card-unit"> / 月</span></div>
+        <div class="ps-card-price"><span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥1,693<span class="ps-card-unit"> / 月</span></span><span style="color:#e53935;font-weight:700;font-size:20px;margin-left:8px">今だけ¥0</span></div>
         <div class="ps-card-features">
-          <div>✦ 良縁率の高い方とのマッチング</div>
-          <div>✦ メッセージでのやり取り</div>
+          <div>✦ 良縁率の高い方からご紹介</div>
+          <div>✦ メッセージ最大100回</div>
+          <div>✦ 命式の自動算出・登録</div>
         </div>
         <div class="ps-card-note">※ 相性診断・運勢カレンダーは利用不可</div>
         <button class="ps-select-btn">このプランで登録する</button>
@@ -1008,13 +1073,14 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div class="ps-card-recommended">⭐ おすすめ</div>
         <div class="ps-card-name">トータルプラン</div>
         <div class="ps-card-desc">自分の日々の運勢を把握しながらご縁を探したい方、トラブルなくスムーズに出会った方との関係を育みたい方にオススメ</div>
-        <div class="ps-card-price">¥2,369<span class="ps-card-unit"> / 月</span></div>
+        <div class="ps-card-price"><span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥2,369<span class="ps-card-unit"> / 月</span></span><span style="color:#e53935;font-weight:700;font-size:20px;margin-left:8px">今だけ¥0</span></div>
         <div class="ps-card-features">
-          <div>✦ 良縁率の高い方とのマッチング</div>
-          <div>✦ メッセージでのやり取り</div>
-          <div>✦ 気になる人との相性診断</div>
-          <div>✦ 相性診断結果のメモ</div>
+          <div>✦ 良縁率の高い方からご紹介</div>
+          <div>✦ メッセージ最大100回</div>
+          <div>✦ 気になる人との良縁率・相性診断</div>
+          <div>✦ 良縁率・相性診断結果のメモ</div>
           <div>✦ あなた専用の運勢カレンダー</div>
+          <div>✦ 命式の自動算出・登録</div>
         </div>
         <button class="ps-select-btn ps-select-btn-gold">このプランで登録する</button>
       </div>
@@ -1057,9 +1123,9 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     <p class="sec" style="margin-left:0">プロフィール</p>
     <div class="card" style="margin:0 0 .75rem">
       <div class="fl"><label>ニックネーム <span style="color:#C05050">*</span></label><input type="text" id="r-nick" placeholder="例：はるか"></div>
-      <div style="margin-bottom:8px"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">性別 <span style="color:#C05050">*</span></label><div class="sexrow" id="r-sex-row"><div class="sxbtn on" onclick="setSex(this)">女性</div><div class="sxbtn" onclick="setSex(this)">男性</div><div class="sxbtn" onclick="setSex(this)">その他</div></div></div>
+      <div style="margin-bottom:8px" id="reg-sex-block"><label style="font-size:11px;color:var(--color-text-secondary);font-weight:500;display:block;margin-bottom:5px">性別 <span style="color:#C05050">*</span></label><div class="sexrow" id="r-sex-row"><div class="sxbtn" onclick="setSex(this)">女性</div><div class="sxbtn" onclick="setSex(this)">男性</div><div class="sxbtn" onclick="setSex(this)">その他</div></div></div>
       <div class="fl" id="reg-residence" style="margin-bottom:8px"><label>居住都道府県 <span style="color:#C05050">*</span></label><select id="r-res"><option value="">選択してください</option></select></div>
-      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴 <span style="color:#C05050">*</span></label><select id="r-marriage"><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供 <span style="color:#C05050">*</span></label><select id="r-kodomo" onchange="toggleKodomo()"><option value="none">無</option><option value="yes">有</option></select></div></div>
+      <div class="g2" id="reg-marriage-kodomo" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>結婚歴 <span style="color:#C05050">*</span></label><select id="r-marriage"><option value="">選択してください</option><option>未婚</option><option>1回</option><option>2回</option><option>3回以上</option></select></div><div class="fl" style="margin-bottom:0"><label>子供 <span style="color:#C05050">*</span></label><select id="r-kodomo" onchange="toggleKodomo()"><option value="">選択してください</option><option value="none">無</option><option value="yes">有</option></select></div></div>
       <div id="kodomo-row" class="g2" style="display:none;margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>男の子</label><select id="r-kodomo-boys"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div><div class="fl" style="margin-bottom:0"><label>女の子</label><select id="r-kodomo-girls"><option>0人</option><option>1人</option><option>2人</option><option>3人</option><option>4人</option><option>5人</option><option>それ以上</option></select></div></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>身長</label><select id="r-height"><option value="">選択してください</option></select></div><div class="fl" style="margin-bottom:0"><label>体型</label><select id="r-body-type"><option value="">選択してください</option><option>スリム</option><option>やや細め</option><option>普通</option><option>ややぽっちゃり</option><option>ぽっちゃり</option><option>がっちり</option></select></div></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl" style="margin-bottom:0"><label>職業 <span style="color:#C05050">*</span></label><input type="text" id="r-occupation" placeholder="例：会社員（営業）" maxlength="30"></div><div class="fl" style="margin-bottom:0"><label>年収 <span style="color:#C05050">*</span></label><select id="r-income"><option value="">選択してください</option><option>300万円未満</option><option>300〜500万円</option><option>500〜700万円</option><option>700〜1000万円</option><option>1000〜1500万円</option><option>1500万円以上</option><option>非公開</option></select></div></div>
@@ -1070,7 +1136,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div>
     <p class="sec" style="margin-left:0">生まれの情報</p>
     <div class="card" style="margin:0 0 .75rem">
-      <div class="g3" style="margin-bottom:8px"><div class="fl"><label>生年 <span style="color:#C05050">*</span></label><input id="yr" type="number" value="1990"></div><div class="fl"><label>生月 <span style="color:#C05050">*</span></label><input id="mo" type="number" value="6" min="1" max="12"></div><div class="fl"><label>生日 <span style="color:#C05050">*</span></label><input id="dy" type="number" value="15" min="1" max="31"></div></div>
+      <div class="g3" style="margin-bottom:8px"><div class="fl"><label>生年 <span style="color:#C05050">*</span></label><select id="yr"><option value="">選択してください</option></select></div><div class="fl"><label>生月 <span style="color:#C05050">*</span></label><select id="mo"><option value="">選択してください</option></select></div><div class="fl"><label>生日 <span style="color:#C05050">*</span></label><select id="dy"><option value="">選択してください</option></select></div></div>
       <div class="g2" style="margin-bottom:8px"><div class="fl"><label>生時（24h）<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意・不明なら空欄</span></label><input id="hr" type="number" placeholder="—" min="0" max="23"></div><div class="fl"><label>生分<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><input id="mn" type="number" placeholder="—" min="0" max="59"></div></div>
       <div class="g2" style="margin-bottom:0"><div class="fl"><label>出生都道府県<span style="font-size:10px;color:var(--color-text-tertiary)"> 任意</span></label><select id="pref" onchange="updCity()"></select></div><div class="fl"><label>市区町村</label><select id="city"></select></div></div>
       <div style="font-size:10px;color:#e53935;margin-top:4px">※市区町村がない場合は最も近いのを選択</div>
@@ -1091,7 +1157,85 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="interest-selector-body"></div>
     </div>
     <div id="interest-reg-skipped" style="display:none;font-size:11px;color:var(--color-text-tertiary);text-align:center;padding:.5rem 1rem;margin-bottom:.5rem">興味カテゴリーの設定は登録後マイプロフィールから設定できます</div>
-    <button class="btn-gold" onclick="completeReg()">登録を完了して縁を探す →</button>
+    <div id="reg-error" style="display:none;font-size:12px;color:#e53935;background:rgba(229,57,53,.08);border:1px solid rgba(229,57,53,.4);border-radius:8px;padding:10px 12px;line-height:1.8;margin-bottom:10px;white-space:pre-wrap"></div><button class="btn-gold" id="reg-submit-btn" onclick="safeCompleteReg(event)">本人確認書類提出へ進む →</button>
+    <div style="text-align:center;font-size:10px;color:var(--color-text-tertiary);margin-top:8px">build 10/06 00:11:23</div>
+  </div>
+</div>
+
+<!-- ===== 本人確認（年齢確認）ページ ===== -->
+<div id="kyc-wrap" style="display:none;position:relative;z-index:10;background:var(--color-background-secondary);min-height:100vh;min-height:100dvh;padding-bottom:3rem">
+  <div class="reg-hd" style="display:flex;align-items:center;gap:4px;padding:14px 12px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary)"><button type="button" id="kyc-back-btn" onclick="closeKycPage()" style="display:none;flex:0 0 auto;min-width:56px;text-align:left;background:transparent;border:none;color:#C9A96E;font-size:13px;cursor:pointer;font-family:inherit;padding:4px 0">‹ 戻る</button><div class="reg-ttl" style="flex:1 1 auto;text-align:center;font-family:'Noto Serif JP',serif;font-size:15px;font-weight:500;color:var(--color-text-primary)">本人確認（年齢確認）</div><div id="kyc-hd-spacer" style="display:none;flex:0 0 auto;min-width:56px"></div></div>
+  <div style="padding:0 1rem">
+
+    <div class="card" style="margin:.75rem 0">
+      <div style="font-size:12px;color:var(--color-text-primary);line-height:1.9">
+        法的義務の関係上、<strong>年齢確認（本人確認）</strong>をお願いしております。<br>
+        ご提出いただいた書類は<strong>本人確認の目的のみ</strong>に使用し、他の会員に公開されることは一切ありません。
+      </div>
+      <div style="font-size:11px;color:#e53935;background:rgba(229,57,53,.06);border-radius:6px;padding:7px 9px;line-height:1.7;margin-top:8px">
+        ※本人確認の承認が完了するまで、マッチング機能はご利用いただけません。(メッセージの確認、プロフィールの編集・追加は可能です。)
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <p class="sec" style="margin-left:0">STEP 1　書類の選択・撮影</p>
+    <div class="card" style="margin:0 0 .75rem">
+      <div class="fl" style="margin-bottom:10px">
+        <label>ご提出の書類 <span style="color:#C05050">*</span></label>
+        <select id="kyc-doc-type" onchange="updateKycDocType()" style="font-size:13px;padding:7px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:6px;background:var(--color-background-secondary);color:var(--color-text-primary)">
+          <option value="">選択してください</option>
+          <option value="license">運転免許証（または運転経歴証明書）</option>
+          <option value="mynumber">マイナンバーカード（表面のみ）</option>
+          <option value="passport">パスポート（日本国発行の旅券）</option>
+        </select>
+      </div>
+      <div id="kyc-doc-note" style="display:none;font-size:11px;color:var(--color-text-secondary);background:var(--color-background-secondary);border-radius:6px;padding:7px 9px;line-height:1.7;margin-bottom:10px"></div>
+
+      <div class="g2" style="margin-bottom:0">
+        <div class="fl" style="margin-bottom:0">
+          <label id="kyc-front-label">おもて面 <span style="color:#C05050">*</span></label>
+          <div id="kyc-front-slot" onclick="pickKycImage('front')" style="width:100%;aspect-ratio:1.6;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center;text-align:center;line-height:1.6">＋<br>タップで撮影・選択</div>
+        </div>
+        <div class="fl" id="kyc-back-col" style="margin-bottom:0;display:none">
+          <label>うら面 <span style="color:#C05050">*</span></label>
+          <div id="kyc-back-slot" onclick="pickKycImage('back')" style="width:100%;aspect-ratio:1.6;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center;text-align:center;line-height:1.6">＋<br>タップで撮影・選択</div>
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;margin-top:8px">
+        ・氏名／生年月日／有効期限がはっきり読み取れるように撮影してください<br>
+        ・光の反射や手ブレ、一部が切れている写真は再提出をお願いする場合があります
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <p class="sec" style="margin-left:0">STEP 2　書類を持った自撮り</p>
+    <div class="card" style="margin:0 0 .75rem">
+      <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.8;margin-bottom:10px">
+        STEP 1 でご提出の書類を手に持ち、<strong>ご自身のお顔と書類が同じ写真に写るように</strong>撮影してください。
+      </div>
+      <div id="kyc-selfie-slot" onclick="pickKycImage('selfie')" style="width:100%;aspect-ratio:1;max-width:220px;margin:0 auto;border-radius:8px;background:var(--color-background-secondary);border:1px dashed var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-tertiary);cursor:pointer;background-size:cover;background-position:center;text-align:center;line-height:1.6">＋<br>タップで撮影・選択</div>
+      <div style="font-size:10px;color:var(--color-text-tertiary);line-height:1.7;margin-top:8px">
+        ・お顔と書類の文字の両方がはっきり分かるように撮影してください<br>
+        ・マスク・サングラス・帽子などは外してください
+      </div>
+    </div>
+
+    <div id="kyc-error" style="font-size:11px;color:#C05050;text-align:center;margin:.5rem 0;min-height:14px"></div>
+    <button class="btn-gold" id="kyc-submit-btn" onclick="submitKyc()">本人確認書類を提出する</button>
+  </div>
+</div>
+
+<!-- ===== 本人確認：提出完了／審査中 ===== -->
+<div id="kyc-pending-wrap" class="login-wrap" style="display:none">
+  <div class="login-card" style="max-width:420px">
+    <div style="font-size:40px;text-align:center;margin-bottom:.5rem">🔍</div>
+    <div class="login-title" style="margin-bottom:.75rem">本人確認を受け付けました</div>
+    <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.9;text-align:center;margin-bottom:1rem">
+      ご提出ありがとうございます。<br>
+      運営にて確認のうえ、<strong>通常1〜2営業日</strong>で結果をお知らせいたします。<br><br>
+      確認が完了するまでの間も、<strong>メッセージの確認やプロフィールの編集・追加</strong>はご利用いただけます。
+    </div>
+    <button class="btn-gold" onclick="enterAppFromKyc()">アプリへ進む →</button>
   </div>
 </div>
 
@@ -1115,7 +1259,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
     </div>
     <div class="topbar-icons">
       <div class="notif-icon" onclick="toggleNotif()">🔔<div class="notif-dot" id="notif-dot"></div></div>
-      <div class="prof-icon" onclick="toggleModal()"><img id="topbar-ava" src="" style="display:none"><span class="prof-icon-ph" id="topbar-initial">は</span></div>
+      <div class="prof-icon" id="topbar-ava-wrap" onclick="toggleModal()"><img id="topbar-ava" src="" style="display:none"><span class="prof-icon-ph" id="topbar-initial">は</span></div>
     </div>
   </div>
   <!-- ロゴから「推し」「縁リスト」「メッセージ」「🔔」へループしながら伸びるツタの演出オーバーレイ
@@ -1154,7 +1298,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <div class="modal-hd"><span class="modal-ttl">卒業鑑定プラン お申し込み</span><button class="modal-close" onclick="closeSotsugyouApply()">✕</button></div>
       <div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:.75rem">下記の振込先へお振込み後、本フォームを送信してください。<br>運営にて入金確認後、鑑定の日程をご案内いたします。</div>
       <div style="background:var(--color-background-secondary);border-radius:8px;padding:12px 14px;margin-bottom:.85rem;border-left:3px solid #C9A96E">
-        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500">振込先口座（鑑定料金 ¥36,900）</div>
+        <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500">振込先口座（鑑定料金 <span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥36,900</span><span style="color:#e53935;font-weight:700">→ 今だけ¥9,630（74%OFF）</span>）</div>
         <div style="font-size:12px;color:var(--color-text-primary);line-height:1.9">
           ◯◯銀行　◯◯支店<br>
           普通　0000000<br>
@@ -1240,6 +1384,7 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
         <div class="sub-item" onclick="openSubPage('omoi');closeSubMenu()">運営の想い</div>
         <div class="sub-item" onclick="openSubPage('voice');closeSubMenu()">卒業生の間</div>
         <div class="sub-item" id="sub-item-voicetransfer" style="display:none" onclick="openSubPage('voicetransfer');closeSubMenu()">卒業生の間 転入申請</div>
+        <div class="sub-item" id="sub-item-kyc" style="display:none" onclick="closeSubMenu();openKycPage()">本人確認</div>
         <div class="sub-item" onclick="openSubPage('contact');closeSubMenu()">問い合わせ</div>
         <div class="sub-item" onclick="openSubPage('cancel');closeSubMenu()" style="color:#C05050">退会</div>
       </div>
@@ -1270,29 +1415,39 @@ div,p,span,label,input,select,button,textarea{font-family:'Noto Sans JP',sans-se
       <p class="sec">月額プラン</p>
       <div id="plans-subs-container"></div>
       <p class="sec" style="margin-top:1.25rem">特別プラン</p>
-      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)">¥ 36,900 <span class="other-plan-unit">一括</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)"><span style="font-weight:600">【 鑑定内容 】</span><br>お2人の相性の詳細／一緒に過ごす上での注意点／相手に求めるもの／今後の運勢／運気を上げる要素／運気を下げる要素／人生の武器／開運ナンバー<br>以上8つをお伝えの上、時間の限りご質問にお応え致します🍀<br><br><span style="font-weight:600">【 特典 】</span><br>・卒業後も運営への連絡が可能<br>・今後の全ての鑑定が永久30%OFF<br>・卒業生の間への参加権<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
+      <div class="other-plan-card locked" id="sotsugyou-card"><div class="other-plan-nm">卒業鑑定プラン<span class="plan-status-badge" id="sotsugyou-badge" style="background:rgba(150,150,150,.15);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary)">🔒 未解放</span></div><div class="other-plan-price" style="color:var(--color-text-tertiary)"><span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥ 36,900 <span class="other-plan-unit">一括</span></span><br><span style="color:#e53935;font-weight:700;font-size:20px;white-space:nowrap">今だけ¥9630(74%OFF!)</span></div><div class="other-plan-items" style="color:var(--color-text-tertiary)"><span style="font-weight:600">【 鑑定内容 】</span><br>お2人の相性の詳細／一緒に過ごす上での注意点／相手に求めるもの／今後の運勢／運気を上げる要素／運気を下げる要素／人生の武器／開運ナンバー<br>以上8つをお伝えの上、時間の限りご質問にお応え致します🍀<br><br><span style="font-weight:600">【 特典 】</span><br>・卒業後も運営への連絡が可能<br>・今後の全ての鑑定が永久30%OFF<br>・卒業生の間への参加権<br>・紹介手数料プログラムへの参加権</div><div class="lock-notice">🔒 カップル成立後、双方が専用フォームにお互いの会員IDを入力して卒業申請すると、運営の承認後に解放されます。</div></div>
       <div id="sotsugyou-status-area"></div>
       <div class="other-plan-card" style="background:var(--color-background-secondary)"><div class="other-plan-nm">紹介プログラム（卒業生限定）</div><div class="other-plan-items">卒業鑑定プランで卒業後、知人を紹介してその方が同じく卒業鑑定プランで卒業した場合、3,690円をご紹介者様へキャッシュバック（人数制限なし）！</div></div>
     </div></div>
     <div id="sub-omoi" style="display:none">
       <div class="blog-wrap">
-        <div class="blog-catchcopy">最短距離で「必然的良縁を」</div>
-        <div class="blog-body">はじめまして。<br>本サイトの運営を務めさせて頂いております、KAZKINです。<br><br>はじめに、<br>少し長くなる上に、前半は私の今までの経緯を綴ったお話しなのですが、前半を乗り越えて頂けると、これからの未来が楽しみになる、<br><br>そんな内容になってますので、少々お時間賜りたく存じます。<br><br><br>さて、それでは。<br><br><br>今、あなたがこのページを開いているということは、少なからず今の「異性との出会い方」に疑問や疲れを感じておられたり、あるいは「自分の理想の相手」を求めているからではないでしょうか。<br><br>世の中には様々なマッチングアプリが存在します。<br><br>綺麗な写真を並べ、趣味や年収、長所を書き込み、ひたすらスワイプを繰り返す。<br><br>でも、その先に待っているのは「マッチングはするけれど、続かない」という虚無感。。<br><br>私もかつて、その渦中にいた一人でした。</div>
-        <div class="blog-divider">「恋愛不適合者」だと思い込んでいた10年間</div>
-        <div class="blog-body">私は今年、30歳という節目の歳を迎えました。<br>振り返れば、私の中学・高校時代はまさに「部活一筋」。<br><br>テニスコートを走り回り、好きな子よりボールを追いかける毎日で、甘酸っぱい恋愛とは縁遠い学生時代を過ごしました。<br><br>社会人になってからも、どちらかと言えば恋愛より仕事志向。<br><br>そもそも自分に自信がなく、「自分は恋愛に向いていない」というコンプレックスを抱えたまま20代の大半を過ごしました。<br><br>事実、私の恋愛遍歴は華やかなものではありません。<br><br>今までにお付き合いした方はたったの3人。<br>しかも、最長でも3ヶ月。。<br><br>私は自分から積極的に話すタイプではありません。なので、せっかくお付き合いができても、沈黙が嫌で無理に話題を探しては自滅し、絶妙に気まずい「微妙な間」が生まれてしまう。<br>そして雰囲気を壊しては離れられていく……。<br><br>そんな失敗を3回繰り返した結果、19歳で最後の人と別れてからは、「自分は一生独り身なんだろうな」と半ば諦めていました。<br><br>そこから10年間、私の隣には誰もいませんでした。</div>
-        <div class="blog-divider">運命を変えた学問との出会い</div>
-        <div class="blog-body">そんな私の人生に転機が訪れたのは、20歳の時です。<br>何気なく触れた「四柱推命」という学問が、私の世界観を塗り替えました。<br><br>それまで自分の性格を「暗くはないがコミュニケーション能力が低い」と否定的に捉えていたのですが、四柱推命の命式を読み解くことで、<br><br>「自分がなぜ自分から話すタイプではないのか」「どのような状態が心地良いと感じるのか」など<br><br>本当の自分を客観的かつ学問的に知ることができたのです。<br>これが猛烈に面白く、私はのめり込みました。<br><br>家族や周囲の友人を片っ端から四柱推命に当てはめては、その特徴や口癖、行動の癖を研究する日々。<br><br>そして26歳の時、あるご縁で四柱推命に精通する師匠と出会い、本格的にこの学問を学び始めました。<br><br>人を鑑定すればするほど、確信に変わったことがあります。<br><br>それは、『人にはそれぞれ、パズルのピースのようにカチッとハマる相性がある』ということ。<br><br>そして鑑定と統計を重ねる中で、一つの結論に達しました。<br><br>「もし次にパートナーにするなら、この素質と、あの要素を併せ持っている人が、最高の理想像だ」<br><br>自分の思い描く相手の理想像が、学問を通して明確になったのです。<br><br>そして、、</div>
-        <div class="blog-divider">10年の空白を埋めた、奇跡のご縁</div>
-        <div class="blog-body">29歳になった時、奇跡が起きました。<br>相手は、中学時代の後輩。<br><br>元々は23歳くらいの時から、地元のテニスの大会で年に一度だけ会うか会わないかという薄い繋がりでしたが、私にとっては当初から性格も所作も話し方も雰囲気も、とにかく「ドストライク」な子でした。<br><br>ある年、テニスの大会後にみんなで食事に行くことになり、そこで初めて数分でしたがしっかり話すことができました。<br><br>そこで連絡先を交換し、月に1回ずつ会って<br>3回目のデートで勇気を振り絞って告白しました。<br><br>すると、彼女も「実は私もずっと気になっていました」と言ってくれたのです。<br><br>10年ぶりの恋人ができた瞬間でした。<br><br>付き合った後、私は彼女の生年月日を聞き、<br>興味津々で命式を出しました。<br><br>驚愕でした。<br><br>そこには、「自分のパートナーにするならこの素質が理想」として思い描いていた要素が、限りなく多く並んでいたのです。<br><br>相性はこれ以上ないほど抜群。<br>付き合い始めて1年以上が経ちますが、これまで一度も衝突や喧嘩をしたことがありません。<br><br>あんなに沈黙や間を恐れていた私が、彼女の前ではそんな時も自然体でいられる。<br><br>これは「努力」の結果ではなく、<br>「相性のなせる技」だと心底思いました。</div>
-        <div class="blog-divider">数十万円の出費と、費やした時間からの学び</div>
-        <div class="blog-body">実は彼女に出会う前、私も一般的なマッチングアプリを片っ端から試した時期がありました。<br><br>ありがたいことに何人もの方とマッチングし、実際に食事に行ったり、ドライブに行ったりもしました。しかし、結果は散々。。<br><br>「なんか違う」と思いながらも会い続け、<br>結局誰ともお付き合いには至らず。。<br><br>気づけば、アプリのサブスク費用やデート代、移動費だけで数十万円というお金を失っていました。<br><br>そしてお金以上に痛手だったのは、<br>「自分の大切な時間」を浪費してしまったこと。<br><br>プロフィール写真やメッセージのやり取りだけでは、その人との本質的な「相性」は見えません。<br><br>会ってみて初めて「合わない」と気づく、<br>その繰り返しに嫌気と限界を感じていました。</div>
-        <div class="blog-divider">このマッチングサービスの理念・本質</div>
-        <div class="blog-body">「私と同じような遠回りをしてほしくない。」<br><br>シンプルにその想いから、このサービスをつくりました。<br><br>世の中のアプリは「マッチング（出会うこと）」をゴールにしています。<br><br>つまり、運営はサブスクで何ヶ月も何年もアプリを使い続けてくれればその分利益になるので、本質的にはマッチングすら望んでないかもしれません。<br><br>(アプリを使っていた身として流石にそれはないと信じたいです。)<br><br>しかし、私たちのゴールは<br>【一緒になった後も長く良い関係を続けること】<br>です。<br><br>だからもっと言えばゴールはなくて、<br>強いて言うなら、それはこの世から旅立つ時かなって思います。</div>
-        <div class="blog-feature"><div class="blog-feature-title">♦ 最大の特徴は「学問的な相性」からの逆算 ♦</div><div class="blog-feature-body">外見や年収、趣味で選ぶのは二の次です。<br><br>まずは四柱推命という長い歴史を持つ学問に基づき、本質的に「合う」と判断された相手とのマッチングからスタートします。</div></div>
+        <div class="blog-catchcopy">〜 必然的良縁を、あなたに〜</div>
+
+        <div class="blog-body">はじめまして。<br>本サービスの運営を務めさせて頂いております、KAZKINです。<br><br>はじめに、<br>少し長くなりますが、前半は私の今までの経緯を綴ったお話しを、後半はこれからの未来が楽しみになる内容になってますので、是非ぜひ一読してみて頂きたいと思います。<br><br>さて、それでは。<br><br>今、あなたがこのサービスを使い始めたということは、「異性との出会い」を求めていることと思います。<br><br>シンプルに出会いがないという方もいれば、今の「異性との出会い方」に疑問や疲れを感じていたり、あるいは理想の「運命の相手」を求めている方も少なくないはずです。<br><br>世の中には様々なマッチングアプリが存在します。<br><br>綺麗な写真を並べ、趣味や年収、長所を書き込み、ひたすらスワイプを繰り返す。<br><br>でも、その先に待っているのは「マッチングはするけれど、続かない」という現実と虚無感。<br><br>私もかつて、その渦中にいた一人でした。</div>
+
+        <div class="blog-divider"></div>
+        <div class="blog-feature"><div class="blog-feature-title">「恋愛不適合者」だと思い込んでいた10年間</div><div class="blog-feature-body">私は今年、30歳という節目の歳を迎えました。<br>振り返れば、私の学生時代はまさに「部活一筋」。<br><br>テニスコートを駆け回り、好きな子よりボールを追いかける毎日で、甘酸っぱい恋愛とは縁遠い学生時代を過ごしました。<br><br>社会人になってからも、どちらかと言えば恋愛より仕事志向。<br><br>過去に付き合った人数も期間も少なく、恋愛に自信が持てなくて「自分は恋愛に向いていない」というコンプレックスを抱えたまま20代の大半を過ごしました。<br><br>ちなみに私の恋愛遍歴は、、<br><br>これまでにお付き合いした人はたった3人。<br>しかも、最長でも3ヶ月。。<br>最短でなんと3日。。。<br><br>私は正直言うと、自分から積極的に話すタイプではありません。かと言って沈黙も嫌なので無理に話題を探しては自滅し、気まずいビミョーな間が生まれてしまう。<br><br>そして「なんか思ってたのと違う」と思われて離れられていく……。<br><br>そんな失敗を3回繰り返した結果、19歳で最後の人と別れてからは、「自分は一生独り身なんだろうな」と半ば諦めていました。<br><br>そこから10年間、恋人は1人もできなかったです。</div></div>
+
+        <div class="blog-feature"><div class="blog-feature-title">運命を変えた学問との出会い</div><div class="blog-feature-body">そんな私の人生に転機が訪れたのは、20歳の時です。<br>とあるキッカケで触れた「四柱推命」という学問が私の世界観を壊し、塗り替えました。<br><br>それまで自分の性格を「暗くはないがコミュニケーション能力が低い」と否定的に捉えていたのですが、四柱推命で自分を読み解くことで、<br><br>「なぜ上手くコミュニケーションが取れないのか」<br>「どのような状態が心地良いと感じるのか」<br>「どういう人と波長が合うのか」などなど<br><br>本当の自分を客観的かつ学問的に知ることができたのです。<br>これが私には本当に面白く、のめり込みました。<br><br>家族や周囲の友人を片っ端から四柱推命に当てはめては、それぞれの特徴や口癖、行動の癖のデータを取って分析するのが趣味になるほど。<br><br>そして26歳の時、あるご縁で四柱推命に精通する師匠と出会い、本格的にこの学問を学び始びました。<br><br>講座を全て受け、鑑定を繰り返しする中で、パートナー関係において確信になったことがあります。<br><br>それは、<br><br>『人にはそれぞれ、パズルのピースのようにカチッとハマる相性がある』<br><br>ということ。<br><br>そして統計と鑑定を重ねる中で、私の恋愛面において一つの結論に至りました。<br><br>「もし次に付き合うなら、この素質とこの素質を併せ持っている人が、自分の理想の恋人だ」<br><br>自分の思い描く相手の理想像が、学問を通して明確になったのです。<br><br>そして、、</div></div>
+
+        <div class="blog-feature"><div class="blog-feature-title">10年の空白を埋めた、奇跡のご縁</div><div class="blog-feature-body">29歳になった時、奇跡が起きました。<br>相手は、中学の後輩。<br><br>元々は23歳くらいの時から、地元のテニスの市民大会で年に一度だけ会うか会わないかという薄い繋がりでしたが、私にとっては当初から性格も所作も話し方も雰囲気も、とにかく「ドストライク」な子でした。<br><br>ある年、市民大会の打ち上げでみんなで食事に行くことになり、そこで数分でしたが初めてまともに話すことができました。<br><br>そこで連絡先を交換し、月に1回ずつ会って<br>3回目のデートで勇気を振り絞って告白しました。<br><br>すると、なんと彼女も<br>「実は私も初めて見た時からずっと気になっていました」と言ってくれたのです。<br><br>10年ぶりに恋人ができた瞬間でした。<br><br>そして、ここからがすごいんです、<br><br>付き合った後、私は彼女の生年月日を聞き、<br>興味津々で彼女の四柱推命を見てみました。<br><br>驚愕でした。<br><br>そこには、「次に自分の恋人にするならこの素質が理想」として思い描いていた素質が、めちゃくちゃ多く並んでいたのです。<br><br>相性はほぼ完璧なほど抜群。<br>付き合い始めて1年以上が経ちますが、これまで一度も衝突や喧嘩をしたことがありません。<br><br>「運命の人って自分にとってはこの子しかいない」<br>と思ったのを今でもリアルに覚えています。<br><br>あんなに沈黙や間を恐れていた私が、彼女の前ではそんな時も自然体でいられる。<br><br>これは「努力」の結果ではなく、<br>「相性の良さが成せるわざ」だと心底思いました。</div></div>
+
+        <div class="blog-feature"><div class="blog-feature-title">数十万円の出費と、費やした時間からの学び</div><div class="blog-feature-body">実は彼女に出会う前、私も一般的なマッチングアプリを片っ端から試した時期がありました。<br><br>ありがたいことに何人もの方とマッチングし、実際に食事に行ったり、ドライブに行ったりもしました。<br><br>しかし、結果は散々。。<br><br>「なんか違う」と思いながらも会い続け、<br>結局誰ともお付き合いには至らず。。<br><br>気づけば、アプリのサブスク費用やデート代、移動費だけで数十万円というお金を失っていました。<br><br>そしてお金以上に後悔したのは、<br>「自分の大切な時間」を浪費してしまったこと。<br><br>プロフィール写真やメッセージのやり取りだけでは、その人との本質的な「相性」は見えません。<br><br>会ってみて初めて「合わない」と気づく、<br>その繰り返しに嫌気と限界を感じていました。</div></div>
+
+        <div class="blog-divider"></div>
+        <div class="blog-feature"><div class="blog-feature-title">このマッチングサービスの理念・本質</div><div class="blog-feature-body">そんな、経験を私自身がしているので<br><br>「私と同じような遠回りをしてほしくない。」<br><br>シンプルにその想いから、このサービスをつくりました。<br><br>理念は、冒頭でも記載している、<br><br>『必然的良縁を、あなたに』<br><br>世の中のアプリは「マッチング（出会うこと）」をゴールにしています。<br><br>つまり、運営はサブスクで何ヶ月も何年もアプリを使い続けてくれればその分利益になるので、本質的にはマッチングすら望んでないかもしれません。<br><br>(アプリを使っていた身として流石にそれはないと信じたいですが。)<br><br>しかし、私の考えるゴールは<br>【一緒になった相手と長く良い関係を続けること】<br>です。<br><br>だからもっと言えばゴールなんてなくて、<br>強いて言うなら、それはこの世から旅立つ時かなって思います。</div></div>
+
+        <div class="blog-feature"><div class="blog-feature-title">♦ 最大の特徴は「学問的な相性」からの逆算 ♦</div><div class="blog-feature-body">外見や年収、趣味で選ぶのも確かに大事ですが、それは二の次。<br><br>まずは四柱推命という何千年という長い歴史を持つ学問に基づき、「本質的に」合うと判断された相手とのマッチングからスタートします。</div></div>
+
         <div class="blog-feature"><div class="blog-feature-title">♦ 無駄なコストを徹底排除 ♦</div><div class="blog-feature-body">あらかじめ相性の良さが保証されている相手と出会うことで、無駄なサブスク費用、交際費、そして何より貴重な「時間」を節約できます。</div></div>
-        <div class="blog-feature"><div class="blog-feature-title">♦ 卒業（退会）のその先までサポート ♦</div><div class="blog-feature-body">本サービスでは、運命の相手を見つけて退会される際、お二人への「お祝い」をご用意しています。<br><br>【成婚・交際退会時の特別鑑定】<br>（任意：36,900円）<br><br>長く良い関係を続けるためには、お互いの「取扱説明書」を知っておくことが不可欠です。<br><br>• 相手にされると嬉しいこと、嫌なこと<br>• 心地よいと感じる距離感や言動<br>• 衝突しないように気をつけるべきこと<br>　などなど<br><br>これらを私の鑑定を通じて直接お伝えします。<br><br><br>さらに、この鑑定を受けてくださった方には以下の特典が付帯します。<br><br>♦ ①ご紹介キャッシュバック ♦<br>退会後、お知り合いをご紹介いただき、その方がマッチングし、こちらの鑑定を受けて退会された場合、感謝を込めて3,690円をキャッシュバックさせて頂きます（人数制限なし）。<br><br>♦ ②永年30%OFF権利 ♦<br>退会後も、人生の転機や悩みが生じた際、私の個人鑑定を一生涯30%OFFで受けられる特別権利を差し上げます。</div></div>
-        <div class="blog-warning">⚠️※こちらの鑑定は飽くまで「任意」です。<br>鑑定をご希望されない場合は、36,900円のお支払いの必要はございません。<br>サブスクの解約のみでご退会頂けます。<br><br>ですが、同時に特典も付かなくなりますので、ご了承ください。</div>
-        <div class="blog-body">さて、結びになりますが、<br>未来が楽しみになってきたでしょうか🍀<br><br>「恋愛の経験や自信がない、、」<br>「コミュニケーションが苦手、、」<br>「一生独身かもしれない、、」<br><br>そんな悩みや不安は、すべて「必然的良縁の<br>相手」に出会っていないだけかもしれません。<br><br>良い人と巡り会いたい<br>少しでもそんな気持ちがあるのであれば、微力ながらお手伝いさせて頂きたい、そう思います。<br><br>お金も時間も節約しつつ、理想のパートナーを見つけたい。そんな皆さんとご縁できますことを心よりお待ちしております。</div>
+
+        <div class="blog-feature"><div class="blog-feature-title">♦ 卒業（退会）のその先までサポート ♦</div><div class="blog-feature-body">本サービスでは、運命の相手を見つけて退会される際、お二人への「お祝い(特典)」をご用意しています。<br><br>【成婚・交際退会時の特別鑑定】<br>（任意：<span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥36,900</span><span style="color:#e53935;font-weight:700"> 今だけ¥9,630</span>）<br><br>長く良い関係を続けるためには、お互いの「取扱説明書」を知っておくことが不可欠です。<br><br>• 相手にされると嬉しいこと、嫌なこと<br>• 心地よいと感じる距離感や言葉の使い方<br>• 衝突しないように気をつけるべきこと<br><br>などなど<br><br>これらを私の鑑定を通じて直接お伝えします。<br><br>※もちろん鑑定は希望者のみですが、受けると受けないとではその後の相手の理解度が雲泥の差になると思います。<br><br>さらに、この鑑定を受けてくださった方には以下の特典が付帯します。<br><br>♦ ①ご紹介キャッシュバック ♦<br>退会後、お知り合いをご紹介いただき、その方がマッチングし、こちらの鑑定を受けて退会された場合、感謝の意を込めて3,690円をキャッシュバックさせて頂きます（人数制限なし）。<br><br>♦ ②永年30%OFF権利 ♦<br>退会後も、人生の転機や悩みが生じた際、私の個人鑑定を一生涯30%OFFで受けられる特別権利を差し上げます。</div></div>
+
+        <div class="blog-warning">⚠️※繰り返しになりますが、こちらの鑑定は飽くまで「任意」です。<br>鑑定をご希望されない場合は、料金のお支払いの必要はございません。<br>サブスクの解約のみでご退会頂けますのでご安心ください。<br><br>ですが、同時に上記特典も付かなくなりますので、ご了承ください。</div>
+
+        <div class="blog-divider"></div>
+        <div class="blog-body">さて、結びになりますが、<br>これからが楽しみになってきましたでしょうか🍀<br><br>「恋愛の経験や自信がない、、」<br>「コミュニケーションが苦手、、」<br>「一生独身かもしれない、、」<br>「私には運命の相手はいないかも、、」<br><br>そんな悩みや不安は、すべて「必然的良縁の相手」に出会っていないだけかもしれません。<br><br>「良い人と巡り会いたい」<br>少しでもそんな気持ちがあるのであれば、微力ながらお手伝いさせて頂きたい、そう思います。<br><br>お金も時間も節約しつつ、理想のパートナーを見つけましょう。<br><br>皆さんとご縁、そして一生のパートナーとご縁できますことを心より楽しみにしております。</div>
+
         <div class="blog-sign">運営責任者：<strong>KAZKIN</strong></div>
       </div>
     </div>
@@ -2669,6 +2824,8 @@ var officialMessages=[{from:'official',text:'縁の間へようこそ！ご不�
 var myIsGraduated = false;
 /** 卒業認定 or 転入承認で卒業生の間に入れるか @type {boolean} */
 var myIsVoiceMember = false;
+/** 本人確認ステータス none / pending / approved / rejected */
+var myKycStatus = 'approved';
 
 // ===== ユーザー間メッセージ =====
 /**
@@ -2731,7 +2888,25 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 /** Supabase JS クライアント。型は @supabase/supabase-js の SupabaseClient @type {any} */
 // eslint-disable-next-line no-undef
-const supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+// ★ CDN が読めなかった場合でも後続スクリプトを巻き添えにしない。
+//    （ここで例外になると以降の関数が一切定義されず、ボタンが無反応になる）
+var supa = null;
+if (typeof supabase !== 'undefined' && supabase && supabase.createClient) {
+  supa = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: true, autoRefreshToken: true } });
+} else {
+  // 利用者に原因が分かる形で知らせる
+  (function(){
+    function notify(){
+      var b = document.createElement('div');
+      b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b00020;color:#fff;'
+        + 'font-size:12px;line-height:1.7;padding:10px 12px;text-align:center';
+      b.textContent = '通信エラー：必要なライブラリを読み込めませんでした。ネットワーク環境をご確認のうえ、ページを再読み込みしてください。';
+      (document.body || document.documentElement).appendChild(b);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', notify);
+    else notify();
+  })();
+}
 
 </script>
 <script>
@@ -2747,28 +2922,36 @@ const SLIDE_DATA = {
     +'<div class="slide-sub">月1,693円で始められる、<br>マッチングに特化した軽量プランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">お試しプラン</div>'
     +'<div class="plan-box-price">¥ 1,693 <span class="plan-box-unit">/ 月</span></div>'
-    +'<div class="plan-box-items">✦ 命式の自動計算・登録<br>✦ 良縁率の高い方とのマッチング<br>✦ 仮マッチ後のプロフィール閲覧<br>✦ メッセージ最大100回</div></div>'
+    +'<div class="plan-box-items">✦ 良縁率の高い方からご紹介<br>✦ メッセージ最大100回<br>✦ 命式の自動算出・登録</div></div>'
     +'<div class="slide-note">※ 相性診断・運勢カレンダーをご利用になりたい場合は、後日「NOマッチングプラン」または「トータルプラン」へ変更ください。</div>',
     // 2. 登録について
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
-    +'<div class="slide-sub">登録情報は後から変更できません。<br>正確に入力してください。</div>'
-    +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">マッチング前のプロフィール写真はぼかし表示。マッチング後にクリアな状態で表示されます。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・子供の有無を入力します。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生年月日・生時・出生地で命式が算出されます。時刻不明な場合は空欄でもOK。</div></div></div>'
-    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」で年・月・日・時柱が表示されます。</div></div></div>',
-    // 3. 推しページ
-    '<div class="slide-badge">③ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
+    +'<div class="slide-sub">登録後は、ニックネーム・性別・生年月日は<br>変更できません。正確にご入力ください。</div>'
+    +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">メイン写真1枚、サブ写真4枚までアップできます。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネームから働き方の希望まで詳細に設定できます。プロフィール文と興味のあるカテゴリーまで設定できるとベスト！</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生時・出生地が不明な場合は空欄でもOK(※精度は落ちます)。後から分かった場合は登録後に変更できます。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」ボタンであなたの四柱を表示→登録</div></div></div>',
+    // 3. 本人確認について
+    '<div class="slide-badge">③ 本人確認</div><div class="slide-title">年齢確認（本人確認）<br>をお願いしています</div>'
+    +'<div class="slide-sub">法的義務の関係上、ご登録後に<br>本人確認書類のご提出をお願いしております。</div>'
+    +'<div class="feature-row"><div class="feature-icon">🪪</div><div class="feature-text"><div class="feature-title">ご提出いただける書類</div><div class="feature-desc">運転免許証（裏表） / マイナンバーカード（表面のみ） / パスポート　のいずれか1点</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🤳</div><div class="feature-text"><div class="feature-title">書類を持った自撮り</div><div class="feature-desc">ご本人様確認のため、書類とお顔が同じ写真に写るように撮影してご提出ください。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🔒</div><div class="feature-text"><div class="feature-title">書類のお取り扱い</div><div class="feature-desc">本人確認の目的のみに使用し、他の会員に公開されることは一切ありません。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">⏳</div><div class="feature-text"><div class="feature-title">承認までの流れ</div><div class="feature-desc">運営が確認し、通常1〜2営業日で結果をお知らせします。承認までの間もメッセージの確認・プロフィールの編集はご利用いただけます。</div></div></div>',
+
+    // 4. 推しページ
+    '<div class="slide-badge">④ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
     +'<div class="slide-sub">四柱推命の相性判定をもとに良縁率を算出し、<br>高い順に表示します。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔍</div><div class="feature-text"><div class="feature-title">絞り込み条件</div><div class="feature-desc">性別・年齢・居住地・良縁率の最低ラインなどで絞り込めます。</div></div></div>'
     +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(1px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">💬</div><div class="feature-text"><div class="feature-title">「話してみたい」ボタン</div><div class="feature-desc">気になる方に押すと、相手の縁リストに申請が届きます。</div></div></div>',
-    // 4. 縁リスト
-    '<div class="slide-badge">④ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
+    // 5. 縁リスト
+    '<div class="slide-badge">⑤ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
     +'<div class="slide-sub">「話してみたい」が届いた方への返答と、<br>マッチング後の連絡ができます。</div>'
     +'<div class="mock-card" style="margin-bottom:5px"><div class="mock-row" style="margin-bottom:5px"><div class="mock-ava gold">月</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500">つきみさん<span class="mock-badge pending">申請待ち</span></div><div style="font-size:9px;color:var(--color-text-tertiary)">32歳・良縁率88%</div></div></div><div style="display:flex;gap:5px"><span class="mock-btn gold" style="flex:1;text-align:center;padding:4px 0">お話しOK</span><span class="mock-btn gray" style="flex:1;text-align:center;padding:4px 0">ごめんなさい</span></div></div>'
     +'<div class="mock-card" style="margin-bottom:.5rem;border-color:#C9A96E;border-left:3px solid #C9A96E"><div class="mock-row"><div class="mock-ava gold">花</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500">はなこさん<span class="mock-badge gold-b">マッチング成立</span></div></div></div><div style="margin-top:4px"><span class="mock-btn outline">メッセージ →</span></div></div>',
-    // 5. メッセージ
-    '<div class="slide-badge">⑤ メッセージ</div><div class="slide-title">マッチングした方と<br>メッセージができます</div>'
+    // 6. メッセージ
+    '<div class="slide-badge">⑥ メッセージ</div><div class="slide-title">マッチングした方と<br>メッセージができます</div>'
     +'<div class="slide-sub">マッチング成立後にチャットが始まります。</div>'
     +'<div class="mock-card" style="margin-bottom:.75rem;padding:.5rem .75rem">'
       +'<div style="display:flex;gap:5px;align-items:center;margin-bottom:.5rem"><span style="font-size:16px;color:var(--color-text-secondary)">‹</span><span style="font-size:11px;font-weight:500">つきみさん</span></div>'
@@ -2778,8 +2961,8 @@ const SLIDE_DATA = {
       +'<div style="text-align:right"><span style="display:inline-block;font-size:9px;background:#C9A96E;padding:4px 8px;border-radius:7px;color:#fff;max-width:75%">兵庫県です！◯◯さんは？</span></div>'
     +'</div>'
     +'<div class="slide-note">※ 他のSNSのIDやリンクの交換は規約違反。<br>発覚時点で退会処分・再入会不可となります。</div>',
-    // 6. その他＋完了
-    '<div class="slide-badge">⑥ その他ページ</div><div class="slide-title">「その他」タブから<br>各種ページへ</div>'
+    // 7. その他＋完了
+    '<div class="slide-badge">⑦ その他ページ</div><div class="slide-title">「その他」タブから<br>各種ページへ</div>'
     +'<div class="slide-sub">利用可能な機能と、プラン変更でご利用になれる機能のご案内です。</div>'
     +'<div class="feature-row"><div class="feature-icon">💳</div><div class="feature-text"><div class="feature-title">プラン</div><div class="feature-desc">現在のプランの確認・変更ができます。</div></div></div>'
     +'<div class="feature-row"><div class="feature-icon">🔮</div><div class="feature-text"><div class="feature-title">相性診断・運勢カレンダー <span style="font-size:10px;color:#C05050">プラン対象外</span></div><div class="feature-desc">グレーアウト表示されます。プランを変更するとご利用になれます。</div></div></div>'
@@ -2794,30 +2977,38 @@ const SLIDE_DATA = {
     +'<div class="slide-sub">マッチングは使わず、<br>相性診断と運勢カレンダーに特化したプランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">NOマッチングプラン</div>'
     +'<div class="plan-box-price">¥ 963 <span class="plan-box-unit">/ 月</span></div>'
-    +'<div class="plan-box-items">✦ 気になる人との相性診断<br>✦ 相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー</div></div>'
+    +'<div class="plan-box-items">✦ 気になる人との良縁率・相性診断<br>✦ 良縁率・相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー<br>✦ 命式の自動算出・登録</div></div>'
     +'<div class="slide-note">※ マッチング機能はご利用いただけません。<br>マッチングもご希望の場合は「トータルプラン」をご検討ください。</div>',
     // 2. 登録について
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
-    +'<div class="slide-sub">登録情報は後から変更できません。<br>正確に入力してください。</div>'
-    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別を入力します。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生年月日・生時・出生地で命式が算出されます。時刻不明な場合は空欄でもOK。</div></div></div>'
-    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」で年・月・日・時柱が表示されます。</div></div></div>',
-    // 3. 相性ページ
-    '<div class="slide-badge">③ 相性ページ</div><div class="slide-title">気になる人との<br>相性を学問的に診断</div>'
+    +'<div class="slide-sub">登録後は、ニックネーム・性別・生年月日は<br>変更できません。正確にご入力ください。</div>'
+    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネームから働き方の希望まで詳細に設定できます。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生時・出生地が不明な場合は空欄でもOK(※精度は落ちます)。後から分かった場合は登録後に変更できます。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」ボタンであなたの四柱を表示→登録</div></div></div>',
+    // 3. 本人確認について
+    '<div class="slide-badge">③ 本人確認</div><div class="slide-title">年齢確認（本人確認）<br>をお願いしています</div>'
+    +'<div class="slide-sub">法的義務の関係上、ご登録後に<br>本人確認書類のご提出をお願いしております。</div>'
+    +'<div class="feature-row"><div class="feature-icon">🪪</div><div class="feature-text"><div class="feature-title">ご提出いただける書類</div><div class="feature-desc">運転免許証（裏表） / マイナンバーカード（表面のみ） / パスポート　のいずれか1点</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🤳</div><div class="feature-text"><div class="feature-title">書類を持った自撮り</div><div class="feature-desc">ご本人様確認のため、書類とお顔が同じ写真に写るように撮影してご提出ください。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🔒</div><div class="feature-text"><div class="feature-title">書類のお取り扱い</div><div class="feature-desc">本人確認の目的のみに使用し、他の会員に公開されることは一切ありません。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">⏳</div><div class="feature-text"><div class="feature-title">承認までの流れ</div><div class="feature-desc">運営が確認し、通常1〜2営業日で結果をお知らせします。承認までの間もメッセージの確認・プロフィールの編集はご利用いただけます。</div></div></div>',
+
+    // 4. 相性ページ
+    '<div class="slide-badge">④ 相性ページ</div><div class="slide-title">気になる人との<br>相性を学問的に診断</div>'
     +'<div class="slide-sub">名前と生年月日の入力だけで、<br>四柱推命に基づいた相性結果が出ます。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔮</div><div class="feature-text"><div class="feature-title">相性診断</div><div class="feature-desc">気になる人の生年月日を入れるだけで、良縁率と詳細な関係性を表示します。</div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">📋</div><div class="feature-text"><div class="feature-title">相性結果メモ</div><div class="feature-desc">診断結果を保存して、後から見返したり比較したりできます。</div></div></div>',
-    // 4. 運勢カレンダー
-    '<div class="slide-badge">④ 運勢カレンダー</div><div class="slide-title">あなた専用の<br>運勢カレンダー</div>'
+    // 5. 運勢カレンダー
+    '<div class="slide-badge">⑤ 運勢カレンダー</div><div class="slide-title">あなた専用の<br>運勢カレンダー</div>'
     +'<div class="slide-sub">あなたの命式と暦の十二支との組み合わせから、<br>月単位・日単位の運勢を確認できます。</div>'
     +'<div class="feature-row"><div class="feature-icon">📅</div><div class="feature-text"><div class="feature-title">日々の運勢</div><div class="feature-desc">日柱・月柱・年柱と暦の関係から、その日の運勢を読み解きます。</div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">⭐</div><div class="feature-text"><div class="feature-title">三合・支合・冲・刑</div><div class="feature-desc">吉日・要注意日が一目でわかるアイコン表示。</div></div></div>',
-    // 5. メッセージ
-    '<div class="slide-badge">⑤ メッセージ</div><div class="slide-title">運営との連絡用<br>メッセージページ</div>'
+    // 6. メッセージ
+    '<div class="slide-badge">⑥ メッセージ</div><div class="slide-title">運営との連絡用<br>メッセージページ</div>'
     +'<div class="slide-sub">マッチング機能はありませんが、<br>運営とのお問い合わせ・連絡が可能です。</div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">📩</div><div class="feature-text"><div class="feature-title">運営チャット</div><div class="feature-desc">プランに関するご質問・お知らせは「縁の間 運営」とのチャットでやり取りします。</div></div></div>',
-    // 6. その他
-    '<div class="slide-badge">⑥ その他ページ</div><div class="slide-title">プラン変更や<br>サービスのご案内</div>'
+    // 7. その他
+    '<div class="slide-badge">⑦ その他ページ</div><div class="slide-title">プラン変更や<br>サービスのご案内</div>'
     +'<div class="slide-sub">「その他」タブから各種情報をご確認いただけます。</div>'
     +'<div class="feature-row"><div class="feature-icon">💳</div><div class="feature-text"><div class="feature-title">プラン</div><div class="feature-desc">現在のプランの確認・変更ができます。</div></div></div>'
     +'<div class="feature-row"><div class="feature-icon">💛</div><div class="feature-text"><div class="feature-title">紹介プログラム・運営の想い</div><div class="feature-desc">紹介プログラムや運営の想いをご紹介します。</div></div></div>'
@@ -2832,28 +3023,36 @@ const SLIDE_DATA = {
     +'<div class="slide-sub">マッチング・相性診断・運勢カレンダー、<br>すべての機能をフル活用できる総合プランです。</div>'
     +'<div class="plan-box gold"><div class="plan-box-name">トータルプラン</div>'
     +'<div class="plan-box-price">¥ 2,369 <span class="plan-box-unit">/ 月</span></div>'
-    +'<div class="plan-box-items">✦ 良縁率の高い方とのマッチング<br>✦ メッセージ最大100回<br>✦ 気になる人との相性診断<br>✦ 相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー</div></div>'
+    +'<div class="plan-box-items">✦ 良縁率の高い方からご紹介<br>✦ メッセージ最大100回<br>✦ 気になる人との良縁率・相性診断<br>✦ 良縁率・相性診断結果のメモ<br>✦ あなた専用の運勢カレンダー<br>✦ 命式の自動算出・登録</div></div>'
     +'<div class="slide-note">※ 他のSNSのIDやリンクの交換は規約違反。<br>発覚時点で退会処分・再入会不可となります。</div>',
     // 2. 登録について
     '<div class="slide-badge">② 登録について</div><div class="slide-title">まずは登録から</div>'
-    +'<div class="slide-sub">登録情報は後から変更できません。<br>正確に入力してください。</div>'
-    +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">マッチング前のプロフィール写真はぼかし表示。マッチング後にクリアな状態で表示されます。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネーム・性別・居住地・結婚歴・子供の有無を入力します。</div></div></div>'
-    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生年月日・生時・出生地で命式が算出されます。時刻不明な場合は空欄でもOK。</div></div></div>'
-    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」で年・月・日・時柱が表示されます。</div></div></div>',
-    // 3. 推しページ
-    '<div class="slide-badge">③ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
+    +'<div class="slide-sub">登録後は、ニックネーム・性別・生年月日は<br>変更できません。正確にご入力ください。</div>'
+    +'<div class="feature-row"><div class="feature-icon">📷</div><div class="feature-text"><div class="feature-title">プロフィール写真</div><div class="feature-desc">メイン写真1枚、サブ写真4枚までアップできます。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">👤</div><div class="feature-text"><div class="feature-title">プロフィール情報</div><div class="feature-desc">ニックネームから働き方の希望まで詳細に設定できます。プロフィール文と興味のあるカテゴリーまで設定できるとベスト！</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🗓️</div><div class="feature-text"><div class="feature-title">生まれの情報</div><div class="feature-desc">生時・出生地が不明な場合は空欄でもOK(※精度は落ちます)。後から分かった場合は登録後に変更できます。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">☯️</div><div class="feature-text"><div class="feature-title">命式プレビュー</div><div class="feature-desc">「命式を算出する」ボタンであなたの四柱を表示→登録</div></div></div>',
+    // 3. 本人確認について
+    '<div class="slide-badge">③ 本人確認</div><div class="slide-title">年齢確認（本人確認）<br>をお願いしています</div>'
+    +'<div class="slide-sub">法的義務の関係上、ご登録後に<br>本人確認書類のご提出をお願いしております。</div>'
+    +'<div class="feature-row"><div class="feature-icon">🪪</div><div class="feature-text"><div class="feature-title">ご提出いただける書類</div><div class="feature-desc">運転免許証（裏表） / マイナンバーカード（表面のみ） / パスポート　のいずれか1点</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🤳</div><div class="feature-text"><div class="feature-title">書類を持った自撮り</div><div class="feature-desc">ご本人様確認のため、書類とお顔が同じ写真に写るように撮影してご提出ください。</div></div></div>'
+    +'<div class="feature-row"><div class="feature-icon">🔒</div><div class="feature-text"><div class="feature-title">書類のお取り扱い</div><div class="feature-desc">本人確認の目的のみに使用し、他の会員に公開されることは一切ありません。</div></div></div>'
+    +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">⏳</div><div class="feature-text"><div class="feature-title">承認までの流れ</div><div class="feature-desc">運営が確認し、通常1〜2営業日で結果をお知らせします。承認までの間もメッセージの確認・プロフィールの編集はご利用いただけます。</div></div></div>',
+
+    // 4. 推しページ
+    '<div class="slide-badge">④ 推しページ</div><div class="slide-title">良縁率の高い方が<br>自動で表示されます</div>'
     +'<div class="slide-sub">四柱推命の相性判定をもとに良縁率を算出し、<br>高い順に表示します。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔍</div><div class="feature-text"><div class="feature-title">絞り込み条件</div><div class="feature-desc">性別・年齢・居住地・良縁率の最低ラインなどで絞り込めます。</div></div></div>'
     +'<div class="mock-card" style="margin-bottom:.5rem"><div class="mock-row"><div class="mock-ava" style="filter:blur(1px);font-size:16px">🙂</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500;color:var(--color-text-primary)">つきみさん <span style="font-size:9px;color:var(--color-text-tertiary)">32歳・兵庫県</span></div><div class="mock-tags"><span class="mock-tag">干合：1</span><span class="mock-tag">三合：2</span></div><div class="mock-bar"><div class="mock-fill" style="width:88%"></div></div><div class="mock-label">良縁率：88%</div></div></div></div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">💬</div><div class="feature-text"><div class="feature-title">「話してみたい」ボタン</div><div class="feature-desc">気になる方に押すと、相手の縁リストに申請が届きます。</div></div></div>',
-    // 4. 縁リスト
-    '<div class="slide-badge">④ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
+    // 5. 縁リスト
+    '<div class="slide-badge">⑤ 縁リスト</div><div class="slide-title">申請・マッチングを<br>管理するページ</div>'
     +'<div class="slide-sub">「話してみたい」が届いた方への返答と、<br>マッチング後の連絡ができます。</div>'
     +'<div class="mock-card" style="margin-bottom:5px"><div class="mock-row" style="margin-bottom:5px"><div class="mock-ava gold">月</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500">つきみさん<span class="mock-badge pending">申請待ち</span></div><div style="font-size:9px;color:var(--color-text-tertiary)">32歳・良縁率88%</div></div></div><div style="display:flex;gap:5px"><span class="mock-btn gold" style="flex:1;text-align:center;padding:4px 0">お話しOK</span><span class="mock-btn gray" style="flex:1;text-align:center;padding:4px 0">ごめんなさい</span></div></div>'
     +'<div class="mock-card" style="margin-bottom:.5rem;border-color:#C9A96E;border-left:3px solid #C9A96E"><div class="mock-row"><div class="mock-ava gold">花</div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:500">はなこさん<span class="mock-badge gold-b">マッチング成立</span></div></div></div><div style="margin-top:4px"><span class="mock-btn outline">メッセージ →</span></div></div>',
-    // 5. メッセージ
-    '<div class="slide-badge">⑤ メッセージ</div><div class="slide-title">マッチングした方と<br>メッセージができます</div>'
+    // 6. メッセージ
+    '<div class="slide-badge">⑥ メッセージ</div><div class="slide-title">マッチングした方と<br>メッセージができます</div>'
     +'<div class="slide-sub">マッチング成立後にチャットが始まります。</div>'
     +'<div class="mock-card" style="margin-bottom:.5rem;padding:.5rem .75rem">'
       +'<div style="display:flex;gap:5px;align-items:center;margin-bottom:.5rem"><span style="font-size:16px;color:var(--color-text-secondary)">‹</span><span style="font-size:11px;font-weight:500">つきみさん</span></div>'
@@ -2863,8 +3062,8 @@ const SLIDE_DATA = {
       +'<div style="text-align:right"><span style="display:inline-block;font-size:9px;background:#C9A96E;padding:4px 8px;border-radius:7px;color:#fff;max-width:75%">兵庫県です！◯◯さんは？</span></div>'
     +'</div>'
     +'<div class="feature-row" style="margin-bottom:0"><div class="feature-icon">📋</div><div class="feature-text"><div class="feature-title">運営チャットも統合</div><div class="feature-desc">マッチング相手とのやり取りに加え、運営からのお知らせもこのページに届きます。</div></div></div>',
-    // 6. その他
-    '<div class="slide-badge">⑥ その他ページ</div><div class="slide-title">充実の追加機能</div>'
+    // 7. その他
+    '<div class="slide-badge">⑦ その他ページ</div><div class="slide-title">充実の追加機能</div>'
     +'<div class="slide-sub">「その他」タブから多彩な機能をご利用いただけます。</div>'
     +'<div class="feature-row"><div class="feature-icon">🔮</div><div class="feature-text"><div class="feature-title">相性診断・結果メモ</div><div class="feature-desc">気になる人や知り合いとの相性を診断し、結果を保存・比較できます。</div></div></div>'
     +'<div class="feature-row"><div class="feature-icon">📅</div><div class="feature-text"><div class="feature-title">運勢カレンダー</div><div class="feature-desc">あなた専用の月単位・日単位の運勢が確認できます。</div></div></div>'
@@ -2935,6 +3134,7 @@ function skipOrient(){startReg();}
 function startReg(){
   document.getElementById('orient-wrap').style.display='none';
   applyPlanToRegistrationForm(selectedPlan);
+  if(typeof _regHideAppBehind === 'function') _regHideAppBehind();
   document.getElementById('reg-wrap').style.display='block';
   document.getElementById('reg-wrap').style.visibility='visible';
   // bot 対策: フォーム表示時刻を記録 + honeypot 挿入
@@ -3069,6 +3269,127 @@ function calcMeishiki(){
   dbgEl.innerHTML=dbgHtml;
 }
 function completeRegDemo(){memberID=generateMemberID();var nick=document.getElementById('r-nick').value||'名無し';var sexEl=document.querySelector('#r-sex-row .sxbtn.on');var sex=sexEl?sexEl.textContent:'不明';var res=document.getElementById('r-res').value||'未設定';var marriage=document.getElementById('r-marriage').value;var kodomo=getKodomoText();var yr=parseInt(document.getElementById('yr').value)||1996,mo=parseInt(document.getElementById('mo').value)||1,dy=parseInt(document.getElementById('dy').value)||1;document.getElementById('topbar-initial').textContent=nick.charAt(0);document.getElementById('modal-ava-ph').textContent=nick.charAt(0);if(savedImgSrc){var ti=document.getElementById('topbar-ava');ti.src=savedImgSrc;ti.style.display='block';document.getElementById('topbar-initial').style.display='none';var mi=document.getElementById('modal-ava-img');mi.src=savedImgSrc;mi.style.display='block';document.getElementById('modal-ava-ph').style.display='none';}document.getElementById('modal-info').innerHTML='<div class="modal-row"><span class="modal-lbl">ニックネーム</span><span class="modal-val">'+nick+'</span></div><div class="modal-row"><span class="modal-lbl">性別</span><span class="modal-val">'+sex+'</span></div><div class="modal-row"><span class="modal-lbl">居住地</span><span class="modal-val">'+res+'</span></div><div class="modal-row"><span class="modal-lbl">生年月日</span><span class="modal-val">'+yr+'年'+mo+'月'+dy+'日</span></div><div class="modal-row"><span class="modal-lbl">結婚歴</span><span class="modal-val">'+marriage+'</span></div><div class="modal-row"><span class="modal-lbl">子供</span><span class="modal-val">'+kodomo+'</span></div>';document.getElementById('modal-member-id').textContent=memberID;document.getElementById('contact-id').value=memberID;document.getElementById('contact-nick').value=nick;if(savedPillars.length===0){var lon=parseFloat(document.getElementById('city').value)||135.0;savedPillars=calcPillars(yr,mo,dy,parseInt(document.getElementById('hr').value)||0,parseInt(document.getElementById('mn').value)||0,lon);}if(savedPillars.length>0){var h='';savedPillars.forEach(function(p,i){h+='<div class="pc-mini'+(i===2?' day':'')+'"><div class="pc-mini-lbl">'+PL[i]+'</div><div class="pc-mini-k">'+KAN[p.k]+'</div><div class="pc-mini-s">'+SHI[p.s]+'</div></div>';});document.getElementById('modal-pillars').innerHTML=h;}MY_PILLARS=savedPillars;document.getElementById('reg-wrap').style.display='none';document.getElementById('orient-wrap').style.display='none';document.getElementById('login-wrap').style.display='none';showAppWrap();renderMatchList(MY_PILLARS);}
+// ===== 新規登録：必須項目の入力チェック =====
+// 画面の「*」が付いている項目がすべて埋まっているかを判定する。
+// 未入力の欄は赤枠でハイライトし、最初の未入力欄までスクロールする。
+/** 必須項目チェック @param {{email:string,password:string,phone:string}} v @returns {boolean} 全て入力済みなら true */
+function checkRequiredFields(v){
+  var missing = [];     // 未入力の項目名
+  var firstEl = null;   // 最初の未入力欄（スクロール用）
+
+  // 前回のハイライトを消す
+  document.querySelectorAll('#reg-wrap .req-missing, #reg-wrap .req-missing-box').forEach(function(el){
+    el.classList.remove('req-missing');
+    el.classList.remove('req-missing-box');
+  });
+
+  /** 1項目を検証 @param {string} id @param {string} label @param {boolean} ok */
+  function need(id, label, ok){
+    if(ok) return;
+    missing.push(label);
+    var el = document.getElementById(id);
+    if(el){
+      el.classList.add('req-missing');
+      // ラベルを含むブロックも囲って、どの項目か一目で分かるようにする
+      // 性別は .fl の中にないため #reg-sex-block を使う
+      var box = el.closest('.fl') || (id === 'r-sex-row' ? document.getElementById('reg-sex-block') : null);
+      if(box) box.classList.add('req-missing-box');
+      if(!firstEl) firstEl = (box || el);
+    }
+  }
+  /** 入力欄が空でないか */
+  function filled(id){
+    var el = document.getElementById(id);
+    return !!(el && String(el.value || '').trim());
+  }
+
+  // --- ログイン情報 ---
+  need('r-email',    'メールアドレス', !!v.email);
+  need('r-password', 'パスワード',     !!v.password);
+  need('r-phone',    '電話番号',       !!v.phone);
+
+  // --- プロフィール ---
+  need('r-nick', 'ニックネーム', filled('r-nick'));
+  var sexOn = document.querySelector('#r-sex-row .sxbtn.on');
+  need('r-sex-row', '性別', !!sexOn);
+  // 居住都道府県・結婚歴・子供はプランによって非表示になることがあるため、表示中のみ必須
+  if(_regFieldVisible('reg-residence'))      need('r-res',      '居住都道府県', filled('r-res'));
+  if(_regFieldVisible('reg-marriage-kodomo')){
+    need('r-marriage', '結婚歴', filled('r-marriage'));
+    need('r-kodomo',   '子供',   filled('r-kodomo'));
+  }
+  need('r-occupation', '職業',         filled('r-occupation'));
+  need('r-income',     '年収',         filled('r-income'));
+  need('r-living',     '家',           filled('r-living'));
+  need('r-moving',     '引越し',       filled('r-moving'));
+  need('r-work-pref',  '働き方の希望', filled('r-work-pref'));
+
+  // --- 生まれの情報 ---
+  need('yr', '生年', filled('yr'));
+  need('mo', '生月', filled('mo'));
+  need('dy', '生日', filled('dy'));
+
+  // 未入力があれば、まとめて知らせる
+  // ★ alert は「このページでダイアログを表示しない」が有効だと無視されてしまい、
+  //    ボタンが反応しないように見えるため、画面内に表示する
+  if(missing.length){
+    _regShowError('必須項目を入力してください\n未入力：' + missing.join('、'));
+    if(firstEl && firstEl.scrollIntoView) firstEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return false;
+  }
+  _regClearError();
+
+  // --- 書式のチェック（入力はされているが形式が違うもの）---
+  if(v.password.length < 6){
+    _regShowError('パスワードは6文字以上にしてください');
+    _regFocus('r-password');
+    return false;
+  }
+  if(!/^0\d{9,10}$/.test(v.phone)){
+    _regShowError('電話番号は0から始まる10〜11桁の数字で入力してください');
+    _regFocus('r-phone');
+    return false;
+  }
+  _regClearError();
+  return true;
+}
+/** 登録画面の裏に出ているアプリ画面・ロックバナーを隠す
+ *  （同時表示されると固定要素がボタンに重なり、タップが奪われることがある） */
+function _regHideAppBehind(){
+  var app = document.getElementById('app-wrap');
+  if(app && app.style.display !== 'none') app.style.display = 'none';
+  var banner = document.getElementById('kyc-lock-banner');
+  if(banner) banner.style.display = 'none';
+}
+
+/** 登録フォームのエラーを画面内に表示（alert が無効化されていても見える） */
+function _regShowError(msg){
+  var el = document.getElementById('reg-error');
+  if(el){ el.textContent = msg; el.style.display = 'block'; }
+  else { alert(msg); }   // 念のためのフォールバック
+}
+/** 登録フォームのエラー表示を消す */
+function _regClearError(){
+  var el = document.getElementById('reg-error');
+  if(el){ el.textContent = ''; el.style.display = 'none'; }
+}
+/** 要素が表示されているか（プランごとの出し分けに対応） */
+function _regFieldVisible(id){
+  var el = document.getElementById(id);
+  if(!el) return false;
+  return el.offsetParent !== null;
+}
+/** 該当欄を赤枠にしてスクロール */
+function _regFocus(id){
+  var el = document.getElementById(id);
+  if(!el) return;
+  el.classList.add('req-missing');
+  var box = el.closest('.fl');
+  if(box) box.classList.add('req-missing-box');
+  var target = box || el;
+  if(target.scrollIntoView) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 /** 都道府県・出生地のセレクトボックスを初期化 */
 // ===== 登録画面のサブ写真（2〜5枚目）選択 =====
 var regSubFiles = [null, null, null, null];
@@ -3101,7 +3422,26 @@ function clearRegSub(idx){
   if(del) del.style.display = 'none';
 }
 
+/** 生年・生月・生日のプルダウンを生成（登録は18歳以上が対象） */
+function initBirthSelects(){
+  var now = new Date().getFullYear();
+  function fill(id, from, to, suffix){
+    var sel = document.getElementById(id);
+    if(!sel || sel.options.length > 1) return;   // 生成済みなら何もしない
+    var step = (from <= to) ? 1 : -1;
+    for(var v = from; step > 0 ? v <= to : v >= to; v += step){
+      var o = document.createElement('option');
+      o.value = String(v); o.textContent = v + suffix;
+      sel.appendChild(o);
+    }
+  }
+  fill('yr', now - 18, now - 80, '年');   // 新しい年が上に来るよう降順
+  fill('mo', 1, 12, '月');
+  fill('dy', 1, 31, '日');
+}
+
 function initPrefs(){
+  initBirthSelects();
   var rp=document.getElementById('r-res');
   PREF_NAMES.forEach(function(n){var o=document.createElement('option');o.value=n;o.textContent=n;rp.appendChild(o);});
   if(typeof populateHeightSelect==='function') populateHeightSelect('r-height');
@@ -3155,6 +3495,36 @@ function backToLoginFromConfirm(){
 
 // ===== Supabase版：登録完了処理 =====
 /** 新規登録処理の本体。bot対策チェック→signUp→profiles INSERT→画像アップロード→画面遷移 */
+/** 登録ボタンのクリック入口。
+ *  何が起きても必ず画面に理由を出す（alert が無効化されていても見えるように）。
+ *  原因不明の「ボタンが押せない」を自己診断できるようにするためのラッパー。 */
+function safeCompleteReg(ev){
+  try{ if(ev){ ev.preventDefault(); ev.stopPropagation(); } }catch(e){}
+  // タップが届いたことを即座に画面へ出す。
+  // これが出ない＝ボタンが何かに覆われていてタップ自体が届いていない。
+  _regShowError('確認中…');
+  // 登録画面の表示中はアプリ画面を隠す（固定ナビ等がボタンに重なるのを防ぐ）
+  _regHideAppBehind();
+  try{
+    if(typeof completeReg !== 'function'){
+      _regShowError('内部エラー：登録処理が読み込まれていません（completeReg undefined）。\nページを再読み込みしてください。');
+      return;
+    }
+    // アフィリエイト切替モードに入ったままだと通常登録に進めないため解除
+    if(window._affiliateUpgrade && typeof upgradeAffiliateToNormal !== 'function'){
+      window._affiliateUpgrade = false;
+    }
+    var p = completeReg();
+    if(p && typeof p.catch === 'function'){
+      p.catch(function(err){
+        _regShowError('登録処理でエラーが発生しました：\n' + (err && err.message ? err.message : String(err)));
+      });
+    }
+  }catch(err){
+    _regShowError('登録処理でエラーが発生しました：\n' + (err && err.message ? err.message : String(err)));
+  }
+}
+
 async function completeReg() {
   // アフィリエイター→兼用化フロー: 新規サインアップ/INSERT ではなく既存プロフィールの UPDATE に委譲
   if(window._affiliateUpgrade && typeof upgradeAffiliateToNormal === 'function'){
@@ -3162,14 +3532,24 @@ async function completeReg() {
   }
   // bot 対策: honeypot + 表示〜送信時間 + クライアントレート制限
   // 登録は 30 分に 1 回まで（同じ端末からの連続登録を抑制）
+  // ★ localhost（開発・動作確認用）ではレート制限を外す。
+  //    本番(github.io)では従来どおり効く。テスト登録のたびに30分待たされるのを防ぐため。
+  var _isLocal = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
   const botReason = checkBotDefense({
     form: 'register',
     container: 'reg-wrap',
-    minMs: 3000,                         // 登録は項目が多いので 3 秒以上経過してから
-    rateKey: 'register',
-    rateMs: 30 * 60 * 1000,              // 30 分
+    minMs: _isLocal ? 0 : 3000,          // 登録は項目が多いので 3 秒以上経過してから
+    rateKey: _isLocal ? null : 'register',
+    rateMs: _isLocal ? null : 10 * 60 * 1000,   // 10 分（従来30分は長すぎて再登録できなかった）
   });
-  if(botReason){ alert(botReason); return; }
+  if(botReason){
+    // 「1800秒」のような分かりにくい表示を分単位に直す
+    _regShowError(botReason.replace(/(\d+) 秒ほど/, function(_, sec){
+      var m = Math.ceil(parseInt(sec, 10) / 60);
+      return (m >= 1 ? m + ' 分ほど' : sec + ' 秒ほど');
+    }));
+    return;
+  }
 
   const emailEl = document.getElementById('r-email');
   const passEl = document.getElementById('r-password');
@@ -3181,35 +3561,16 @@ async function completeReg() {
   const phoneRaw = toHalfWidth(phoneEl ? phoneEl.value : '').trim();
   const phone = phoneRaw.replace(/[-\s]/g, '');
 
-  if (!email || !password) {
-    alert('メールアドレスとパスワードを入力してください');
-    return;
-  }
-  if (password.length < 6) {
-    alert('パスワードは6文字以上にしてください');
-    return;
-  }
-  if (!phone) {
-    alert('電話番号を入力してください');
-    return;
-  }
-  if (!/^0\d{9,10}$/.test(phone)) {
-    alert('電話番号は0から始まる10〜11桁の数字で入力してください');
-    return;
-  }
-  // 必須プロフィール項目チェック（職業・年収・家・引越し・働き方）
-  if (!((document.getElementById('r-occupation')||{}).value||'').trim()) { alert('職業を入力してください'); return; }
-  if (!((document.getElementById('r-income')||{}).value||'')) { alert('年収を選択してください'); return; }
-  if (!((document.getElementById('r-living')||{}).value||'')) { alert('家（実家暮らし／一人暮らし）を選択してください'); return; }
-  if (!((document.getElementById('r-moving')||{}).value||'')) { alert('引越しの可否を選択してください'); return; }
-  if (!((document.getElementById('r-work-pref')||{}).value||'')) { alert('働き方の希望を選択してください'); return; }
+  // ===== 必須項目のまとめチェック =====
+  // 未入力の項目をすべて洗い出し、該当欄を赤枠で示したうえでまとめて知らせる
+  if (!checkRequiredFields({ email: email, password: password, phone: phone })) return;
 
   // 退会処分された電話番号かチェック（登録前）
   try {
     const { data: isBanned, error: banErr } = await supa.rpc('is_phone_banned', { p_phone: phone });
     if (banErr) { console.log('phone ban check error:', banErr); }
     if (isBanned === true) {
-      alert('この電話番号は登録できません。');
+      _regShowError('この電話番号は登録できません。');
       return;
     }
   } catch (e) {
@@ -3226,7 +3587,7 @@ async function completeReg() {
       options: { emailRedirectTo: redirectUrl },
     });
     if (error) {
-      alert('登録エラー：' + error.message);
+      _regShowError('登録エラー：' + error.message);
       console.log('登録エラー詳細:', error);
       return;
     }
@@ -3237,7 +3598,7 @@ async function completeReg() {
 
   currentUser = data.user;
   if (!currentUser) {
-    alert('登録に失敗しました。もう一度お試しください。');
+    _regShowError('登録に失敗しました。もう一度お試しください。');
     return;
   }
 
@@ -3391,14 +3752,25 @@ async function completeReg() {
   const { error: profileError } = await supa.from('profiles').insert(profileData);
 
   if (profileError) {
-    alert('プロフィール保存エラー：' + profileError.message);
+    _regShowError('プロフィール保存エラー：' + profileError.message);
     return;
   }
 
   // 登録成功 → レート制限ヒット記録
   recordRateLimitHit('register');
 
-  // 画面遷移：まずshowAppWrapでDOMを展開してから要素にアクセス
+  // ★ 本人確認（年齢確認）ページへ遷移。アプリ本体へは承認フロー後に入る
+  myKycStatus = 'none';
+  profileData.kyc_status = 'none';
+  window._profileModalData = profileData;
+  MY_PILLARS = savedPillars;
+  memberID = profileData.member_id;
+  mySex = profileData.sex || '';
+  myPlan = profileData.plan || 'total';
+  myCreatedAt = new Date().toISOString();
+  if (typeof openKycPage === 'function') { openKycPage(); return; }
+
+  // （フォールバック）本人確認モジュール未読込時は従来どおりアプリへ
   document.getElementById('reg-wrap').style.display = 'none';
   document.getElementById('orient-wrap').style.display = 'none';
   document.getElementById('login-wrap').style.display = 'none';
@@ -3421,7 +3793,7 @@ async function completeReg() {
   if (typeof applyPlanUI === 'function') applyPlanUI(myPlan);
   loadRealUsers();
   loadEnList();
-  } catch(e) { alert('登録中にエラーが発生しました：' + e.message); console.log('登録例外:', e); }
+  } catch(e) { _regShowError('登録中にエラーが発生しました：' + e.message); console.log('登録例外:', e); }
 }
 
 </script>
@@ -3883,6 +4255,9 @@ async function loadRealUsers() {
 
 // 表示価格（仮）。実際の課金フローは後日実装
 var TORISETSU_PRICE_LABEL = '¥369';
+// プレリリース期間：通常価格を二重線で消して「今だけ¥0！」表記にする
+// 通常運用に戻すときは TORISETSU_PRERELEASE_FREE = false にする
+var TORISETSU_PRERELEASE_FREE = true;
 
 // 六十干支別トリセツ本文。キーは '甲子'〜'癸亥'。
 // 例: TORISETSU_DATA['甲子'] = { likes: '…', dislikes: '…', approach: '…' };
@@ -4246,7 +4621,10 @@ async function loadTorisetsuSection(targetId, dayK, dayS, nickname){
     var h2 = '<div style="margin-bottom:12px;padding:12px;background:var(--color-background-secondary);border-radius:10px;text-align:center">';
     h2 += '<div style="font-size:12px;color:var(--color-text-primary);font-weight:500;margin-bottom:4px">📖 相手のプチトリセツ</div>';
     h2 += '<div style="font-size:11px;color:var(--color-text-secondary);line-height:1.7;margin-bottom:8px">本気で「この人と付き合いたい！」と思ったら。<br>四柱推命で見る、お相手の嬉しいこと・嫌なこと、アプローチ方法が分かります。</div>';
-    h2 += '<button class="btn-gold" onclick="buyTorisetsu()" style="display:inline-block;width:auto;padding:9px 22px;font-size:13px;margin-bottom:4px">プチトリセツを購入 ' + TORISETSU_PRICE_LABEL + '</button>';
+    var priceHtml = TORISETSU_PRERELEASE_FREE
+      ? '<span style="color:#333;text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;margin-right:6px">' + TORISETSU_PRICE_LABEL + '</span><span style="color:#e53935;font-weight:700">今だけ¥0！</span>'
+      : TORISETSU_PRICE_LABEL;
+    h2 += '<button class="btn-gold" onclick="buyTorisetsu()" style="display:inline-block;width:auto;padding:9px 22px;font-size:13px;margin-bottom:4px;line-height:1.6">プチトリセツを購入<br>' + priceHtml + '</button>';
     h2 += '</div>';
     el.innerHTML = h2;
   }
@@ -4256,7 +4634,10 @@ async function loadTorisetsuSection(targetId, dayK, dayS, nickname){
 async function buyTorisetsu(){
   if(!_torisetsuCtx || !currentUser) return;
   var ctx = _torisetsuCtx;
-  if(!confirm(ctx.nickname + 'さんのプチトリセツを購入しますか？\n価格：' + TORISETSU_PRICE_LABEL)) return;
+  var priceText = TORISETSU_PRERELEASE_FREE
+    ? TORISETSU_PRICE_LABEL + ' → 今だけ¥0！'
+    : TORISETSU_PRICE_LABEL;
+  if(!confirm(ctx.nickname + 'さんのプチトリセツを購入しますか？\n価格：' + priceText)) return;
   try{
     var r = await supa.rpc('purchase_torisetsu', { p_target: ctx.targetId });
     var result = r ? r.data : null;
@@ -4363,8 +4744,8 @@ function renderEnList(){
     }else if(s==='date_set' && item.partnerCoupleReq && !item.myCoupleReq){
       badgeBelowName = '「付き合いました！」申請✨';
       badgeLabel = '';
-    }else if(s==='approved' || s==='approved_by_me'){
-      // 承認系バッジは名前の横ではなく、改行して名前の下に詰めて表示
+    }else if(badgeLabel){
+      // ステータスバッジは名前の横ではなく、すべて改行して名前の下に詰めて表示
       badgeBelowName = badgeLabel;
       badgeLabel = '';
       badgeBelowTight = true;
@@ -5780,21 +6161,24 @@ async function loadEnList(){
 // ===== UI: その他（プラン・お問い合わせ・通知・サブメニュー・生まれの情報編集） =====
 
 // ===== プラン一覧（3つの月額プラン）を描画 =====
+// プレリリース期間：月額に二重線を引き、右側に「今だけ¥0！」を表示する
+// 通常運用に戻すときは PLANS_PRERELEASE_FREE = false にする
+var PLANS_PRERELEASE_FREE = true;
 const PLANS_INFO = {
   trial: {
     name: 'お試しプラン',
     price: 1693,
-    items: ['良縁率の高い方とのマッチング', 'メッセージのやり取り']
+    items: ['良縁率の高い方からご紹介', 'メッセージ最大100回', '命式の自動算出・登録']
   },
   no_matching: {
     name: 'NOマッチングプラン',
     price: 963,
-    items: ['気になる人との相性診断', '相性診断結果のメモ', 'あなた専用の運勢カレンダー']
+    items: ['気になる人との良縁率・相性診断', '良縁率・相性診断結果のメモ', 'あなた専用の運勢カレンダー', '命式の自動算出・登録']
   },
   total: {
     name: 'トータルプラン',
     price: 2369,
-    items: ['良縁率の高い方とのマッチング', 'メッセージのやり取り', '気になる人との相性診断', '相性診断結果のメモ', 'あなた専用の運勢カレンダー']
+    items: ['良縁率の高い方からご紹介', 'メッセージ最大100回', '気になる人との良縁率・相性診断', '良縁率・相性診断結果のメモ', 'あなた専用の運勢カレンダー', '命式の自動算出・登録']
   }
 };
 /** プラン一覧画面を現在の myPlan に応じて描画 */
@@ -5813,7 +6197,12 @@ function renderPlansList(){
     var changeBtn = isActive ? '' : '<div style="text-align:center;margin-top:.6rem;font-size:11px;color:#C9A96E;font-weight:500">このプランに変更する →</div>';
     html += '<div class="'+cardClass+'"'+clickAttr+'>';
     html += '<div class="other-plan-nm">'+nameHtml+'</div>';
-    html += '<div class="other-plan-price">¥ '+p.price.toLocaleString()+' <span class="other-plan-unit">/ 月</span></div>';
+    var priceInner = '¥ '+p.price.toLocaleString()+' <span class="other-plan-unit">/ 月</span>';
+    if(PLANS_PRERELEASE_FREE){
+      priceInner = '<span style="text-decoration:line-through;-webkit-text-decoration-line:line-through;-webkit-text-decoration-style:double;text-decoration-line:line-through;text-decoration-style:double;">¥ '+p.price.toLocaleString()+' <span class="other-plan-unit">/ 月</span></span>'
+                 + '<span style="color:#e53935;font-weight:700;font-size:20px;margin-left:8px">今だけ¥0</span>';
+    }
+    html += '<div class="other-plan-price">'+priceInner+'</div>';
     html += '<div class="other-plan-items">'+itemsHtml+'</div>';
     html += changeBtn;
     html += '</div>';
@@ -11809,6 +12198,345 @@ async function vrAnswerSurvey(postId, idx){
 
 </script>
 <script>
+// ===== 本人確認（年齢確認）KYC =====
+// 新規登録の最後に書類提出ステップを挟み、運営が承認するまで
+// マッチング系の操作をロックする（閲覧とプロフィール編集は可）。
+// 将来 eKYC サービスに差し替える場合も、submit_kyc / review_kyc の
+// 2つのRPCと kyc_status の 4状態（none/pending/approved/rejected）を保てば
+// アプリ側のロック処理はそのまま使える。
+
+// 書類タイプごとの表示設定
+var KYC_DOC_INFO = {
+  license:  { label: '運転免許証（または運転経歴証明書）', needBack: true,
+              note: 'おもて面・うら面の両方をご提出ください。うら面に記載事項の変更がある場合も必ず撮影してください。' },
+  mynumber: { label: 'マイナンバーカード（表面のみ）', needBack: false,
+              note: '★ 表面（顔写真のある面）のみご提出ください。個人番号が記載された裏面は絶対に撮影・提出しないでください。' },
+  passport: { label: 'パスポート（日本国発行の旅券）', needBack: false,
+              note: '顔写真と氏名・生年月日が記載されたページをご提出ください。' }
+};
+
+// 選択された画像（送信までメモリ保持）
+var kycFiles = { front: null, back: null, selfie: null };
+
+/** 書類タイプ変更時：うら面の要否と注意書きを切り替える */
+function updateKycDocType(){
+  var t = (document.getElementById('kyc-doc-type') || {}).value || '';
+  var info = KYC_DOC_INFO[t];
+  var noteEl = document.getElementById('kyc-doc-note');
+  var backCol = document.getElementById('kyc-back-col');
+  var frontLabel = document.getElementById('kyc-front-label');
+  if(!info){
+    if(noteEl) noteEl.style.display = 'none';
+    if(backCol) backCol.style.display = 'none';
+    return;
+  }
+  if(noteEl){ noteEl.textContent = info.note; noteEl.style.display = 'block'; }
+  if(backCol) backCol.style.display = info.needBack ? '' : 'none';
+  if(frontLabel){
+    frontLabel.innerHTML = (t === 'passport' ? '顔写真のページ' : 'おもて面') + ' <span style="color:#C05050">*</span>';
+  }
+  // うら面不要の書類に切り替えたら、選択済みのうら面は破棄
+  if(!info.needBack){ kycFiles.back = null; _kycResetSlot('back'); }
+}
+
+/** スロットを未選択状態に戻す */
+function _kycResetSlot(kind){
+  var slot = document.getElementById('kyc-' + kind + '-slot');
+  if(!slot) return;
+  slot.style.backgroundImage = '';
+  slot.style.border = '1px dashed var(--color-border-tertiary)';
+  slot.innerHTML = '＋<br>タップで撮影・選択';
+}
+
+/** 画像を選択してプレビュー表示 @param {'front'|'back'|'selfie'} kind */
+function pickKycImage(kind){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  // ★ capture 属性は付けない：iOSではカメラが強制起動し、
+  //    写真ライブラリから選べない／カメラ権限が無いとタップしても無反応になるため。
+  //    付けない場合は「写真を撮る / フォトライブラリ / ファイルを選択」が選べる。
+  // ★ Safari は DOM に接続されていない input だとファイル選択が開かないため一時的に挿入する
+  input.style.cssText = 'position:fixed;left:-9999px;width:1px;height:1px;opacity:0';
+  input.setAttribute('data-kyc-picker', '1');
+  // ★ body 直下に置くとクリックガードに弾かれるため、本人確認ページの中に入れる
+  (document.getElementById('kyc-wrap') || document.body).appendChild(input);
+  var _cleanup = function(){ if(input.parentNode) input.parentNode.removeChild(input); };
+  input.onchange = function(ev){
+    setTimeout(_cleanup, 0);
+    var file = ev.target.files ? ev.target.files[0] : null;
+    if(!file) return;
+    if(file.size > 10 * 1024 * 1024){ alert('画像サイズは 10MB 以内にしてください'); return; }
+    kycFiles[kind] = file;
+    var slot = document.getElementById('kyc-' + kind + '-slot');
+    var reader = new FileReader();
+    reader.onload = function(e){
+      if(!slot) return;
+      slot.innerHTML = '';
+      slot.style.backgroundImage = 'url(' + e.target.result + ')';
+      slot.style.border = '1px solid #C9A96E';
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+  // 選択されずキャンセルされた場合に備えて後片付け（onchange が来れば先に消える）
+  setTimeout(_cleanup, 120000);
+}
+
+/** 画像を圧縮する。失敗・15秒でタイムアウトした場合は元ファイルをそのまま使う。
+ *  ★ compressImage は HEIC や巨大画像で onload / onerror のどちらも発火せず
+ *     Promise が永久に解決しないことがあり、ボタンが「送信中...」のまま固まるため */
+function _kycCompressSafe(file){
+  if(typeof compressImage !== 'function') return Promise.resolve(file);
+  return new Promise(function(resolve){
+    var done = false;
+    var timer = setTimeout(function(){
+      if(done) return; done = true;
+      console.log('kyc: compressImage timeout → 元ファイルを使用');
+      resolve(file);
+    }, 15000);
+    compressImage(file, { maxSide: 1600, quality: 0.9 }).then(function(blob){
+      if(done) return; done = true; clearTimeout(timer);
+      resolve(blob || file);
+    }).catch(function(e){
+      if(done) return; done = true; clearTimeout(timer);
+      console.log('kyc: compressImage failed → 元ファイルを使用', e);
+      resolve(file);
+    });
+  });
+}
+
+/** 本人確認書類を提出（Storage アップロード → submit_kyc RPC） */
+async function submitKyc(){
+  var errEl = document.getElementById('kyc-error');
+  var btn = document.getElementById('kyc-submit-btn');
+  if(errEl) errEl.textContent = '';
+  if(!currentUser){ if(errEl) errEl.textContent = 'ログインが必要です'; return; }
+
+  var docType = (document.getElementById('kyc-doc-type') || {}).value || '';
+  var info = KYC_DOC_INFO[docType];
+  if(!info){ if(errEl) errEl.textContent = 'ご提出の書類を選択してください'; return; }
+  if(!kycFiles.front){ if(errEl) errEl.textContent = '書類の画像をご提出ください'; return; }
+  if(info.needBack && !kycFiles.back){ if(errEl) errEl.textContent = '運転免許証はうら面もご提出ください'; return; }
+  if(!kycFiles.selfie){ if(errEl) errEl.textContent = '書類を持った自撮り写真をご提出ください'; return; }
+
+  if(btn){ btn.disabled = true; btn.textContent = '送信中...'; }
+  if(errEl) errEl.style.color = '';
+  try{
+    var stamp = Date.now();
+    var paths = {};
+    var kinds = info.needBack ? ['front','back','selfie'] : ['front','selfie'];
+    for(var i = 0; i < kinds.length; i++){
+      var kind = kinds[i];
+      if(btn) btn.textContent = '送信中... (' + (i + 1) + '/' + kinds.length + ')';
+      var blob = await _kycCompressSafe(kycFiles[kind]);
+      var path = currentUser.id + '/' + stamp + '_' + kind + '.jpg';
+      var up = await supa.storage.from('kyc-docs').upload(path, blob, {
+        upsert: true, contentType: 'image/jpeg', cacheControl: '0'
+      });
+      if(up.error){
+        if(errEl) errEl.textContent = '画像のアップロードに失敗しました：' + up.error.message;
+        if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+        return;
+      }
+      paths[kind] = path;
+    }
+
+    var r = await supa.rpc('submit_kyc', {
+      p_doc_type: docType,
+      p_front_path: paths.front,
+      p_back_path: paths.back || '',
+      p_selfie_path: paths.selfie
+    });
+    if(r && r.error){
+      if(errEl) errEl.textContent = '送信に失敗しました：' + r.error.message;
+      if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+      return;
+    }
+    var res = r ? r.data : null;
+    if(res !== 'ok' && res !== 'already_approved'){
+      if(errEl) errEl.textContent = '送信に失敗しました（' + (res || '不明なエラー') + '）';
+      if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+      return;
+    }
+
+    myKycStatus = 'pending';
+    kycFiles = { front: null, back: null, selfie: null };
+    if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+    document.getElementById('kyc-wrap').style.display = 'none';
+    var appEl = document.getElementById('app-wrap');
+    if(appEl) appEl.style.display = 'none';
+    document.getElementById('kyc-pending-wrap').style.display = 'flex';
+  }catch(e){
+    console.log('submitKyc error:', e);
+    if(errEl) errEl.textContent = '送信中にエラーが発生しました';
+    if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+  }
+}
+
+/** 登録完了 → 本人確認ページを開く */
+function openKycPage(){
+  ['reg-wrap','orient-wrap','login-wrap','plan-select-wrap','kyc-pending-wrap'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
+  // アプリ画面が開いていれば隠す（下に透けて見えるのを防ぐ）
+  var app = document.getElementById('app-wrap');
+  _kycCameFromApp = !!(app && app.style.display !== 'none');
+  if(app) app.style.display = 'none';
+  // アプリから来た場合のみ「戻る」を表示
+  var back = document.getElementById('kyc-back-btn');
+  if(back) back.style.display = _kycCameFromApp ? '' : 'none';
+  // 右側に同じ幅のスペーサーを入れてタイトルを中央に保つ
+  var spacer = document.getElementById('kyc-hd-spacer');
+  if(spacer) spacer.style.display = _kycCameFromApp ? '' : 'none';
+  resetKycForm();
+  var w = document.getElementById('kyc-wrap');
+  if(w) w.style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+/** 提出フォームを初期状態に戻す（再提出・再表示のたびに呼ぶ）
+ *  ★ 提出成功後はボタンが disabled + 「送信中...」のまま残るため、
+ *     これを呼ばないと再提出時にタップしても無反応になる */
+function resetKycForm(){
+  var btn = document.getElementById('kyc-submit-btn');
+  if(btn){ btn.disabled = false; btn.textContent = '本人確認書類を提出する'; }
+  var errEl = document.getElementById('kyc-error');
+  if(errEl) errEl.textContent = '';
+  kycFiles = { front: null, back: null, selfie: null };
+  ['front','back','selfie'].forEach(_kycResetSlot);
+  var sel = document.getElementById('kyc-doc-type');
+  if(sel){ sel.value = ''; }
+  updateKycDocType();
+}
+
+// アプリ画面から本人確認を開いたか（「戻る」の出し分け用）
+var _kycCameFromApp = false;
+
+/** 本人確認ページを閉じてアプリへ戻る */
+function closeKycPage(){
+  var w = document.getElementById('kyc-wrap');
+  if(w) w.style.display = 'none';
+  if(typeof showAppWrap === 'function') showAppWrap();
+  if(typeof applyKycLock === 'function') applyKycLock();
+  window.scrollTo(0, 0);
+}
+
+/** 「アプリへ進む」→ 審査中の状態でアプリに入る */
+function enterAppFromKyc(){
+  var p = document.getElementById('kyc-pending-wrap');
+  if(p) p.style.display = 'none';
+  if(typeof showAppWrap === 'function') showAppWrap();
+  if(window._profileModalData && typeof populateProfileModal === 'function'){
+    populateProfileModal(window._profileModalData);
+  }
+  if(typeof applyKycLock === 'function') applyKycLock();
+  if(typeof loadRealUsers === 'function') loadRealUsers();
+  if(typeof loadEnList === 'function') loadEnList();
+}
+
+// ===== 未承認ユーザーの操作ロック =====
+// 推し/縁リスト/メッセージ等は「見える」が「押せない」。
+// 自分のアイコン（マイプロフィール）だけは押せる＝写真・プロフィール編集は可能。
+
+/** 本人確認ステータスをDBから取り直し、変化があれば画面のロックを即時更新する。
+ *  運営の承認/却下が届いた瞬間に呼ばれ、再読み込みなしで操作可能になる。 */
+async function refreshKycStatus(){
+  if(!currentUser || !supa) return;
+  try{
+    var r = await supa.from('profiles').select('kyc_status').eq('id', currentUser.id).single();
+    if(r.error || !r.data) return;
+    var next = r.data.kyc_status || 'approved';
+    if(next === myKycStatus) return;          // 変化なし
+    var wasLocked = isKycLocked();
+    myKycStatus = next;
+    applyKycLock();
+    // ロックが外れたら、押せるようになった一覧を読み直す
+    if(wasLocked && !isKycLocked()){
+      if(typeof loadRealUsers === 'function') loadRealUsers();
+      if(typeof loadEnList === 'function') loadEnList();
+      if(typeof applyPlanUI === 'function' && typeof myPlan !== 'undefined') applyPlanUI(myPlan);
+    }
+  }catch(e){ console.log('refreshKycStatus error:', e); }
+}
+
+/** 未承認（＝ロック対象）かどうか */
+function isKycLocked(){
+  return (typeof myKycStatus !== 'undefined') && myKycStatus !== 'approved';
+}
+
+/** ロック時に表示するアラート */
+function showKycLockedAlert(){
+  if(myKycStatus === 'pending'){
+    alert('本人確認の確認中です。\n運営の承認が完了するまで、この操作はご利用いただけません。\n\n※ メッセージの確認・プロフィールの編集・写真の追加はご利用いただけます。');
+  }else if(myKycStatus === 'rejected'){
+    alert('本人確認書類の再提出をお願いしております。\n「その他」→「本人確認」からご提出ください。');
+  }else{
+    alert('ご利用には本人確認（年齢確認）が必要です。\n「その他」→「本人確認」からご提出ください。');
+  }
+}
+
+/** アプリ画面に未承認ロックを適用（バナー表示＋タップ抑止） */
+function applyKycLock(){
+  // 未承認のときだけ「その他」メニューに【本人確認】を出す
+  var menuItem = document.getElementById('sub-item-kyc');
+  if(menuItem) menuItem.style.display = isKycLocked() ? '' : 'none';
+  var banner = document.getElementById('kyc-lock-banner');
+  if(!isKycLocked()){
+    if(banner) banner.remove();
+    document.body.classList.remove('kyc-locked');
+    return;
+  }
+  document.body.classList.add('kyc-locked');
+
+  // 画面上部に状態バナーを出す
+  var app = document.getElementById('app-wrap');
+  if(app && !banner){
+    banner = document.createElement('div');
+    banner.id = 'kyc-lock-banner';
+    banner.style.cssText = 'position:sticky;top:0;z-index:50;background:rgba(229,57,53,.08);border-bottom:0.5px solid rgba(229,57,53,.3);color:#C05050;font-size:11px;line-height:1.7;padding:7px 12px;text-align:center';
+    app.insertBefore(banner, app.firstChild);
+  }
+  if(banner){
+    banner.innerHTML = (myKycStatus === 'pending')
+      ? '🔍 本人確認を確認中です。承認まで一部機能はご利用いただけません（メッセージ・プロフィール編集は可能です）'
+      : (myKycStatus === 'rejected')
+        ? '⚠️ 本人確認書類の再提出をお願いしております　<span style="text-decoration:underline;cursor:pointer" onclick="openKycPage()">再提出する</span>'
+        : '⚠️ ご利用には本人確認が必要です　<span style="text-decoration:underline;cursor:pointer" onclick="openKycPage()">本人確認へ進む</span>';
+  }
+}
+
+/** ロック中のクリックを握りつぶす（キャプチャ段階で止める）
+ *  許可するもの: 自分のアイコン／プロフィールモーダル内の操作／バナー内のリンク／その他タブのサブメニュー
+ */
+function _kycClickGuard(e){
+  if(!isKycLocked()) return;
+  var t = e.target;
+  if(!t || !t.closest) return;
+  // 許可リスト
+  if(t.closest('#profile-modal')) return;        // マイプロフィール（写真・プロフィール編集）
+  if(t.closest('#topbar-ava-wrap')) return;      // 上部の自分アイコン
+  if(t.closest('.topbar')) return;               // 上部バー全体（ロゴ・アイコン）
+  if(t.closest('#kyc-lock-banner')) return;      // バナーの「再提出する」
+  if(t.closest('#kyc-wrap')) return;             // 本人確認ページ自体
+  if(t.closest('#kyc-pending-wrap')) return;     // 提出完了画面の「アプリへ進む」
+  if(t.getAttribute && t.getAttribute('data-kyc-picker')) return;  // 本人確認の画像選択
+  if(t.closest('#login-wrap, #plan-select-wrap, #orient-wrap, #reg-wrap, #email-confirm-wrap')) return;  // 登録・ログイン系の画面
+  if(t.closest('#birth-edit-modal, #mk-edit-modal, #profile-text-edit-modal, #bank-edit-modal, #interest-edit-modal')) return;
+  if(t.closest('.bottom-nav, .bni, .ntab, .other-tab-btn')) return;  // タブ移動は許可（閲覧はできる）
+  if(t.closest('#s2')) return;                   // メッセージタブ（運営からの不備連絡を読むため全面許可）
+  if(t.closest('#s3')) return;                   // その他タブ内（お問い合わせ・プラン等）は許可
+
+  // それ以外（推しカード・縁リストの操作・メッセージ送信など）はブロック
+  e.preventDefault();
+  e.stopPropagation();
+  showKycLockedAlert();
+}
+document.addEventListener('click', _kycClickGuard, true);
+
+</script>
+<script>
 // ===== アプリ初期化・タブ切替・ログイン =====
 // goTab(i) — i は意味的インデックス（0:推し / 1:縁リスト / 2:メッセージ / 3:その他）
 // NOマッチングなどでDOMの並び順が変わってもタブは data-tab 属性で正しく識別される
@@ -12100,10 +12828,12 @@ async function loadMyGraduationStatus(){
   if(!currentUser){ myIsGraduated = false; myIsVoiceMember = false; return; }
   try{
     const { data, error } = await supa.from('profiles')
-      .select('graduated_at, voice_transfer_at').eq('id', currentUser.id).single();
+      .select('graduated_at, voice_transfer_at, kyc_status').eq('id', currentUser.id).single();
     if(error){ console.log('graduation status load error:', error); return; }
     myIsGraduated = !!(data && data.graduated_at);
     myIsVoiceMember = !!(data && (data.graduated_at || data.voice_transfer_at));
+    myKycStatus = (data && data.kyc_status) ? data.kyc_status : 'approved';
+    if(typeof applyKycLock === 'function') applyKycLock();
   }catch(e){ console.log('graduation status exception:', e); }
 }
 
@@ -12431,6 +13161,10 @@ function startPolling() {
       loadEnList();
       loadOfficialChatHistory();
       loadMyCashbacks();
+      // 本人確認の承認状況も見張る（Realtimeが届かない環境でも最大10秒で解除される）
+      if (typeof refreshKycStatus === 'function' && typeof isKycLocked === 'function' && isKycLocked()) {
+        refreshKycStatus();
+      }
       // プランページが開かれていれば卒業申請の最新状態を反映
       var planVisible = document.getElementById('sub-plan');
       if (planVisible && planVisible.style.display !== 'none' && typeof refreshSotsugyouState === 'function') {
@@ -12469,6 +13203,11 @@ function startRealtime() {
         if(payload.eventType === 'INSERT'
            && (row.contact_type === '退会処分通知' || row.contact_type === '退会承認通知')){
           if(typeof showWithdrawalNoticeModal === 'function') showWithdrawalNoticeModal(row);
+        }
+        // 本人確認の承認/却下は運営通知として届く → 届いた時点でロック状態を即更新
+        if(payload.eventType === 'INSERT' && row.contact_type === '運営通知'
+           && typeof refreshKycStatus === 'function'){
+          refreshKycStatus();
         }
       }
     )
@@ -12735,6 +13474,7 @@ async function checkSession() {
       checkPendingWithdrawalNotice();
     } else {
       document.getElementById('orient-wrap').style.display = 'none';
+      if(typeof _regHideAppBehind === 'function') _regHideAppBehind();
       document.getElementById('reg-wrap').style.display = 'block';
       markFormShown('register');
       applyHoneypot('reg-wrap');
